@@ -6,7 +6,7 @@ use ieee.numeric_std.all;
 
 entity PWM_GENERATOR is 
 	Generic(
-		pwm_setting : integer := 230
+		pwm_setting : integer := 64
     );
 	Port( 
 		clk : in STD_LOGIC; 

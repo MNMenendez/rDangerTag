@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    09:38:38 05/02/2023 
+-- Create Date:    14:27:43 05/01/2023 
 -- Design Name: 
--- Module Name:    DUMMY_MODULE - Behavioral 
+-- Module Name:    POWER - POWER_FUNC 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+library work;
+use work.Utilities.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -29,15 +31,23 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity DUMMY_MODULE is
-    Port ( TBD_I : in  STD_LOGIC;
-           TBD_O : out  STD_LOGIC);
-end DUMMY_MODULE;
+entity power_module is
+    Port ( POWER_MODE : in  STD_LOGIC;
+           POWER_STATE : out  power_states);
+end power_module;
 
-architecture DUMMY_FUNC of DUMMY_MODULE is
+architecture power_func of power_module is
 
 begin
 
+POWER_PROCESS: process (POWER_MODE) is
+begin
+	if (POWER_MODE = '0') then
+		POWER_STATE <= POWER_OFF;
+	else
+		POWER_STATE <= POWER_ON;
+	end if;
+end process;
 
-end DUMMY_FUNC;
+end power_func;
 

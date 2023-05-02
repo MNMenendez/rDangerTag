@@ -1,7 +1,9 @@
 <testsuites name="results">
   <testsuite name="all" package="all">
-    <property name="random_seed" value="1682985045" />
-    <testcase name="adder_basic_test" classname="test_adder" file="/home/martin/Documents/cocotb-master/examples/eDangerTag/tests/test_adder.py" lineno="17" time="0.0006337165832519531" sim_time_ns="2.000001" ratio_time="3155.986529083522" />
-    <testcase name="adder_randomised_test" classname="test_adder" file="/home/martin/Documents/cocotb-master/examples/eDangerTag/tests/test_adder.py" lineno="34" time="0.001260519027709961" sim_time_ns="20.000000999999997" ratio_time="15866.480838718364" />
+    <property name="random_seed" value="1683001687" />
+    <testcase name="TBD_rising_test" classname="test_dummy" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_dummy.py" lineno="16" time="0.0004994869232177734" sim_time_ns="4.000001" ratio_time="8008.2196631522675" />
+    <testcase name="TBD_falling_test" classname="test_dummy" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_dummy.py" lineno="30" time="0.00030231475830078125" sim_time_ns="4.000001" ratio_time="13231.246210018928" />
+    <testcase name="power_rising_test" classname="test_power" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_power.py" lineno="16" time="0.0003132820129394531" sim_time_ns="4.000000999999999" ratio_time="12768.051898252661" />
+    <testcase name="power_falling_test" classname="test_power" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_power.py" lineno="30" time="0.00024771690368652344" sim_time_ns="4.000001000000001" ratio_time="16147.468906933595" />
   </testsuite>
 </testsuites>

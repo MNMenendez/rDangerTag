@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: CC0-1.0
 
 
-def adder_model(a: int, b: int) -> int:
-    """model of adder"""
-    return a + b
+def dummy_model(tbd_i: int) -> int:
+    """model of dummy"""
+    return tbd_i

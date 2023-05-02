@@ -1,4 +1,12 @@
 v 4
-file / "/home/martin/Documents/cocotb-master/examples/eDangerTag/tests/../hdl/adder.vhdl" "b9e4ed8f3ec5389b7b505f03b876e7a64bffb816" "20230501235045.737":
-  entity adder at 4( 126) + 0 on 11;
-  architecture rtl of adder at 17( 429) + 0 on 12;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/utilities.vhdl" "b369f9e0429c173bf6a258afaf9bae40a053e2b7" "20230502042807.139":
+  package utilities at 4( 126) + 0 on 11;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/power_module.vhdl" "ffd45a62b2061886c2af7e93d3d836837d225f39" "20230502042807.139":
+  entity power_module at 20( 465) + 0 on 14;
+  architecture power_func of power_module at 39( 965) + 0 on 15;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/dummy_module.vhdl" "83c7a897e88f3145b1a01bc4e87de55d1be32fb1" "20230502042807.139":
+  entity dummy_module at 20( 472) + 0 on 16;
+  architecture dummy_func of dummy_module at 37( 920) + 0 on 17;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/general.vhdl" "e714d85134f0b75918c729bd31575931474d6e2f" "20230502042807.139":
+  entity general at 22( 1011) + 0 on 12;
+  architecture behavioral of general at 61( 2208) + 0 on 13;

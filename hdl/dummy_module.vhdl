@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    14:27:43 05/01/2023 
+-- Create Date:    09:38:38 05/02/2023 
 -- Design Name: 
--- Module Name:    POWER - POWER_FUNC 
+-- Module Name:    DUMMY_MODULE - Behavioral 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -29,15 +29,16 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity POWER_MODULE is
-    Port ( PWR : in  STD_LOGIC;
-           PWR_STATE : out  STD_LOGIC);
-end POWER_MODULE;
+entity dummy_module is
+    Port ( TBD_I : in  STD_LOGIC;
+           TBD_O : out  STD_LOGIC);
+end dummy_module;
 
-architecture POWER_FUNC of POWER_MODULE is
+architecture dummy_func of dummy_module is
 
 begin
 
+TBD_O <= TBD_I;
 
-end POWER_FUNC;
+end dummy_func;
 

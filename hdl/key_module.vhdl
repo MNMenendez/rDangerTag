@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+library work;
+use work.Utilities.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -29,19 +31,41 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity KEY_MODULE is
+entity key_module is
     Port ( KEY : in  STD_LOGIC;
            KEY_A_I : in  STD_LOGIC;
            KEY_B_I : in  STD_LOGIC;
            KEY_A_O : out  STD_LOGIC;
            KEY_B_O : out  STD_LOGIC;
-           MODE_STATE : out  STD_LOGIC_VECTOR (1 downto 0));
-end KEY_MODULE;
+           MODE_STATE : out  mode_states);
+end key_module;
 
-architecture KEY_FUNC of KEY_MODULE is
+architecture key_func of key_module is
 
 begin
 
-
-end KEY_FUNC;
+	MODE_PROCESS: process (KEY,KEY_A_I,KEY_B_I) is
+	begin	
+		if (KEY = '0') then
+			MODE_STATE <= REMOTE;
+		else
+			if (KEY_A_I = '0' and KEY_B_I = '0') then
+				MODE_STATE <= REMOTE;
+			end if;
+			if (KEY_A_I = '0' and KEY_B_I = '1') then
+				MODE_STATE <= LOCAL_APPLY;
+			end if;
+			if (KEY_A_I = '1' and KEY_B_I = '0') then
+				MODE_STATE <= LOCAL_REMOVE;
+			end if;
+			if (KEY_A_I = '1' and KEY_B_I = '1') then
+				MODE_STATE <= MODE_ERROR;
+			end if;
+		end if;
+	end process;
+	
+	KEY_A_O <= KEY_A_I;
+	KEY_B_O <= KEY_B_I;
+	
+end key_func;
 

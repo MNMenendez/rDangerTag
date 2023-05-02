@@ -39,8 +39,9 @@ VHDL_SOURCES += $(PWD)/../hdl/utilities.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/general.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/dummy_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/power_module.vhdl
+VHDL_SOURCES += $(PWD)/../hdl/key_module.vhdl
 
 TOPLEVEL := general
-MODULE ?= test_dummy,test_power
+MODULE ?= test_dummy,test_power,test_key
 
 include $(shell cocotb-config --makefiles)/Makefile.sim

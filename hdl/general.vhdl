@@ -59,7 +59,7 @@ entity General is
 end General;
 
 architecture BEHAVIORAL of General is
-   signal XLXN_21	: std_logic_vector (1 downto 0);
+   signal MODE_SIGNAL	: mode_states;
    signal POWER_SIGNAL	: power_states;
    signal XLXN_88	: std_logic_vector (1 downto 0);
    signal XLXN_89	: std_logic_vector (1 downto 0);
@@ -72,6 +72,15 @@ architecture BEHAVIORAL of General is
            POWER_STATE : out  power_states);
    end component;
    
+   component key_module is
+    Port ( KEY : in  STD_LOGIC;
+           KEY_A_I : in  STD_LOGIC;
+           KEY_B_I : in  STD_LOGIC;
+           KEY_A_O : out  STD_LOGIC;
+           KEY_B_O : out  STD_LOGIC;
+           MODE_STATE : out  mode_states);
+   end component;
+
    component dummy_module
       port ( TBD_I    : in    std_logic;  
              TBD_O    : out   std_logic);
@@ -81,6 +90,14 @@ begin
    XLXI_9 : power_module
       port map (POWER_MODE	=>	POWER_MODE,
                 POWER_STATE	=>	POWER_SIGNAL);
+   
+   XLXI_12 : key_module
+   	  port map (KEY						=> KEY,
+   	  			KEY_A_I					=> KEY_A_I,
+   	  			KEY_B_I					=> KEY_B_I,
+   	  			KEY_A_O					=> KEY_A_O,
+   	  			KEY_B_O					=> KEY_B_O,
+   	  			MODE_STATE  			=> MODE_SIGNAL);
    
    XLXI_34 : dummy_module
       port map (TBD_I	=>	TBD_I,

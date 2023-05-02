@@ -1,15 +1,18 @@
 v 4
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/utilities.vhdl" "30dba8c31cb3e5cdc821a5640808e2768f06bd04" "20230502060302.887":
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/utilities.vhdl" "30dba8c31cb3e5cdc821a5640808e2768f06bd04" "20230502063529.969":
   package utilities at 4( 126) + 0 on 11;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/power_module.vhdl" "ffd45a62b2061886c2af7e93d3d836837d225f39" "20230502060302.887":
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/power_module.vhdl" "ffd45a62b2061886c2af7e93d3d836837d225f39" "20230502063529.969":
   entity power_module at 20( 465) + 0 on 14;
   architecture power_func of power_module at 39( 965) + 0 on 15;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/dummy_module.vhdl" "83c7a897e88f3145b1a01bc4e87de55d1be32fb1" "20230502060302.887":
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/dummy_module.vhdl" "83c7a897e88f3145b1a01bc4e87de55d1be32fb1" "20230502063529.969":
   entity dummy_module at 20( 472) + 0 on 18;
   architecture dummy_func of dummy_module at 37( 920) + 0 on 19;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/general.vhdl" "5269708f36afa2f2ade5aa70294338670307fe77" "20230502060302.887":
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/general.vhdl" "5269708f36afa2f2ade5aa70294338670307fe77" "20230502063529.969":
   entity general at 22( 1011) + 0 on 12;
   architecture behavioral of general at 61( 2208) + 0 on 13;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/key_module.vhdl" "e7707123a8606efeb9d8e0e410af893c146e5591" "20230502060302.887":
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/key_module.vhdl" "e7707123a8606efeb9d8e0e410af893c146e5591" "20230502063529.969":
   entity key_module at 20( 470) + 0 on 16;
   architecture key_func of key_module at 43( 1103) + 0 on 17;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/sensor_module.vhdl" "d51e62e5d3773b52b661e6550ac7e324d863679a" "20230502061557.731":
+  entity sensor_module at 20( 474) + 0 on 4;
+  architecture sensor_func of sensor_module at 42( 1103) + 0 on 4;

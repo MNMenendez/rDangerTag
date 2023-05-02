@@ -11,9 +11,7 @@ from cocotb.runner import get_runner
 from cocotb.triggers import Timer
 
 if cocotb.simulator.is_running():
-    from models import enum,key_model
-
-Modes = enum('ERROR_MODE','REMOTE','LOCAL_APPLY','LOCAL_REMOVE')
+    from models import enum,Modes,key_model
 
 @cocotb.test()
 async def key_not_used_test(dut):
@@ -21,7 +19,8 @@ async def key_not_used_test(dut):
         
     KEY = False
     dut.KEY.value = KEY
-    await Timer(2, units="ns")     
+    await Timer(2, units="ns")  
+    print(dut.KEY_A_I.value, dut.KEY_B_I.value,dut.MODE_SIGNAL.value, key_model(KEY))
     assert dut.MODE_SIGNAL.value == Modes.REMOTE, f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.REMOTE}'
 
 @cocotb.test()

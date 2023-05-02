@@ -1,0 +1,7 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1682985045" />
+    <testcase name="adder_basic_test" classname="test_adder" file="/home/martin/Documents/cocotb-master/examples/eDangerTag/tests/test_adder.py" lineno="17" time="0.0006337165832519531" sim_time_ns="2.000001" ratio_time="3155.986529083522" />
+    <testcase name="adder_randomised_test" classname="test_adder" file="/home/martin/Documents/cocotb-master/examples/eDangerTag/tests/test_adder.py" lineno="34" time="0.001260519027709961" sim_time_ns="20.000000999999997" ratio_time="15866.480838718364" />
+  </testsuite>
+</testsuites>

@@ -1,0 +1,4 @@
+v 4
+file / "/home/martin/Documents/cocotb-master/examples/eDangerTag/tests/../hdl/adder.vhdl" "b9e4ed8f3ec5389b7b505f03b876e7a64bffb816" "20230501235045.737":
+  entity adder at 4( 126) + 0 on 11;
+  architecture rtl of adder at 17( 429) + 0 on 12;

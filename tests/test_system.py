@@ -9,24 +9,27 @@ from pathlib import Path
 import cocotb
 from cocotb.runner import get_runner
 from cocotb.triggers import Timer
+from cocotb.types import Bit, Logic
 
 if cocotb.simulator.is_running():
-    from models import enum,Powers,power_model
-    
+    from models import enum,Powers,Modes,Sensors,Commands,Systems,Rights,system_model
+
 @cocotb.test()
-async def power_mode_test(dut):
-    """Test power"""
+async def system_power_off_test(dut):
+    """If power is off: system running on battery expected"""
+            
+    await Timer(2, units="ns")
+    print(f'{dut.POWER_SIGNAL.value}|{dut.MODE_SIGNAL.value}|{dut.COMMAND_SIGNAL.value}|{dut.SENSOR_SIGNAL.value}  > {dut.SYSTEM_SIGNAL.value} | {dut.OK_SIGNAL.value} & {system_model(Powers.POWER_OFF)}')
+    assert ([dut.SYSTEM_SIGNAL.value,dut.OK_SIGNAL.value] == system_model(Powers.POWER_OFF)), f'result is incorrect: [{dut.SYSTEM_SIGNAL.value},{dut.OK_SIGNAL.value}] ! {system_model(Powers.POWER_OFF)}'
 
-    POWER_MODE = (False,True,False,True,False)
-    
-    for i in range(len(POWER_MODE)):
-        dut.POWER_MODE.value = POWER_MODE[i]
-        await Timer(2, units="ns")
-        print(f'Power {"Connected" if dut.POWER_MODE.value else "Disconnected"} > {Powers(power_model(POWER_MODE[i])).name}')
-        assert dut.POWER_SIGNAL.value == power_model(POWER_MODE[i]), f'result is incorrect: {dut.POWER_SIGNAL.value} != {dut.POWER_MODE.value}'    
 
-def test_power_runner():
-    """Simulate the power example using the Python runner.
+
+
+
+
+
+def test_system_runner():
+    """Simulate the key example using the Python runner.
 
     This file can be run directly or via pytest discovery.
     """
@@ -41,9 +44,9 @@ def test_power_runner():
     vhdl_sources = []
 
     if hdl_toplevel_lang == "verilog":
-        verilog_sources = [proj_path / "hdl" / "power_module.sv"]
+        verilog_sources = [proj_path / "hdl" / "system_module.sv"]
     else:
-        vhdl_sources = [proj_path / "hdl" / "power_module.vhdl"]
+        vhdl_sources = [proj_path / "hdl" / "system_module.vhdl"]
 
     # equivalent to setting the PYTHONPATH environment variable
     sys.path.append(str(proj_path / "tests"))
@@ -52,11 +55,11 @@ def test_power_runner():
     runner.build(
         verilog_sources=verilog_sources,
         vhdl_sources=vhdl_sources,
-        hdl_toplevel="power_module",
+        hdl_toplevel="system_module",
         always=True,
     )
-    runner.test(hdl_toplevel="power_module", test_module="test_power")
+    runner.test(hdl_toplevel="system_module", test_module="test_system")
 
 
 if __name__ == "__main__":
-    test_power_runner()
+    test_system_runner()

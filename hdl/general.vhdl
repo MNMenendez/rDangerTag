@@ -63,8 +63,8 @@ architecture BEHAVIORAL of General is
    signal POWER_SIGNAL		: power_states;
    signal SENSOR_SIGNAL		: sensor_states;
    signal COMMAND_SIGNAL	: command_states;
-   signal XLXN_90	: std_logic_vector (1 downto 0);
-   signal XLXN_167	: std_logic;
+   signal OK_SIGNAL			: right_states;
+   signal SYSTEM_SIGNAL		: system_states;
    signal XLXN_201	: std_logic_vector (1 downto 0);
    
    component power_module
@@ -96,6 +96,15 @@ architecture BEHAVIORAL of General is
            SENSOR_STATE : out  sensor_states);
    end component;
 
+	component system_module is
+    Port ( POWER_STATE 		: in  power_states;
+           MODE_STATE 		: in  mode_states;
+           COMMAND_STATE 	: in  command_states;
+           SENSOR_STATE 	: in  sensor_states;
+		   ALL_OK			: out right_states;
+           SYSTEM_STATE 	: out system_states);
+   end component;
+   
    component lock_module
       port ( LOCK   	 : in    std_logic; 
       		 LOCK_A_I    : in    std_logic;
@@ -134,6 +143,15 @@ begin
    	  			  SENSOR_3				=> SENSOR_3,
    	  			  SENSOR_4				=> SENSOR_4,
    	  			  SENSOR_STATE  		=> SENSOR_SIGNAL);
+   	  			  
+   XLXI_15 : system_module
+   		port map (COMMAND_STATE			=> COMMAND_SIGNAL,
+   	  			  MODE_STATE			=> MODE_SIGNAL,
+   	  			  POWER_STATE			=> POWER_SIGNAL,
+   	  			  SENSOR_STATE			=> SENSOR_SIGNAL,
+   	  			  ALL_OK				=> OK_SIGNAL,
+   	  			  SYSTEM_STATE  		=> SYSTEM_SIGNAL);
+   	  			  
    XLXI_28 : lock_module
    		port map (LOCK 					=> LOCK,
    				  LOCK_A_I				=> LOCK_A_I,

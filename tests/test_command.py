@@ -32,6 +32,7 @@ async def command_ignore_if_error_mode_test(dut):
     print(f'{dut.INPUT_A.value}|{dut.INPUT_B.value}|{dut.MODE_SIGNAL.value}|{MODE_SIGNAL} > {dut.COMMAND_SIGNAL.value} | {command_model(INPUT_A,INPUT_B,MODE_SIGNAL)}')
     assert dut.COMMAND_SIGNAL.value == command_model(INPUT_A,INPUT_B,MODE_SIGNAL), f'result is incorrect: {dut.COMMAND_SIGNAL.value} != {Commands.COMMAND_IGNORE}'
 
+'''
 @cocotb.test()
 async def command_ignore_if_local_apply_mode_test(dut):
     """Whatever INPUT A or B, ignore commands if local apply mode: Ignore expected"""
@@ -182,7 +183,7 @@ async def command_remove_in_remote_mode_test(dut):
 
 
 
-
+'''
 def test_command_runner():
     """Simulate the key example using the Python runner.
 

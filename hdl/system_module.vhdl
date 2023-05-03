@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+library work;
+use work.Utilities.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -29,19 +31,31 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity SYSTEM_MODULE is
-    Port ( POWER_STATE : in  STD_LOGIC;
-           MODE_STATE : in  STD_LOGIC_VECTOR (1 downto 0);
-           COMMAND_STATE : in  STD_LOGIC_VECTOR (1 downto 0);
-           SENSOR_STATE : in  STD_LOGIC_VECTOR (1 downto 0);
-			  ALL_OK			: out STD_LOGIC;
-           SYSTEM_STATE : out  STD_LOGIC_VECTOR (1 downto 0));
-end SYSTEM_MODULE;
+entity system_module is
+    Port ( POWER_STATE 		: in  power_states;
+           MODE_STATE 		: in  mode_states;
+           COMMAND_STATE 	: in  command_states;
+           SENSOR_STATE 	: in  sensor_states;
+		   ALL_OK			: out right_states;
+           SYSTEM_STATE 	: out system_states);
+end system_module;
 
-architecture SYSTEM_FUNC of SYSTEM_MODULE is
+architecture system_func of system_module is
 
 begin
+	SYSTEM_PROCESS: process (POWER_STATE , MODE_STATE , COMMAND_STATE , SENSOR_STATE ) is
+	begin
+		SYSTEM_STATE <= SYSTEM_ERROR;
+		ALL_OK 		 <= FAULT;
+		
+		if (POWER_STATE = POWER_OFF) then
+			SYSTEM_STATE <= SYSTEM_BATTERY;
+		end if;
+	
+	
+	
+	end process;
 
 
-end SYSTEM_FUNC;
+end system_func;
 

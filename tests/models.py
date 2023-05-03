@@ -4,14 +4,37 @@
 
 import cocotb
 from cocotb.types import Bit, Logic
+import enum
 
-def enum(*sequential, **named):
-    enums = dict(zip(sequential, range(len(sequential))),**named)
-    return type('Enum',(),enums)
+class Powers(enum.Enum):
+    POWER_BATTERY       = 0
+    POWER_ON            = 1
 
-Modes = enum('MODE_ERROR','REMOTE','LOCAL_APPLY','LOCAL_REMOVE')
-Sensors = enum('SENSOR_ERROR','DANGER','BLANK','TRANSITION')
-Commands = enum('COMMAND_ERROR','COMMAND_IGNORE','COMMAND_APPLY','COMMAND_REMOVE')
+class Modes(enum.Enum):
+    MODE_ERROR          = 0
+    REMOTE              = 1
+    LOCAL_APPLY         = 2
+    LOCAL_REMOVE        = 3
+
+class Sensors(enum.Enum):
+       SENSOR_ERROR     = 0
+       DANGER           = 1
+       BLANK            = 2
+       TRANSITION       = 3
+       
+class Commands(enum.Enum):
+    COMMAND_ERROR       = 0
+    COMMAND_IGNORE      = 1
+    COMMAND_APPLY       = 2
+    COMMAND_REMOVE      = 3
+class Systems(enum.Enum):
+    SYSTEM_ERROR        = 0
+    SYSTEM_DANGER       = 1
+    SYSTEM_BLANK        = 2
+    SYSTEM_BATTERY      = 3
+class Rights(enum.Enum):
+    FAULT               = 0
+    ALIVE               = 1
 
 def dummy_model(TBD_I: Logic = Logic('-')) -> int:
     """model of dummy"""
@@ -43,7 +66,7 @@ def key_model(KEY: Logic = Logic('-'), KEY_A_I: Logic = Logic('-'), KEY_B_I: Log
         if ( KEY_A_I and KEY_B_I ):
             MODE_STATE = Modes.MODE_ERROR    
     
-    return KEY_A_O,KEY_B_O,MODE_STATE
+    return KEY_A_O,KEY_B_O,MODE_STATE.value
 
 def sensor_model(SENSOR_1: Logic = Logic('-'), SENSOR_2: Logic = Logic('-'), SENSOR_3: Logic = Logic('X'), SENSOR_4: Logic = Logic('-')):
     """model of sensors"""
@@ -58,7 +81,7 @@ def sensor_model(SENSOR_1: Logic = Logic('-'), SENSOR_2: Logic = Logic('-'), SEN
         SENSOR_STATE = Sensors.BLANK   
     if (SENSOR_1 == SENSOR_3 == SENSOR_2 == SENSOR_4):
         SENSOR_STATE = Sensors.TRANSITION
-    return SENSOR_STATE
+    return SENSOR_STATE.value
     
 def command_model(INPUT_A: Logic = Logic('-'), INPUT_B: Logic = Logic('-'), MODE_STATE: int = Modes.MODE_ERROR ):
     """model of commands"""
@@ -75,7 +98,7 @@ def command_model(INPUT_A: Logic = Logic('-'), INPUT_B: Logic = Logic('-'), MODE
         if ( INPUT_A == True and INPUT_B == False ):
             COMMAND_STATE = Commands.COMMAND_REMOVE
             
-    return COMMAND_STATE
+    return COMMAND_STATE.value
     
 def lock_model(LOCK: Logic = Logic('-'), LOCK_A_I: Logic = Logic('-'), LOCK_B_I: Logic = Logic('-')):
     """model of lock"""
@@ -88,3 +111,15 @@ def lock_model(LOCK: Logic = Logic('-'), LOCK_A_I: Logic = Logic('-'), LOCK_B_I:
         LOCK_B_O = False
         
     return [LOCK_A_O,LOCK_B_O]
+    
+def system_model(POWER_STATE: int = Powers.POWER_BATTERY, MODE_STATE: int = Modes.MODE_ERROR , COMMAND_STATE: int = Commands.COMMAND_ERROR , SENSOR_STATE: int = Sensors.SENSOR_ERROR):
+
+
+    SYSTEM_STATE = Systems.SYSTEM_ERROR
+    ALL_OK = Rights.FAULT
+    
+    if (POWER_STATE == Powers.POWER_BATTERY):
+        SYSTEM_STATE = Systems.SYSTEM_BATTERY;
+    
+    
+    return [SYSTEM_STATE,ALL_OK]

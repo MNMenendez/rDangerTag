@@ -9,80 +9,27 @@ from pathlib import Path
 import cocotb
 from cocotb.runner import get_runner
 from cocotb.triggers import Timer
+from cocotb.types import Bit, Logic
 
 if cocotb.simulator.is_running():
     from models import enum,Modes,key_model
 
 @cocotb.test()
-async def key_not_used_test(dut):
-    """Test key not used"""
-        
-    KEY = False
-    dut.KEY.value = KEY
-    await Timer(2, units="ns")  
-    assert dut.MODE_SIGNAL.value == key_model(KEY)[2], f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.REMOTE}'
-
-@cocotb.test()
-async def key_used_remote_test(dut):
-    """Test key used in remote mode"""
-        
-    KEY = True
-    KEY_A_I = False
-    KEY_B_I = False
+async def key_test(dut):
+    """Test key"""
     
-    dut.KEY.value = KEY
-    dut.KEY_A_I.value = KEY_A_I
-    dut.KEY_B_I.value = KEY_B_I
+    KEY     = (False,False,False,False,True,True,True,True)
+    KEY_A_I = (False,False,True,True,False,False,True,True)
+    KEY_B_I = (False,True,False,True,False,True,False,True)
     
-    await Timer(2, units="ns")    
-    assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY,KEY_A_I,KEY_B_I)), f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.REMOTE}'
+    for i in range(len(KEY)):
+        dut.KEY.value = KEY[i]
+        dut.KEY_A_I.value = KEY_A_I[i]
+        dut.KEY_B_I.value = KEY_B_I[i]
+        await Timer(2, units="ns")
+        print(f'Key {"Enable" if dut.KEY.value else "Disable"} | {bool(dut.KEY_A_I.value)} | {bool(dut.KEY_B_I.value)} > {Modes(key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])[2]).name}')
+        assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])), f'result is incorrect: {dut.KEY_A_O.value} {dut.KEY_B_O.value} {dut.MODE_SIGNAL.value} != {key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])}'   
     
-@cocotb.test()
-async def key_used_local_apply_test(dut):
-    """Test key used in local apply mode"""
-        
-    KEY = True
-    KEY_A_I = False
-    KEY_B_I = True
-    
-    dut.KEY.value = KEY
-    dut.KEY_A_I.value = KEY_A_I
-    dut.KEY_B_I.value = KEY_B_I
-    
-    await Timer(2, units="ns")     
-    assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY,KEY_A_I,KEY_B_I)), f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.LOCAL_APPLY}'
-
-@cocotb.test()
-async def key_used_local_remove_test(dut):
-    """Test key used in local remove mode"""
-        
-    KEY = True
-    KEY_A_I = True
-    KEY_B_I = False
-    
-    dut.KEY.value = KEY
-    dut.KEY_A_I.value = KEY_A_I
-    dut.KEY_B_I.value = KEY_B_I
-    
-    await Timer(2, units="ns")     
-    assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY,KEY_A_I,KEY_B_I)), f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.LOCAL_REMOVE}'
-    
-@cocotb.test()
-async def key_used_error_test(dut):
-    """Test key used in local remove mode"""
-        
-    KEY = True
-    KEY_A_I = True
-    KEY_B_I = True
-    
-    dut.KEY.value = KEY
-    dut.KEY_A_I.value = KEY_A_I
-    dut.KEY_B_I.value = KEY_B_I
-    
-    await Timer(2, units="ns")     
-    assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY,KEY_A_I,KEY_B_I)), f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.ERROR_MODE}'
-    
-
 def test_key_runner():
     """Simulate the key example using the Python runner.
 

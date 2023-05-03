@@ -9,37 +9,22 @@ from pathlib import Path
 import cocotb
 from cocotb.runner import get_runner
 from cocotb.triggers import Timer
+from cocotb.types import Bit, Logic
 
 if cocotb.simulator.is_running():
     from models import dummy_model
     
 @cocotb.test()
-async def TBD_rising_test(dut):
-    """Test rising input"""
+async def TBD_test(dut):
+    """Test tbd input"""
 
-    TBD_I = False
-    dut.TBD_I.value = TBD_I
-    await Timer(2, units="ns")
-    assert dut.TBD_O.value == dummy_model(TBD_I), f"dummy result is incorrect: {dut.TBD_O.value} != {dut.TBD_I.value} "
-
-    TBD_I = True
-    dut.TBD_I.value = TBD_I
-    await Timer(2, units="ns")
-    assert dut.TBD_O.value == dummy_model(TBD_I), f"dummy result is incorrect: {dut.TBD_O.value} != {dut.TBD_I.value} "
+    TBD_I = (False,True,False,True,False)
     
-@cocotb.test()
-async def TBD_falling_test(dut):
-    """Test negative input"""
-
-    TBD_I = True
-    dut.TBD_I.value = TBD_I
-    await Timer(2, units="ns")
-    assert dut.TBD_O.value == dummy_model(TBD_I), f"dummy result is incorrect: {dut.TBD_O.value} != {dut.TBD_I.value} "
-    
-    TBD_I = False
-    dut.TBD_I.value = TBD_I
-    await Timer(2, units="ns")
-    assert dut.TBD_O.value == dummy_model(TBD_I), f"dummy result is incorrect: {dut.TBD_O.value} != {dut.TBD_I.value} "
+    for i in range(len(TBD_I)):
+        dut.TBD_I.value = TBD_I[i]
+        await Timer(2, units="ns")
+        print(f'{bool(dut.TBD_I.value)} > {bool(dut.TBD_O.value)}')
+        assert dut.TBD_O.value == dummy_model(TBD_I[i]), f'result is incorrect: {dut.TBD_O.value} != {dut.TBD_I.value}'
     
 
 def test_dummy_runner():

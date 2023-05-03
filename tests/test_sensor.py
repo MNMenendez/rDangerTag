@@ -15,121 +15,24 @@ if cocotb.simulator.is_running():
     from models import enum,Sensors,sensor_model
 
 @cocotb.test()
-async def sensor_1and3_different_test(dut):
-    """Sensor 1 and Sensor 3 are different : Error expected"""
+async def sensor_test(dut):
+    """Sensor test"""
     
-    SENSOR_2 = Logic('-')
-    SENSOR_4 = Logic('-')
-    dut.SENSOR_2.value = SENSOR_2
-    dut.SENSOR_4.value = SENSOR_4
+    SENSOR_1 = (False,False,False,False,False,False,False,False,True,True,True,True,True,True,True,True)
+    SENSOR_2 = (False,False,True,True,False,False,True,True,False,False,True,True,False,False,True,True)
+    SENSOR_3 = (False,False,False,False,True,True,True,True,False,False,False,False,True,True,True,True)
+    SENSOR_4 = (False,True,False,True,False,True,False,True,False,True,False,True,False,True,False,True)
     
-    SENSOR_1 = False
-    SENSOR_3 = True
-    dut.SENSOR_1.value = SENSOR_1
-    dut.SENSOR_3.value = SENSOR_3
-    
-    await Timer(2, units="ns")   
-    print(f'{dut.SENSOR_1.value}|{dut.SENSOR_2.value}|{dut.SENSOR_3.value}|{dut.SENSOR_4.value} > {sensor_model(SENSOR_1,SENSOR_3)}')
-    assert dut.SENSOR_SIGNAL.value == sensor_model(SENSOR_1,SENSOR_3), f'result is incorrect: {dut.SENSOR_SIGNAL.value} != {Sensors.ERROR_SENSOR}'
-
-    SENSOR_1 = True
-    SENSOR_3 = False
-    dut.SENSOR_1.value = SENSOR_1
-    dut.SENSOR_3.value = SENSOR_3
-
-    await Timer(2, units="ns")   
-    print(f'{dut.SENSOR_1.value}|{dut.SENSOR_2.value}|{dut.SENSOR_3.value}|{dut.SENSOR_4.value} > {sensor_model(SENSOR_1,SENSOR_3)}')  
-    assert dut.SENSOR_SIGNAL.value == sensor_model(SENSOR_1,SENSOR_3), f'result is incorrect: {dut.SENSOR_SIGNAL.value} != {Sensors.ERROR_SENSOR}'
-
-@cocotb.test()
-async def sensor_2and4_different_test(dut):
-    """Sensor 2 and Sensor 4 are different : Error expected"""
-    
-    SENSOR_1 = Logic('-')
-    SENSOR_3 = Logic('-')
-    dut.SENSOR_1.value = SENSOR_1
-    dut.SENSOR_3.value = SENSOR_3
-    
-    SENSOR_2 = False
-    SENSOR_4 = True 
-    dut.SENSOR_2.value = SENSOR_2
-    dut.SENSOR_4.value = SENSOR_4
-
-    await Timer(2, units="ns")   
-    print(f'{dut.SENSOR_1.value}|{dut.SENSOR_2.value}|{dut.SENSOR_3.value}|{dut.SENSOR_4.value} > {sensor_model(SENSOR_2,SENSOR_4)}') 
-    assert dut.SENSOR_SIGNAL.value == sensor_model(SENSOR_2,SENSOR_4), f'result is incorrect: {dut.SENSOR_SIGNAL.value} != {Sensors.ERROR_SENSOR}'
+    for i in range(len(SENSOR_1)):
+        dut.SENSOR_1.value = SENSOR_1[i]
+        dut.SENSOR_2.value = SENSOR_2[i]
+        dut.SENSOR_3.value = SENSOR_3[i]
+        dut.SENSOR_4.value = SENSOR_4[i]
+        
+        await Timer(2, units="ns")
+        print(f'{dut.SENSOR_1.value}|{dut.SENSOR_2.value}|{dut.SENSOR_3.value}|{dut.SENSOR_4.value} > {Sensors(sensor_model(SENSOR_1[i],SENSOR_2[i],SENSOR_3[i],SENSOR_4[i])).name}')
+    assert dut.SENSOR_SIGNAL.value == sensor_model(SENSOR_1[i],SENSOR_2[i],SENSOR_3[i],SENSOR_4[i]), f'result is incorrect: {dut.SENSOR_SIGNAL.value} != {sensor_model(SENSOR_1[i],SENSOR_2[i],SENSOR_3[i],SENSOR_4[i])}'   
  
-    SENSOR_2 = True
-    SENSOR_4 = False
-    dut.SENSOR_2.value = SENSOR_2
-    dut.SENSOR_4.value = SENSOR_4
-
-    await Timer(2, units="ns")   
-    print(f'{dut.SENSOR_1.value}|{dut.SENSOR_2.value}|{dut.SENSOR_3.value}|{dut.SENSOR_4.value} > {sensor_model(SENSOR_2,SENSOR_4)}')   
-    assert dut.SENSOR_SIGNAL.value == sensor_model(SENSOR_2,SENSOR_4), f'result is incorrect: {dut.SENSOR_SIGNAL.value} != {Sensors.ERROR_SENSOR}'
-
-@cocotb.test()
-async def sensor_danger_test(dut):
-    """Sensor 1 and 3 are True, sensors 2 and 4 are False : Danger expected"""
-    SENSOR_1 = True
-    SENSOR_2 = False
-    SENSOR_3 = True
-    SENSOR_4 = False
-    dut.SENSOR_1.value = SENSOR_1
-    dut.SENSOR_2.value = SENSOR_2
-    dut.SENSOR_3.value = SENSOR_3
-    dut.SENSOR_4.value = SENSOR_4
-    
-    await Timer(2, units="ns")   
-    print(f'{dut.SENSOR_1.value}|{dut.SENSOR_2.value}|{dut.SENSOR_3.value}|{dut.SENSOR_4.value} > {dut.SENSOR_SIGNAL.value} | {sensor_model(SENSOR_1,SENSOR_2,SENSOR_3,SENSOR_4)}')  
-    assert dut.SENSOR_SIGNAL.value == sensor_model(SENSOR_1,SENSOR_2,SENSOR_3,SENSOR_4), f'result is incorrect: {dut.SENSOR_SIGNAL.value} != {Sensors.DANGER}'
-
-@cocotb.test()
-async def sensor_blank_test(dut):
-    """Sensor 1 and 3 are False, sensors 2 and 4 are True : Blank expected"""
-    SENSOR_1 = False
-    SENSOR_2 = True
-    SENSOR_3 = False
-    SENSOR_4 = True
-    dut.SENSOR_1.value = SENSOR_1
-    dut.SENSOR_2.value = SENSOR_2
-    dut.SENSOR_3.value = SENSOR_3
-    dut.SENSOR_4.value = SENSOR_4
-    
-    await Timer(2, units="ns")   
-    print(f'{dut.SENSOR_1.value}|{dut.SENSOR_2.value}|{dut.SENSOR_3.value}|{dut.SENSOR_4.value} > {dut.SENSOR_SIGNAL.value} | {sensor_model(SENSOR_1,SENSOR_2,SENSOR_3,SENSOR_4)}')  
-    assert dut.SENSOR_SIGNAL.value == sensor_model(SENSOR_1,SENSOR_2,SENSOR_3,SENSOR_4), f'result is incorrect: {dut.SENSOR_SIGNAL.value} != {Sensors.BLANK}'
-
-@cocotb.test()
-async def sensor_transition_test(dut):
-    """All sensors are the same : Transition expected"""
-    SENSOR_1 = True
-    SENSOR_2 = True
-    SENSOR_3 = True
-    SENSOR_4 = True
-    dut.SENSOR_1.value = SENSOR_1
-    dut.SENSOR_2.value = SENSOR_2
-    dut.SENSOR_3.value = SENSOR_3
-    dut.SENSOR_4.value = SENSOR_4
-    
-    await Timer(2, units="ns")   
-    print(f'{dut.SENSOR_1.value}|{dut.SENSOR_2.value}|{dut.SENSOR_3.value}|{dut.SENSOR_4.value} > {dut.SENSOR_SIGNAL.value} | {sensor_model(SENSOR_1,SENSOR_2,SENSOR_3,SENSOR_4)}')  
-    assert dut.SENSOR_SIGNAL.value == sensor_model(SENSOR_1,SENSOR_2,SENSOR_3,SENSOR_4), f'result is incorrect: {dut.SENSOR_SIGNAL.value} != {Sensors.TRANSITION}'
-
-    SENSOR_1 = False
-    SENSOR_2 = False
-    SENSOR_3 = False
-    SENSOR_4 = False
-    dut.SENSOR_1.value = SENSOR_1
-    dut.SENSOR_2.value = SENSOR_2
-    dut.SENSOR_3.value = SENSOR_3
-    dut.SENSOR_4.value = SENSOR_4
-    
-    await Timer(2, units="ns")   
-    print(f'{dut.SENSOR_1.value}|{dut.SENSOR_2.value}|{dut.SENSOR_3.value}|{dut.SENSOR_4.value} > {dut.SENSOR_SIGNAL.value} | {sensor_model(SENSOR_1,SENSOR_2,SENSOR_3,SENSOR_4)}')  
-    assert dut.SENSOR_SIGNAL.value == sensor_model(SENSOR_1,SENSOR_2,SENSOR_3,SENSOR_4), f'result is incorrect: {dut.SENSOR_SIGNAL.value} != {Sensors.TRANSITION}'
-
-
 
 def test_sensor_runner():
     """Simulate the key example using the Python runner.

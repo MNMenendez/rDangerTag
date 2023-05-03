@@ -96,6 +96,13 @@ architecture BEHAVIORAL of General is
            SENSOR_STATE : out  sensor_states);
    end component;
 
+   component lock_module
+      port ( LOCK   	 : in    std_logic; 
+      		 LOCK_A_I    : in    std_logic;
+      		 LOCK_B_I    : in    std_logic;
+      		 LOCK_A_O    : out   std_logic;
+      		 LOCK_B_O    : out   std_logic);
+   end component;
 
    component dummy_module
       port ( TBD_I    : in    std_logic;  
@@ -127,7 +134,13 @@ begin
    	  			  SENSOR_3				=> SENSOR_3,
    	  			  SENSOR_4				=> SENSOR_4,
    	  			  SENSOR_STATE  		=> SENSOR_SIGNAL);
-   	  			
+   XLXI_28 : lock_module
+   		port map (LOCK 					=> LOCK,
+   				  LOCK_A_I				=> LOCK_A_I,
+   				  LOCK_B_I				=> LOCK_B_I,
+   				  LOCK_A_O				=> LOCK_A_O,
+   				  LOCK_B_O				=> LOCK_B_O);
+   				  
    XLXI_34 : dummy_module
       port map (TBD_I	=>	TBD_I,
                 TBD_O	=>	TBD_O);

@@ -13,18 +13,18 @@ Modes = enum('MODE_ERROR','REMOTE','LOCAL_APPLY','LOCAL_REMOVE')
 Sensors = enum('SENSOR_ERROR','DANGER','BLANK','TRANSITION')
 Commands = enum('COMMAND_ERROR','COMMAND_IGNORE','COMMAND_APPLY','COMMAND_REMOVE')
 
-def dummy_model(TBD_I: int) -> int:
+def dummy_model(TBD_I: Logic = Logic('-')) -> int:
     """model of dummy"""
     return TBD_I
     
-def power_model(POWER_MODE: int) -> int:
+def power_model(POWER_MODE: Logic = Logic('-')) -> int:
     """model of power"""
     if POWER_MODE:
         return True
     else:
         return False
         
-def key_model(KEY: bool, KEY_A_I: bool = False, KEY_B_I: bool = False):
+def key_model(KEY: Logic = Logic('-'), KEY_A_I: Logic = Logic('-'), KEY_B_I: Logic = Logic('-')):
     """model of key"""
     
     KEY_A_O = KEY_A_I
@@ -76,3 +76,15 @@ def command_model(INPUT_A: Logic = Logic('-'), INPUT_B: Logic = Logic('-'), MODE
             COMMAND_STATE = Commands.COMMAND_REMOVE
             
     return COMMAND_STATE
+    
+def lock_model(LOCK: Logic = Logic('-'), LOCK_A_I: Logic = Logic('-'), LOCK_B_I: Logic = Logic('-')):
+    """model of lock"""
+
+    if LOCK == True:
+        LOCK_A_O = LOCK_A_I
+        LOCK_B_O = LOCK_B_I
+    else:
+        LOCK_A_O = False
+        LOCK_B_O = False
+        
+    return [LOCK_A_O,LOCK_B_O]

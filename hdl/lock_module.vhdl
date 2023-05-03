@@ -29,18 +29,30 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity LOCK_MODULE is
+entity lock_module is
     Port ( LOCK : in  STD_LOGIC;
            LOCK_A_I : in  STD_LOGIC;
            LOCK_B_I : in  STD_LOGIC;
            LOCK_A_O : out  STD_LOGIC;
            LOCK_B_O : out  STD_LOGIC);
-end LOCK_MODULE;
+end lock_module;
 
-architecture LOCK_FUNC of LOCK_MODULE is
+architecture lock_func of lock_module is
 
 begin
+	LOCK_PROCESS: process (LOCK , LOCK_A_I , LOCK_B_I ) is
+	begin
+	LOCK_A_O <= '0';
+		LOCK_B_O <= '0';
+	if ( LOCK = '0') then
+		LOCK_A_O <= '0';
+		LOCK_B_O <= '0';
+	else
+		LOCK_A_O <= LOCK_A_I;
+		LOCK_B_O <= LOCK_B_I;
+	end if;
+	
+	end process;
 
-
-end LOCK_FUNC;
+end lock_func;
 

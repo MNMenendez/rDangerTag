@@ -27,22 +27,22 @@ use work.Utilities.all;
 
 entity General is
 	port ( 
-		CLK         : in    std_logic; 
-  	  	CLK_STATE   : in    std_logic;
-  	  	INPUT_A     : in    std_logic;
-  	  	INPUT_B     : in    std_logic;
-        KEY         : in    std_logic; 
-        KEY_A_I     : in    std_logic; 
-        KEY_B_I     : in    std_logic; 
-        LOCK        : in    std_logic; 
-        LOCK_A_I    : in    std_logic; 
-        LOCK_B_I    : in    std_logic; 
-        POWER_MODE  : in    std_logic; 
-        SENSOR_1    : in    std_logic; 
-        SENSOR_2    : in    std_logic; 
-        SENSOR_3    : in    std_logic; 
-        SENSOR_4    : in    std_logic; 
-        TBD_I       : in    std_logic; 
+		CLK         : in    std_logic := '0'; 
+  	  	CLK_STATE   : in    std_logic := '0';
+  	  	INPUT_A     : in    std_logic := '0';
+  	  	INPUT_B     : in    std_logic := '0';
+        KEY         : in    std_logic := '0'; 
+        KEY_A_I     : in    std_logic := '0'; 
+        KEY_B_I     : in    std_logic := '0'; 
+        LOCK        : in    std_logic := '0'; 
+        LOCK_A_I    : in    std_logic := '0'; 
+        LOCK_B_I    : in    std_logic := '0'; 
+        POWER_MODE  : in    std_logic := '0'; 
+        SENSOR_1    : in    std_logic := '0'; 
+        SENSOR_2    : in    std_logic := '0'; 
+        SENSOR_3    : in    std_logic := '0'; 
+        SENSOR_4    : in    std_logic := '0'; 
+        TBD_I       : in    std_logic := '0'; 
         ALL_OK      : out   std_logic; 
         KEY_A_O     : out   std_logic; 
         KEY_B_O     : out   std_logic; 
@@ -59,10 +59,10 @@ entity General is
 end General;
 
 architecture BEHAVIORAL of General is
-   signal MODE_SIGNAL	: mode_states;
-   signal POWER_SIGNAL	: power_states;
-   signal SENSOR_SIGNAL	: sensor_states;
-   signal XLXN_89	: std_logic_vector (1 downto 0);
+   signal MODE_SIGNAL		: mode_states;
+   signal POWER_SIGNAL		: power_states;
+   signal SENSOR_SIGNAL		: sensor_states;
+   signal COMMAND_SIGNAL	: command_states;
    signal XLXN_90	: std_logic_vector (1 downto 0);
    signal XLXN_167	: std_logic;
    signal XLXN_201	: std_logic_vector (1 downto 0);
@@ -81,6 +81,13 @@ architecture BEHAVIORAL of General is
            MODE_STATE : out  mode_states);
    end component;
 	
+	component command_module is
+    Port ( INPUT_A : in  STD_LOGIC;
+           INPUT_B : in  STD_LOGIC;
+           MODE_STATE : in  mode_states;
+           COMMAND_STATE : out  command_states);
+   end component;
+   
 	component sensor_module is
     Port ( SENSOR_1 : in  STD_LOGIC;
            SENSOR_2 : in  STD_LOGIC;
@@ -107,7 +114,14 @@ begin
    	  			KEY_A_O					=> KEY_A_O,
    	  			KEY_B_O					=> KEY_B_O,
    	  			MODE_STATE  			=> MODE_SIGNAL);
-   XLXI_14 : SENSOR_MODULE
+   
+   XLXI_13 : command_module
+   		port map (INPUT_A				=> INPUT_A,
+   	  			  INPUT_B				=> INPUT_B,
+   	  			  MODE_STATE			=> MODE_SIGNAL,
+   	  			  COMMAND_STATE  		=> COMMAND_SIGNAL);
+   
+   XLXI_14 : sensor_module
    		port map (SENSOR_1				=> SENSOR_1,
    	  			  SENSOR_2				=> SENSOR_2,
    	  			  SENSOR_3				=> SENSOR_3,

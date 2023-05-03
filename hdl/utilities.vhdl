@@ -10,4 +10,5 @@ package utilities is
 	Type key_states is (NOT_USED,USED);
 	Type mode_states is (MODE_ERROR,REMOTE,LOCAL_APPLY,LOCAL_REMOVE);
 	Type sensor_states is (SENSOR_ERROR,DANGER,BLANK,TRANSITION);
+	Type command_states is (COMMAND_ERROR,COMMAND_IGNORE,COMMAND_APPLY,COMMAND_REMOVE);
 end package;

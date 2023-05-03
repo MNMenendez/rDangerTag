@@ -58,6 +58,4 @@ begin
 			SENSOR_STATE <= TRANSITION;
 		end if;
 	end process;
-
 end SENSOR_FUNC;
-

@@ -9,9 +9,9 @@ def enum(*sequential, **named):
     enums = dict(zip(sequential, range(len(sequential))),**named)
     return type('Enum',(),enums)
 
-Modes = enum('ERROR_MODE','REMOTE','LOCAL_APPLY','LOCAL_REMOVE')
-Sensors = enum('ERROR_SENSOR','DANGER','BLANK','TRANSITION')
-
+Modes = enum('MODE_ERROR','REMOTE','LOCAL_APPLY','LOCAL_REMOVE')
+Sensors = enum('SENSOR_ERROR','DANGER','BLANK','TRANSITION')
+Commands = enum('COMMAND_ERROR','COMMAND_IGNORE','COMMAND_APPLY','COMMAND_REMOVE')
 
 def dummy_model(TBD_I: int) -> int:
     """model of dummy"""
@@ -29,6 +29,7 @@ def key_model(KEY: bool, KEY_A_I: bool = False, KEY_B_I: bool = False):
     
     KEY_A_O = KEY_A_I
     KEY_B_O = KEY_B_I
+    MODE_STATE = Modes.MODE_ERROR 
     
     if (not KEY):
         MODE_STATE = Modes.REMOTE
@@ -40,17 +41,17 @@ def key_model(KEY: bool, KEY_A_I: bool = False, KEY_B_I: bool = False):
         if ( KEY_A_I and not KEY_B_I ):
             MODE_STATE = Modes.LOCAL_REMOVE
         if ( KEY_A_I and KEY_B_I ):
-            MODE_STATE = Modes.ERROR_MODE    
+            MODE_STATE = Modes.MODE_ERROR    
     
     return KEY_A_O,KEY_B_O,MODE_STATE
 
 def sensor_model(SENSOR_1: Logic = Logic('-'), SENSOR_2: Logic = Logic('-'), SENSOR_3: Logic = Logic('X'), SENSOR_4: Logic = Logic('-')):
     """model of sensors"""
         
-    SENSOR_STATE = Sensors.ERROR_SENSOR
+    SENSOR_STATE = Sensors.SENSOR_ERROR
     
     if (SENSOR_1 != SENSOR_3 or SENSOR_2 != SENSOR_4):
-        SENSOR_STATE = Sensors.ERROR_SENSOR
+        SENSOR_STATE = Sensors.SENSOR_ERROR
     if (SENSOR_1 == True and SENSOR_2 == False and SENSOR_3 == True and SENSOR_4 == False):
         SENSOR_STATE = Sensors.DANGER
     if (SENSOR_1 == False and SENSOR_2 == True and SENSOR_3 == False and SENSOR_4 == True):
@@ -58,3 +59,20 @@ def sensor_model(SENSOR_1: Logic = Logic('-'), SENSOR_2: Logic = Logic('-'), SEN
     if (SENSOR_1 == SENSOR_3 == SENSOR_2 == SENSOR_4):
         SENSOR_STATE = Sensors.TRANSITION
     return SENSOR_STATE
+    
+def command_model(INPUT_A: Logic = Logic('-'), INPUT_B: Logic = Logic('-'), MODE_STATE: int = Modes.MODE_ERROR ):
+    """model of commands"""
+    
+    COMMAND_STATE = Commands.COMMAND_ERROR
+    
+    if ( MODE_STATE != Modes.REMOTE ):
+        COMMAND_STATE = Commands.COMMAND_IGNORE
+    else:
+        if ( INPUT_A == INPUT_B ):
+            COMMAND_STATE = Commands.COMMAND_ERROR
+        if ( INPUT_A == False and INPUT_B == True ):
+            COMMAND_STATE = Commands.COMMAND_APPLY
+        if ( INPUT_A == True and INPUT_B == False ):
+            COMMAND_STATE = Commands.COMMAND_REMOVE
+            
+    return COMMAND_STATE

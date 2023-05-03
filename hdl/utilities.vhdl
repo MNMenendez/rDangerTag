@@ -9,4 +9,5 @@ package utilities is
 	Type power_states is (POWER_OFF,POWER_ON);
 	Type key_states is (NOT_USED,USED);
 	Type mode_states is (MODE_ERROR,REMOTE,LOCAL_APPLY,LOCAL_REMOVE);
+	Type sensor_states is (SENSOR_ERROR,DANGER,BLANK,TRANSITION);
 end package;

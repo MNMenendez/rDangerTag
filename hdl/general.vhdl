@@ -61,7 +61,7 @@ end General;
 architecture BEHAVIORAL of General is
    signal MODE_SIGNAL	: mode_states;
    signal POWER_SIGNAL	: power_states;
-   signal XLXN_88	: std_logic_vector (1 downto 0);
+   signal SENSOR_SIGNAL	: sensor_states;
    signal XLXN_89	: std_logic_vector (1 downto 0);
    signal XLXN_90	: std_logic_vector (1 downto 0);
    signal XLXN_167	: std_logic;
@@ -80,6 +80,15 @@ architecture BEHAVIORAL of General is
            KEY_B_O : out  STD_LOGIC;
            MODE_STATE : out  mode_states);
    end component;
+	
+	component sensor_module is
+    Port ( SENSOR_1 : in  STD_LOGIC;
+           SENSOR_2 : in  STD_LOGIC;
+           SENSOR_3 : in  STD_LOGIC;
+           SENSOR_4 : in  STD_LOGIC;
+           SENSOR_STATE : out  sensor_states);
+   end component;
+
 
    component dummy_module
       port ( TBD_I    : in    std_logic;  
@@ -92,13 +101,19 @@ begin
                 POWER_STATE	=>	POWER_SIGNAL);
    
    XLXI_12 : key_module
-   	  port map (KEY						=> KEY,
+		port map (KEY						=> KEY,
    	  			KEY_A_I					=> KEY_A_I,
    	  			KEY_B_I					=> KEY_B_I,
    	  			KEY_A_O					=> KEY_A_O,
    	  			KEY_B_O					=> KEY_B_O,
    	  			MODE_STATE  			=> MODE_SIGNAL);
-   
+   XLXI_14 : SENSOR_MODULE
+   		port map (SENSOR_1				=> SENSOR_1,
+   	  			  SENSOR_2				=> SENSOR_2,
+   	  			  SENSOR_3				=> SENSOR_3,
+   	  			  SENSOR_4				=> SENSOR_4,
+   	  			  SENSOR_STATE  		=> SENSOR_SIGNAL);
+   	  			
    XLXI_34 : dummy_module
       port map (TBD_I	=>	TBD_I,
                 TBD_O	=>	TBD_O);

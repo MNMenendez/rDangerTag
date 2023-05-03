@@ -36,13 +36,28 @@ entity SENSOR_MODULE is
            SENSOR_2 : in  STD_LOGIC;
            SENSOR_3 : in  STD_LOGIC;
            SENSOR_4 : in  STD_LOGIC;
-           SENSOR_STATE : out  STD_LOGIC_VECTOR (1 downto 0));
+           SENSOR_STATE : out  sensor_states);
 end SENSOR_MODULE;
 
 architecture SENSOR_FUNC of SENSOR_MODULE is
 
 begin
-
+	SENSOR_PROCESS: process (SENSOR_1,SENSOR_2,SENSOR_3,SENSOR_4) is
+	begin
+		SENSOR_STATE <= SENSOR_ERROR;
+		if ( SENSOR_1 /= SENSOR_3 or SENSOR_2 /= SENSOR_4 ) then
+			SENSOR_STATE <= SENSOR_ERROR;
+		end if;
+		if ( SENSOR_1 = '1' and SENSOR_2 = '0' and SENSOR_3 = '1' and SENSOR_4 = '0' ) then
+			SENSOR_STATE <= DANGER;
+		end if;
+		if ( SENSOR_1 = '0' and SENSOR_2 = '1' and SENSOR_3 = '0' and SENSOR_4 = '1' ) then
+			SENSOR_STATE <= BLANK;
+		end if;
+		if ( SENSOR_1 = SENSOR_2  and SENSOR_2 = SENSOR_3 and SENSOR_3 = SENSOR_4 ) then
+			SENSOR_STATE <= TRANSITION;
+		end if;
+	end process;
 
 end SENSOR_FUNC;
 

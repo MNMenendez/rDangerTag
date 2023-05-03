@@ -20,8 +20,7 @@ async def key_not_used_test(dut):
     KEY = False
     dut.KEY.value = KEY
     await Timer(2, units="ns")  
-    print(dut.KEY_A_I.value, dut.KEY_B_I.value,dut.MODE_SIGNAL.value, key_model(KEY))
-    assert dut.MODE_SIGNAL.value == Modes.REMOTE, f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.REMOTE}'
+    assert dut.MODE_SIGNAL.value == key_model(KEY)[2], f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.REMOTE}'
 
 @cocotb.test()
 async def key_used_remote_test(dut):
@@ -35,8 +34,8 @@ async def key_used_remote_test(dut):
     dut.KEY_A_I.value = KEY_A_I
     dut.KEY_B_I.value = KEY_B_I
     
-    await Timer(2, units="ns")     
-    assert (dut.MODE_SIGNAL.value == Modes.REMOTE and dut.KEY_A_O.value == dut.KEY_A_I.value and dut.KEY_B_O.value == dut.KEY_B_I.value), f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.REMOTE}'
+    await Timer(2, units="ns")    
+    assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY,KEY_A_I,KEY_B_I)), f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.REMOTE}'
     
 @cocotb.test()
 async def key_used_local_apply_test(dut):
@@ -51,7 +50,7 @@ async def key_used_local_apply_test(dut):
     dut.KEY_B_I.value = KEY_B_I
     
     await Timer(2, units="ns")     
-    assert (dut.MODE_SIGNAL.value == Modes.LOCAL_APPLY and dut.KEY_A_O.value == dut.KEY_A_I.value and dut.KEY_B_O.value == dut.KEY_B_I.value), f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.LOCAL_APPLY}'
+    assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY,KEY_A_I,KEY_B_I)), f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.LOCAL_APPLY}'
 
 @cocotb.test()
 async def key_used_local_remove_test(dut):
@@ -66,7 +65,7 @@ async def key_used_local_remove_test(dut):
     dut.KEY_B_I.value = KEY_B_I
     
     await Timer(2, units="ns")     
-    assert (dut.MODE_SIGNAL.value == Modes.LOCAL_REMOVE and dut.KEY_A_O.value == dut.KEY_A_I.value and dut.KEY_B_O.value == dut.KEY_B_I.value), f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.LOCAL_REMOVE}'
+    assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY,KEY_A_I,KEY_B_I)), f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.LOCAL_REMOVE}'
     
 @cocotb.test()
 async def key_used_error_test(dut):
@@ -81,7 +80,7 @@ async def key_used_error_test(dut):
     dut.KEY_B_I.value = KEY_B_I
     
     await Timer(2, units="ns")     
-    assert (dut.MODE_SIGNAL.value == Modes.ERROR_MODE and dut.KEY_A_O.value == dut.KEY_A_I.value and dut.KEY_B_O.value == dut.KEY_B_I.value), f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.ERROR_MODE}'
+    assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY,KEY_A_I,KEY_B_I)), f'result is incorrect: {dut.MODE_SIGNAL.value} != {Modes.ERROR_MODE}'
     
 
 def test_key_runner():

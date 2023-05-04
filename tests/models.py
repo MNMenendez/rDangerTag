@@ -9,19 +9,16 @@ import enum
 class Powers(enum.Enum):
     POWER_BATTERY       = 0
     POWER_ON            = 1
-
 class Modes(enum.Enum):
     MODE_ERROR          = 0
     REMOTE              = 1
     LOCAL_APPLY         = 2
     LOCAL_REMOVE        = 3
-
 class Sensors(enum.Enum):
-       SENSOR_ERROR     = 0
-       DANGER           = 1
-       BLANK            = 2
-       TRANSITION       = 3
-       
+    SENSOR_ERROR        = 0
+    DANGER              = 1
+    BLANK               = 2
+    TRANSITION          = 3
 class Commands(enum.Enum):
     COMMAND_ERROR       = 0
     COMMAND_IGNORE      = 1
@@ -31,7 +28,8 @@ class Systems(enum.Enum):
     SYSTEM_ERROR        = 0
     SYSTEM_DANGER       = 1
     SYSTEM_BLANK        = 2
-    SYSTEM_BATTERY      = 3
+    SYSTEM_TRANSITION   = 3
+    SYSTEM_BATTERY      = 4
 class Rights(enum.Enum):
     FAULT               = 0
     ALIVE               = 1
@@ -46,7 +44,11 @@ def power_model(POWER_MODE: Logic = Logic('-')) -> int:
         return True
     else:
         return False
-        
+
+def tuple_create(n_inputs,n):
+
+    return ((False,)*n+(True,)*n)*((2**n_inputs)//(2*n))
+
 def key_model(KEY: Logic = Logic('-'), KEY_A_I: Logic = Logic('-'), KEY_B_I: Logic = Logic('-')):
     """model of key"""
     
@@ -88,7 +90,7 @@ def command_model(INPUT_A: Logic = Logic('-'), INPUT_B: Logic = Logic('-'), MODE
     
     COMMAND_STATE = Commands.COMMAND_ERROR
     
-    if ( MODE_STATE != Modes.REMOTE ):
+    if ( MODE_STATE != Modes.REMOTE.value ):
         COMMAND_STATE = Commands.COMMAND_IGNORE
     else:
         if ( INPUT_A == INPUT_B ):
@@ -114,12 +116,52 @@ def lock_model(LOCK: Logic = Logic('-'), LOCK_A_I: Logic = Logic('-'), LOCK_B_I:
     
 def system_model(POWER_STATE: int = Powers.POWER_BATTERY, MODE_STATE: int = Modes.MODE_ERROR , COMMAND_STATE: int = Commands.COMMAND_ERROR , SENSOR_STATE: int = Sensors.SENSOR_ERROR):
 
-
     SYSTEM_STATE = Systems.SYSTEM_ERROR
     ALL_OK = Rights.FAULT
     
-    if (POWER_STATE == Powers.POWER_BATTERY):
-        SYSTEM_STATE = Systems.SYSTEM_BATTERY;
+    if (POWER_STATE == Powers.POWER_BATTERY.value):
+        SYSTEM_STATE = Systems.SYSTEM_BATTERY
+    else:
+        if (MODE_STATE == Modes.MODE_ERROR.value or COMMAND_STATE == Commands.COMMAND_ERROR.value or SENSOR_STATE == Sensors.SENSOR_ERROR.value):
+            SYSTEM_STATE = Systems.SYSTEM_ERROR
+            ALL_OK       = Rights.FAULT
+        else:
+            ALL_OK       = Rights.ALIVE
+            match SENSOR_STATE:
+                case Sensors.DANGER.value:
+                    SYSTEM_STATE = Systems.SYSTEM_DANGER
+                case Sensors.BLANK.value:
+                    SYSTEM_STATE = Systems.SYSTEM_BLANK 
+                case Sensors.TRANSITION.value:
+                    SYSTEM_STATE = Systems.SYSTEM_TRANSITION
+                case _:
+                    SYSTEM_STATE = Systems.SYSTEM_ERROR
+            
+    return [SYSTEM_STATE.value,ALL_OK.value]
     
+def output_model(SYSTEM_STATE: int = Systems.SYSTEM_ERROR):
     
-    return [SYSTEM_STATE,ALL_OK]
+    OUTPUT_A = False
+    OUTPUT_B = False
+    
+    match SYSTEM_STATE:
+        case Systems.SYSTEM_ERROR.value:
+            OUTPUT_A = False
+            OUTPUT_B = False
+        case Systems.SYSTEM_DANGER.value:
+            OUTPUT_A = True
+            OUTPUT_B = False
+        case Systems.SYSTEM_BLANK.value:
+            OUTPUT_A = False
+            OUTPUT_B = True
+        case Systems.SYSTEM_TRANSITION.value:
+            OUTPUT_A = True
+            OUTPUT_B = True
+        case Systems.SYSTEM_BATTERY.value:
+            OUTPUT_A = False
+            OUTPUT_B = False
+        case _:
+            OUTPUT_A = False
+            OUTPUT_B = False
+    
+    return [OUTPUT_A,OUTPUT_B]

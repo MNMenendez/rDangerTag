@@ -12,23 +12,24 @@ from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
 
 if cocotb.simulator.is_running():
-    from models import enum,Modes,key_model
+    from models import enum,Modes,key_model,tuple_create
 
 @cocotb.test()
 async def key_test(dut):
     """Test key"""
     
-    KEY     = (False,False,False,False,True,True,True,True)
-    KEY_A_I = (False,False,True,True,False,False,True,True)
-    KEY_B_I = (False,True,False,True,False,True,False,True)
+    KEY     = tuple_create(3,4)+(False,)
+    KEY_A_I = tuple_create(3,2)+(False,)
+    KEY_B_I = tuple_create(3,1)+(False,)
     
     for i in range(len(KEY)):
         dut.KEY.value = KEY[i]
         dut.KEY_A_I.value = KEY_A_I[i]
         dut.KEY_B_I.value = KEY_B_I[i]
-        await Timer(2, units="ns")
+        await Timer(1, units="ns")
         print(f'Key {"Enable" if dut.KEY.value else "Disable"} | {bool(dut.KEY_A_I.value)} | {bool(dut.KEY_B_I.value)} > {Modes(key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])[2]).name}')
         assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])), f'result is incorrect: {dut.KEY_A_O.value} {dut.KEY_B_O.value} {dut.MODE_SIGNAL.value} != {key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])}'   
+    print('')
     
 def test_key_runner():
     """Simulate the key example using the Python runner.

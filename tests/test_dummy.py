@@ -12,20 +12,20 @@ from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
 
 if cocotb.simulator.is_running():
-    from models import dummy_model
+    from models import dummy_model,tuple_create
     
 @cocotb.test()
 async def TBD_test(dut):
     """Test tbd input"""
 
-    TBD_I = (False,True,False,True,False)
+    TBD_I = tuple_create(1,1)+tuple_create(1,1)+(False,)
     
     for i in range(len(TBD_I)):
         dut.TBD_I.value = TBD_I[i]
-        await Timer(2, units="ns")
+        await Timer(1, units="ns")
         print(f'{bool(dut.TBD_I.value)} > {bool(dut.TBD_O.value)}')
         assert dut.TBD_O.value == dummy_model(TBD_I[i]), f'result is incorrect: {dut.TBD_O.value} != {dut.TBD_I.value}'
-    
+    print('')
 
 def test_dummy_runner():
     """Simulate the dummy example using the Python runner.

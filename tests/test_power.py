@@ -11,20 +11,21 @@ from cocotb.runner import get_runner
 from cocotb.triggers import Timer
 
 if cocotb.simulator.is_running():
-    from models import enum,Powers,power_model
+    from models import enum,Powers,power_model,tuple_create
     
 @cocotb.test()
 async def power_mode_test(dut):
     """Test power"""
 
-    POWER_MODE = (False,True,False,True,False)
+    POWER_MODE = tuple_create(1,1)+tuple_create(1,1)+(False,)
     
     for i in range(len(POWER_MODE)):
         dut.POWER_MODE.value = POWER_MODE[i]
-        await Timer(2, units="ns")
+        await Timer(1, units="ns")
         print(f'Power {"Connected" if dut.POWER_MODE.value else "Disconnected"} > {Powers(power_model(POWER_MODE[i])).name}')
         assert dut.POWER_SIGNAL.value == power_model(POWER_MODE[i]), f'result is incorrect: {dut.POWER_SIGNAL.value} != {dut.POWER_MODE.value}'    
-
+    print('')
+    
 def test_power_runner():
     """Simulate the power example using the Python runner.
 

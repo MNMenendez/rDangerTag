@@ -12,178 +12,30 @@ from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
 
 if cocotb.simulator.is_running():
-    from models import enum,Modes,Commands,command_model
+    from models import enum,Modes,Commands,key_model,command_model,tuple_create
 
 @cocotb.test()
-async def command_ignore_if_error_mode_test(dut):
-    """Whatever INPUT A or B, ignore commands if error mode: Ignore expected"""
+async def command_test(dut):
+    """Test commands"""
     
-    INPUT_A = Logic('-')
-    INPUT_B = Logic('-')
-    dut.INPUT_A.value = INPUT_A
-    dut.INPUT_B.value = INPUT_B
+    KEY     = tuple_create(5,16)+(False,)
+    KEY_A_I = tuple_create(5,8)+(False,)
+    KEY_B_I = tuple_create(5,4)+(False,)
+    INPUT_A = tuple_create(5,2)+(False,)
+    INPUT_B = tuple_create(5,1)+(False,)
     
-    dut.KEY.value = True
-    dut.KEY_A_I.value = True
-    dut.KEY_B_I.value = True
-    
-    await Timer(2, units="ns") 
-    MODE_SIGNAL = dut.MODE_SIGNAL.value
-    print(f'{dut.INPUT_A.value}|{dut.INPUT_B.value}|{dut.MODE_SIGNAL.value}|{MODE_SIGNAL} > {dut.COMMAND_SIGNAL.value} | {command_model(INPUT_A,INPUT_B,MODE_SIGNAL)}')
-    assert dut.COMMAND_SIGNAL.value == command_model(INPUT_A,INPUT_B,MODE_SIGNAL), f'result is incorrect: {dut.COMMAND_SIGNAL.value} != {Commands.COMMAND_IGNORE}'
-
-'''
-@cocotb.test()
-async def command_ignore_if_local_apply_mode_test(dut):
-    """Whatever INPUT A or B, ignore commands if local apply mode: Ignore expected"""
-    
-    INPUT_A = Logic('-')
-    INPUT_B = Logic('-')
-    dut.INPUT_A.value = INPUT_A
-    dut.INPUT_B.value = INPUT_B
-    
-    dut.KEY.value = True
-    dut.KEY_A_I.value = False
-    dut.KEY_B_I.value = True
-    
-    await Timer(2, units="ns") 
-    MODE_SIGNAL = dut.MODE_SIGNAL.value
-    print(f'{dut.INPUT_A.value}|{dut.INPUT_B.value}|{dut.MODE_SIGNAL.value}|{MODE_SIGNAL} > {dut.COMMAND_SIGNAL.value} | {command_model(INPUT_A,INPUT_B,MODE_SIGNAL)}')
-    assert dut.COMMAND_SIGNAL.value == command_model(INPUT_A,INPUT_B,MODE_SIGNAL), f'result is incorrect: {dut.COMMAND_SIGNAL.value} != {Commands.COMMAND_IGNORE}'
-  
-@cocotb.test()
-async def command_ignore_if_local_remove_mode_test(dut):
-    """Whatever INPUT A or B, ignore commands if local remove mode: Ignore expected"""
-    
-    INPUT_A = Logic('-')
-    INPUT_B = Logic('-')
-    dut.INPUT_A.value = INPUT_A
-    dut.INPUT_B.value = INPUT_B
+    for i in range(len(KEY)):
+        dut.KEY.value     = KEY[i]
+        dut.KEY_A_I.value = KEY_A_I[i]
+        dut.KEY_B_I.value = KEY_B_I[i]
+        dut.INPUT_A.value = INPUT_A[i]
+        dut.INPUT_B.value = INPUT_B[i]
         
-    dut.KEY.value = True
-    dut.KEY_A_I.value = True
-    dut.KEY_B_I.value = False
+        await Timer(1, units="ns")
+        print(f'{Modes(dut.MODE_SIGNAL.value).name}|{dut.INPUT_A.value}|{dut.INPUT_B.value} > {Commands(dut.COMMAND_SIGNAL.value).name}')
+        assert dut.COMMAND_SIGNAL.value == command_model(INPUT_A[i],INPUT_B[i],dut.MODE_SIGNAL.value), f'result is incorrect: {dut.COMMAND_SIGNAL.value} != {command_model(INPUT_A[i],INPUT_B[i],dut.MODE_SIGNAL.value)}'   
+    print('')
     
-    await Timer(2, units="ns") 
-    MODE_SIGNAL = dut.MODE_SIGNAL.value  
-    print(f'{dut.INPUT_A.value}|{dut.INPUT_B.value}|{dut.MODE_SIGNAL.value}|{MODE_SIGNAL} > {dut.COMMAND_SIGNAL.value} | {command_model(INPUT_A,INPUT_B,MODE_SIGNAL)}')
-    assert dut.COMMAND_SIGNAL.value == command_model(INPUT_A,INPUT_B,MODE_SIGNAL), f'result is incorrect: {dut.COMMAND_SIGNAL.value} != {Commands.COMMAND_IGNORE}'
-
-@cocotb.test()
-async def command_error_if_equal_commands_in_remote_mode_test(dut):
-    """If INPUT A = Input B in remote mode: Error expected"""
-    
-    INPUT_A = True
-    INPUT_B = True
-    dut.INPUT_A.value = INPUT_A
-    dut.INPUT_B.value = INPUT_B
-        
-    dut.KEY.value = False
-    dut.KEY_A_I.value = Logic('-')
-    dut.KEY_B_I.value = Logic('-')
-    
-    await Timer(2, units="ns") 
-    MODE_SIGNAL = dut.MODE_SIGNAL.value  
-    print(f'{dut.INPUT_A.value}|{dut.INPUT_B.value}|{dut.MODE_SIGNAL.value}|{MODE_SIGNAL} > {dut.COMMAND_SIGNAL.value} | {command_model(INPUT_A,INPUT_B,MODE_SIGNAL)}')
-    assert dut.COMMAND_SIGNAL.value == command_model(INPUT_A,INPUT_B,MODE_SIGNAL), f'result is incorrect: {dut.COMMAND_SIGNAL.value} != {Commands.COMMAND_ERROR}'
-
-    dut.KEY.value = True
-    dut.KEY_A_I.value = False
-    dut.KEY_B_I.value = False
-    
-    await Timer(2, units="ns") 
-    MODE_SIGNAL = dut.MODE_SIGNAL.value  
-    print(f'{dut.INPUT_A.value}|{dut.INPUT_B.value}|{dut.MODE_SIGNAL.value}|{MODE_SIGNAL} > {dut.COMMAND_SIGNAL.value} | {command_model(INPUT_A,INPUT_B,MODE_SIGNAL)}')
-    assert dut.COMMAND_SIGNAL.value == command_model(INPUT_A,INPUT_B,MODE_SIGNAL), f'result is incorrect: {dut.COMMAND_SIGNAL.value} != {Commands.COMMAND_ERROR}'
-
-    INPUT_A = False
-    INPUT_B = False
-    dut.INPUT_A.value = INPUT_A
-    dut.INPUT_B.value = INPUT_B
-        
-    dut.KEY.value = False
-    dut.KEY_A_I.value = Logic('-')
-    dut.KEY_B_I.value = Logic('-')
-    
-    await Timer(2, units="ns") 
-    MODE_SIGNAL = dut.MODE_SIGNAL.value  
-    print(f'{dut.INPUT_A.value}|{dut.INPUT_B.value}|{dut.MODE_SIGNAL.value}|{MODE_SIGNAL} > {dut.COMMAND_SIGNAL.value} | {command_model(INPUT_A,INPUT_B,MODE_SIGNAL)}')
-    assert dut.COMMAND_SIGNAL.value == command_model(INPUT_A,INPUT_B,MODE_SIGNAL), f'result is incorrect: {dut.COMMAND_SIGNAL.value} != {Commands.COMMAND_ERROR}'
-
-    dut.KEY.value = True
-    dut.KEY_A_I.value = False
-    dut.KEY_B_I.value = False
-    
-    await Timer(2, units="ns") 
-    MODE_SIGNAL = dut.MODE_SIGNAL.value  
-    print(f'{dut.INPUT_A.value}|{dut.INPUT_B.value}|{dut.MODE_SIGNAL.value}|{MODE_SIGNAL} > {dut.COMMAND_SIGNAL.value} | {command_model(INPUT_A,INPUT_B,MODE_SIGNAL)}')
-    assert dut.COMMAND_SIGNAL.value == command_model(INPUT_A,INPUT_B,MODE_SIGNAL), f'result is incorrect: {dut.COMMAND_SIGNAL.value} != {Commands.COMMAND_ERROR}'
-
-@cocotb.test()
-async def command_apply_in_remote_mode_test(dut):
-    """INPUT A = False and INPUT B = True in remote mode: Apply expected"""
-    
-    INPUT_A = False
-    INPUT_B = True
-    dut.INPUT_A.value = INPUT_A
-    dut.INPUT_B.value = INPUT_B
-        
-    dut.KEY.value = False
-    dut.KEY_A_I.value = Logic('-')
-    dut.KEY_B_I.value = Logic('-')
-    
-    await Timer(2, units="ns") 
-    MODE_SIGNAL = dut.MODE_SIGNAL.value  
-    print(f'{dut.INPUT_A.value}|{dut.INPUT_B.value}|{dut.MODE_SIGNAL.value}|{MODE_SIGNAL} > {dut.COMMAND_SIGNAL.value} | {command_model(INPUT_A,INPUT_B,MODE_SIGNAL)}')
-    assert dut.COMMAND_SIGNAL.value == command_model(INPUT_A,INPUT_B,MODE_SIGNAL), f'result is incorrect: {dut.COMMAND_SIGNAL.value} != {Commands.COMMAND_APPLY}'
-
-    dut.KEY.value = True
-    dut.KEY_A_I.value = False
-    dut.KEY_B_I.value = False
-    
-    await Timer(2, units="ns") 
-    MODE_SIGNAL = dut.MODE_SIGNAL.value  
-    print(f'{dut.INPUT_A.value}|{dut.INPUT_B.value}|{dut.MODE_SIGNAL.value}|{MODE_SIGNAL} > {dut.COMMAND_SIGNAL.value} | {command_model(INPUT_A,INPUT_B,MODE_SIGNAL)}')
-    assert dut.COMMAND_SIGNAL.value == command_model(INPUT_A,INPUT_B,MODE_SIGNAL), f'result is incorrect: {dut.COMMAND_SIGNAL.value} != {Commands.COMMAND_APPLY}'
-
-@cocotb.test()
-async def command_remove_in_remote_mode_test(dut):
-    """INPUT A = True and INPUT B = False in remote mode: Remove expected"""
-    
-    INPUT_A = True
-    INPUT_B = False
-    dut.INPUT_A.value = INPUT_A
-    dut.INPUT_B.value = INPUT_B
-        
-    dut.KEY.value = False
-    dut.KEY_A_I.value = Logic('-')
-    dut.KEY_B_I.value = Logic('-')
-    
-    await Timer(2, units="ns") 
-    MODE_SIGNAL = dut.MODE_SIGNAL.value  
-    print(f'{dut.INPUT_A.value}|{dut.INPUT_B.value}|{dut.MODE_SIGNAL.value}|{MODE_SIGNAL} > {dut.COMMAND_SIGNAL.value} | {command_model(INPUT_A,INPUT_B,MODE_SIGNAL)}')
-    assert dut.COMMAND_SIGNAL.value == command_model(INPUT_A,INPUT_B,MODE_SIGNAL), f'result is incorrect: {dut.COMMAND_SIGNAL.value} != {Commands.COMMAND_REMOVE}'
-
-    dut.KEY.value = True
-    dut.KEY_A_I.value = False
-    dut.KEY_B_I.value = False
-    
-    await Timer(2, units="ns") 
-    MODE_SIGNAL = dut.MODE_SIGNAL.value  
-    print(f'{dut.INPUT_A.value}|{dut.INPUT_B.value}|{dut.MODE_SIGNAL.value}|{MODE_SIGNAL} > {dut.COMMAND_SIGNAL.value} | {command_model(INPUT_A,INPUT_B,MODE_SIGNAL)}')
-    assert dut.COMMAND_SIGNAL.value == command_model(INPUT_A,INPUT_B,MODE_SIGNAL), f'result is incorrect: {dut.COMMAND_SIGNAL.value} != {Commands.COMMAND_REMOVE}'
-
-
-
-
-
-
-
-
-
-
-
-'''
 def test_command_runner():
     """Simulate the key example using the Python runner.
 

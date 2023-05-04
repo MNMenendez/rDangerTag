@@ -50,6 +50,22 @@ begin
 		
 		if (POWER_STATE = POWER_OFF) then
 			SYSTEM_STATE <= SYSTEM_BATTERY;
+		else
+			if ( MODE_STATE = MODE_ERROR or COMMAND_STATE = COMMAND_ERROR or SENSOR_STATE = SENSOR_ERROR ) then
+				SYSTEM_STATE <= SYSTEM_ERROR;
+				ALL_OK 		 <= FAULT;
+			else
+				ALL_OK			<= ALIVE;
+				if ( SENSOR_STATE = DANGER ) then
+					SYSTEM_STATE <= SYSTEM_DANGER;
+				end if;
+				if ( SENSOR_STATE = BLANK ) then
+					SYSTEM_STATE <= SYSTEM_BLANK;
+				end if;
+				if ( SENSOR_STATE = TRANSITION ) then
+					SYSTEM_STATE <= SYSTEM_TRANSITION;
+				end if;
+			end if;
 		end if;
 	
 	

@@ -12,16 +12,16 @@ from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
 
 if cocotb.simulator.is_running():
-    from models import enum,Sensors,sensor_model
+    from models import enum,Sensors,sensor_model,tuple_create
 
 @cocotb.test()
 async def sensor_test(dut):
     """Sensor test"""
     
-    SENSOR_1 = (False,False,False,False,False,False,False,False,True,True,True,True,True,True,True,True)
-    SENSOR_2 = (False,False,True,True,False,False,True,True,False,False,True,True,False,False,True,True)
-    SENSOR_3 = (False,False,False,False,True,True,True,True,False,False,False,False,True,True,True,True)
-    SENSOR_4 = (False,True,False,True,False,True,False,True,False,True,False,True,False,True,False,True)
+    SENSOR_1 = tuple_create(4,8)+(False,)
+    SENSOR_2 = tuple_create(4,4)+(False,)
+    SENSOR_3 = tuple_create(4,2)+(False,)
+    SENSOR_4 = tuple_create(4,1)+(False,)
     
     for i in range(len(SENSOR_1)):
         dut.SENSOR_1.value = SENSOR_1[i]
@@ -29,10 +29,10 @@ async def sensor_test(dut):
         dut.SENSOR_3.value = SENSOR_3[i]
         dut.SENSOR_4.value = SENSOR_4[i]
         
-        await Timer(2, units="ns")
+        await Timer(1, units="ns")
         print(f'{dut.SENSOR_1.value}|{dut.SENSOR_2.value}|{dut.SENSOR_3.value}|{dut.SENSOR_4.value} > {Sensors(sensor_model(SENSOR_1[i],SENSOR_2[i],SENSOR_3[i],SENSOR_4[i])).name}')
     assert dut.SENSOR_SIGNAL.value == sensor_model(SENSOR_1[i],SENSOR_2[i],SENSOR_3[i],SENSOR_4[i]), f'result is incorrect: {dut.SENSOR_SIGNAL.value} != {sensor_model(SENSOR_1[i],SENSOR_2[i],SENSOR_3[i],SENSOR_4[i])}'   
- 
+    print('')
 
 def test_sensor_runner():
     """Simulate the key example using the Python runner.

@@ -105,6 +105,12 @@ architecture BEHAVIORAL of General is
            SYSTEM_STATE 	: out system_states);
    end component;
    
+   component output_module
+      port ( SYSTEM_STATE   : in    system_states; 
+      		 OUTPUT_A    	: out   std_logic;
+      		 OUTPUT_B    	: out   std_logic);
+   end component;
+   
    component lock_module
       port ( LOCK   	 : in    std_logic; 
       		 LOCK_A_I    : in    std_logic;
@@ -119,11 +125,11 @@ architecture BEHAVIORAL of General is
    end component;
    
 begin
-   XLXI_9 : power_module
+   power_process : power_module
       port map (POWER_MODE	=>	POWER_MODE,
                 POWER_STATE	=>	POWER_SIGNAL);
    
-   XLXI_12 : key_module
+   key_process : key_module
 		port map (KEY						=> KEY,
    	  			KEY_A_I					=> KEY_A_I,
    	  			KEY_B_I					=> KEY_B_I,
@@ -131,20 +137,20 @@ begin
    	  			KEY_B_O					=> KEY_B_O,
    	  			MODE_STATE  			=> MODE_SIGNAL);
    
-   XLXI_13 : command_module
+   command_process : command_module
    		port map (INPUT_A				=> INPUT_A,
    	  			  INPUT_B				=> INPUT_B,
    	  			  MODE_STATE			=> MODE_SIGNAL,
    	  			  COMMAND_STATE  		=> COMMAND_SIGNAL);
    
-   XLXI_14 : sensor_module
+   sensor_process : sensor_module
    		port map (SENSOR_1				=> SENSOR_1,
    	  			  SENSOR_2				=> SENSOR_2,
    	  			  SENSOR_3				=> SENSOR_3,
    	  			  SENSOR_4				=> SENSOR_4,
    	  			  SENSOR_STATE  		=> SENSOR_SIGNAL);
    	  			  
-   XLXI_15 : system_module
+   system_process : system_module
    		port map (COMMAND_STATE			=> COMMAND_SIGNAL,
    	  			  MODE_STATE			=> MODE_SIGNAL,
    	  			  POWER_STATE			=> POWER_SIGNAL,
@@ -152,14 +158,19 @@ begin
    	  			  ALL_OK				=> OK_SIGNAL,
    	  			  SYSTEM_STATE  		=> SYSTEM_SIGNAL);
    	  			  
-   XLXI_28 : lock_module
+   output_process : output_module
+   		port map (SYSTEM_STATE			=> SYSTEM_SIGNAL,
+   	  			  OUTPUT_A				=> OUTPUT_A,
+   	  			  OUTPUT_B		 		=> OUTPUT_B);
+   	  			  
+   lock_process : lock_module
    		port map (LOCK 					=> LOCK,
    				  LOCK_A_I				=> LOCK_A_I,
    				  LOCK_B_I				=> LOCK_B_I,
    				  LOCK_A_O				=> LOCK_A_O,
    				  LOCK_B_O				=> LOCK_B_O);
    				  
-   XLXI_34 : dummy_module
+   dummy_process : dummy_module
       port map (TBD_I	=>	TBD_I,
                 TBD_O	=>	TBD_O);
    

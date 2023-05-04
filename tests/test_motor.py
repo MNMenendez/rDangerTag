@@ -12,13 +12,13 @@ from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
 
 if cocotb.simulator.is_running():
-    from models import enum,Powers,Modes,Sensors,Commands,Systems,Rights,power_model,key_model,system_model,output_model,tuple_create
+    from models import enum,Powers,Modes,Sensors,Commands,Systems,Rights,Motors,power_model,key_model,system_model,output_model,motor_model,tuple_create
 
 @cocotb.test()
-async def output_test(dut):
+async def motor_test(dut):
     """Testing output"""
     
-    POWER_MODE  = tuple_create(10,512)+(False,)
+    LOCK        = tuple_create(10,512)+(False,)
     KEY         = tuple_create(10,256)+(False,)
     KEY_A_I     = tuple_create(10,128)+(False,)
     KEY_B_I     = tuple_create(10,64)+(False,)
@@ -31,8 +31,8 @@ async def output_test(dut):
     
     message_old = ''
     message_new = ''
-    for i in range(len(POWER_MODE)):
-        dut.POWER_MODE.value = POWER_MODE[i]
+    for i in range(len(LOCK)):
+        dut.LOCK.value = LOCK[i]
         dut.KEY.value = KEY[i]
         dut.KEY_A_I.value = KEY_A_I[i]
         dut.KEY_B_I.value = KEY_B_I[i]
@@ -44,15 +44,15 @@ async def output_test(dut):
         dut.SENSOR_4.value = SENSOR_4[i]
         await Timer(1, units="ns")
         
-        message_new = f'{Systems(dut.SYSTEM_SIGNAL.value).name} > {output_model(dut.SYSTEM_SIGNAL.value)}'
+        message_new = f'Lock {"Enable" if dut.LOCK.value else "Disable"}|{Modes(dut.MODE_SIGNAL.value).name}|{Commands(dut.COMMAND_SIGNAL.value).name}|{Sensors(dut.SENSOR_SIGNAL.value).name} > {Motors(motor_model(dut.LOCK.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)).name}'
         if message_old != message_new:
             message_old =  message_new
             print(message_old)
-        #print(f'{Systems(dut.SYSTEM_SIGNAL.value).name} > {output_model(dut.SYSTEM_SIGNAL.value)}')
-        assert ([dut.OUTPUT_A.value,dut.OUTPUT_B.value] == output_model(dut.SYSTEM_SIGNAL.value)), f'result is incorrect: [{dut.OUTPUT_A.value},{dut.OUTPUT_B.value}] ! {output_model(dut.SYSTEM_SIGNAL.value)}'
+        assert dut.MOTOR_SIGNAL.value == motor_model(dut.LOCK.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value), f'result is incorrect: {Motors(dut.MOTOR_SIGNAL.value).name} ! {Motors(motor_model(dut.LOCK.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)).name}'
     print('')
+
     
-def test_output_runner():
+def test_motor_runner():
     """Simulate the key example using the Python runner.
 
     This file can be run directly or via pytest discovery.
@@ -68,9 +68,9 @@ def test_output_runner():
     vhdl_sources = []
 
     if hdl_toplevel_lang == "verilog":
-        verilog_sources = [proj_path / "hdl" / "ouput_module.sv"]
+        verilog_sources = [proj_path / "hdl" / "motor_module.sv"]
     else:
-        vhdl_sources = [proj_path / "hdl" / "ouput_module.vhdl"]
+        vhdl_sources = [proj_path / "hdl" / "motor_module.vhdl"]
 
     # equivalent to setting the PYTHONPATH environment variable
     sys.path.append(str(proj_path / "tests"))
@@ -79,11 +79,11 @@ def test_output_runner():
     runner.build(
         verilog_sources=verilog_sources,
         vhdl_sources=vhdl_sources,
-        hdl_toplevel="ouput_module",
+        hdl_toplevel="motor_module",
         always=True,
     )
-    runner.test(hdl_toplevel="ouput_module", test_module="test_output")
+    runner.test(hdl_toplevel="motor_module", test_module="test_motor")
 
 
 if __name__ == "__main__":
-    test_output_runner()
+    test_motor_runner()

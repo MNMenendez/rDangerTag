@@ -13,4 +13,5 @@ package utilities is
 	Type command_states is (COMMAND_ERROR,COMMAND_IGNORE,COMMAND_APPLY,COMMAND_REMOVE);
 	Type system_states is (SYSTEM_ERROR,SYSTEM_DANGER,SYSTEM_BLANK,SYSTEM_TRANSITION,SYSTEM_BATTERY);
 	Type right_states is (FAULT,ALIVE);
+	Type motors_states is (STOP,toDANGER,toBLANK);
 end package;

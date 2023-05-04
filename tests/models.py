@@ -33,7 +33,11 @@ class Systems(enum.Enum):
 class Rights(enum.Enum):
     FAULT               = 0
     ALIVE               = 1
-
+class Motors(enum.Enum):
+    STOP               = 0
+    toDANGER           = 1
+    toBLANK            = 2
+    
 def dummy_model(TBD_I: Logic = Logic('-')) -> int:
     """model of dummy"""
     return TBD_I
@@ -114,7 +118,7 @@ def lock_model(LOCK: Logic = Logic('-'), LOCK_A_I: Logic = Logic('-'), LOCK_B_I:
         
     return [LOCK_A_O,LOCK_B_O]
     
-def system_model(POWER_STATE: int = Powers.POWER_BATTERY, MODE_STATE: int = Modes.MODE_ERROR , COMMAND_STATE: int = Commands.COMMAND_ERROR , SENSOR_STATE: int = Sensors.SENSOR_ERROR):
+def system_model(POWER_STATE: int = Powers.POWER_BATTERY, MODE_STATE: int = Modes.MODE_ERROR, COMMAND_STATE: int = Commands.COMMAND_ERROR, SENSOR_STATE: int = Sensors.SENSOR_ERROR):
 
     SYSTEM_STATE = Systems.SYSTEM_ERROR
     ALL_OK = Rights.FAULT
@@ -165,3 +169,14 @@ def output_model(SYSTEM_STATE: int = Systems.SYSTEM_ERROR):
             OUTPUT_B = False
     
     return [OUTPUT_A,OUTPUT_B]
+    
+def motor_model(LOCK: Logic = Logic('-'), MODE_STATE: int = Modes.MODE_ERROR, COMMAND_STATE: int = Commands.COMMAND_ERROR, SENSOR_STATE: int = Sensors.SENSOR_ERROR):
+    
+    MOTOR_STATE = Motors.STOP
+
+    if ( LOCK == False or MODE_STATE == Modes.MODE_ERROR.value or COMMAND_STATE == Commands.COMMAND_ERROR.value or SENSOR_STATE == Sensors.SENSOR_ERROR.value):
+        MOTOR_STATE = Motors.STOP
+    else:
+        MOTOR_STATE = Motors.toDANGER
+    
+    return MOTOR_STATE.value

@@ -65,7 +65,7 @@ architecture BEHAVIORAL of General is
    signal COMMAND_SIGNAL	: command_states;
    signal OK_SIGNAL			: right_states;
    signal SYSTEM_SIGNAL		: system_states;
-   signal XLXN_201	: std_logic_vector (1 downto 0);
+   signal MOTOR_SIGNAL  	: motors_states;
    
    component power_module
       Port ( POWER_MODE : in  STD_LOGIC;
@@ -109,6 +109,14 @@ architecture BEHAVIORAL of General is
       port ( SYSTEM_STATE   : in    system_states; 
       		 OUTPUT_A    	: out   std_logic;
       		 OUTPUT_B    	: out   std_logic);
+   end component;
+   
+   component motor_module is
+    Port ( LOCK   	 		: in    std_logic;
+           MODE_STATE 		: in  mode_states;
+           COMMAND_STATE 	: in  command_states;
+           SENSOR_STATE 	: in  sensor_states;
+		   MOTOR_STATE		: out motors_states);
    end component;
    
    component lock_module
@@ -162,6 +170,13 @@ begin
    		port map (SYSTEM_STATE			=> SYSTEM_SIGNAL,
    	  			  OUTPUT_A				=> OUTPUT_A,
    	  			  OUTPUT_B		 		=> OUTPUT_B);
+	
+	motor_process : motor_module
+   		port map (LOCK					=> LOCK,
+   				  COMMAND_STATE			=> COMMAND_SIGNAL,
+   	  			  MODE_STATE			=> MODE_SIGNAL,
+   	  			  SENSOR_STATE			=> SENSOR_SIGNAL,
+   	  			  MOTOR_STATE			=> MOTOR_SIGNAL);
    	  			  
    lock_process : lock_module
    		port map (LOCK 					=> LOCK,

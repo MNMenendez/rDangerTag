@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+library work;
+use work.Utilities.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -30,12 +32,11 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity MOTOR_MODULE is
-    Port ( LOCK : in  STD_LOGIC;
-           PWR_STATE : in  STD_LOGIC;
-           MODE_STATE : in  STD_LOGIC_VECTOR (1 downto 0);
-           COMMAND_STATE : in  STD_LOGIC_VECTOR (1 downto 0);
-           SENSOR_STATE : in  STD_LOGIC_VECTOR (1 downto 0);
-           MOTOR_STATE : out  STD_LOGIC_VECTOR (1 downto 0));
+    Port ( LOCK   	 		: in    std_logic;
+           MODE_STATE 		: in  mode_states;
+           COMMAND_STATE 	: in  command_states;
+           SENSOR_STATE 	: in  sensor_states;
+		   MOTOR_STATE		: out motors_states);
 end MOTOR_MODULE;
 
 architecture MOTOR_FUNC of MOTOR_MODULE is

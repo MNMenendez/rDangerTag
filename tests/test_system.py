@@ -29,6 +29,8 @@ async def system_states_test(dut):
     SENSOR_3    = tuple_create(10,2)+(False,)
     SENSOR_4    = tuple_create(10,1)+(False,)
     
+    message_old = ''
+    message_new = ''
     for i in range(len(POWER_MODE)):
         dut.POWER_MODE.value = POWER_MODE[i]
         dut.KEY.value = KEY[i]
@@ -41,7 +43,11 @@ async def system_states_test(dut):
         dut.SENSOR_3.value = SENSOR_3[i]
         dut.SENSOR_4.value = SENSOR_4[i]
         await Timer(1, units="ns")
-        print(f'{Powers(dut.POWER_SIGNAL.value).name}|{Modes(dut.MODE_SIGNAL.value).name}|{Commands(dut.COMMAND_SIGNAL.value).name}|{Sensors(dut.SENSOR_SIGNAL.value).name} > [{Systems(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[0]).name},{Rights(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[1]).name}]')
+        
+        message_new = f'{Powers(dut.POWER_SIGNAL.value).name}|{Modes(dut.MODE_SIGNAL.value).name}|{Commands(dut.COMMAND_SIGNAL.value).name}|{Sensors(dut.SENSOR_SIGNAL.value).name} > [{Systems(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[0]).name},{Rights(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[1]).name}]'
+        if message_old != message_new:
+            message_old =  message_new
+            print(message_old)
         assert ([dut.SYSTEM_SIGNAL.value,dut.OK_SIGNAL.value] == system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)), f'result is incorrect: [{Systems(dut.SYSTEM_SIGNAL.value).name},{Rights(dut.OK_SIGNAL.value).name}] ! [{Systems(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[0]).name},{Rights(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[1]).name}]'
     print('')
 

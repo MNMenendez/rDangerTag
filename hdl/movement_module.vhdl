@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    09:34:25 05/02/2023 
+-- Create Date:    16:04:52 05/01/2023 
 -- Design Name: 
--- Module Name:    CLOCK_MODULE - CLOCK_FUNC 
+-- Module Name:    MOVEMENT_MODULE - MOVEMENT_FUNC 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+library work;
+use work.Utilities.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -29,17 +31,19 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity CLOCK_MODULE is
-    Port ( CLOCK : in  STD_LOGIC;
-           CLOCK_STATE : in  STD_LOGIC;
-           WATCHDOG : out  STD_LOGIC;
-           PWM : out  STD_LOGIC);
-end CLOCK_MODULE;
+entity movement_module is
+    Port ( MOTOR_STATE 	: in  motors_states;
+		   PWM 			: in  STD_LOGIC;
+           MOTOR_PWM 	: out  STD_LOGIC;
+           MOTOR_UP 	: out  STD_LOGIC;
+           MOTOR_DOWN 	: out  STD_LOGIC);
+end movement_module;
 
-architecture CLOCK_FUNC of CLOCK_MODULE is
+architecture movement_func of movement_module is
 
 begin
-
-
-end CLOCK_FUNC;
+	MOTOR_PWM 	<= PWM when ( MOTOR_STATE /= STOP ) else '0';
+	MOTOR_UP	<= '1' when ( MOTOR_STATE = toDANGER ) else '0';
+	MOTOR_DOWN 	<= '1' when ( MOTOR_STATE = toBLANK ) else '0';
+end movement_func;
 

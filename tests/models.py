@@ -172,11 +172,91 @@ def output_model(SYSTEM_STATE: int = Systems.SYSTEM_ERROR):
     
 def motor_model(LOCK: Logic = Logic('-'), MODE_STATE: int = Modes.MODE_ERROR, COMMAND_STATE: int = Commands.COMMAND_ERROR, SENSOR_STATE: int = Sensors.SENSOR_ERROR):
     
-    MOTOR_STATE = Motors.STOP
+    MOTOR_STATE = Motors.STOP.value
 
-    if ( LOCK == False or MODE_STATE == Modes.MODE_ERROR.value or COMMAND_STATE == Commands.COMMAND_ERROR.value or SENSOR_STATE == Sensors.SENSOR_ERROR.value):
-        MOTOR_STATE = Motors.STOP
-    else:
-        MOTOR_STATE = Motors.toDANGER
+    #print(LOCK,MODE_STATE,COMMAND_STATE,SENSOR_STATE)
     
-    return MOTOR_STATE.value
+    if ( LOCK == False ):
+        return Motors.STOP.value
+    if ( MODE_STATE == Modes.MODE_ERROR.value ):
+        return Motors.STOP.value
+    if ( COMMAND_STATE == Commands.COMMAND_ERROR.value ):
+        return Motors.STOP.value
+    if ( SENSOR_STATE == Sensors.SENSOR_ERROR.value ):
+        return Motors.STOP.value
+ 
+    match MODE_STATE:
+        case Modes.LOCAL_APPLY.value:
+            if SENSOR_STATE != Sensors.DANGER.value :
+                return Motors.toDANGER.value
+            else:
+                return Motors.STOP.value
+        case Modes.LOCAL_REMOVE.value:
+            if SENSOR_STATE != Sensors.BLANK.value:
+                return Motors.toBLANK.value
+            else:
+                return Motors.STOP.value
+        case Modes.REMOTE.value:
+            if ( COMMAND_STATE == Commands.COMMAND_APPLY.value ):
+                if SENSOR_STATE != Sensors.DANGER.value :
+                    return Motors.toDANGER.value
+                else:
+                    return Motors.STOP.value
+            if ( COMMAND_STATE == Commands.COMMAND_REMOVE.value):
+                if SENSOR_STATE != Sensors.BLANK.value:
+                    return Motors.toBLANK.value
+                else:
+                    return Motors.STOP.value
+        case _:
+            return Motors.STOP.value
+    return MOTOR_STATE
+
+counter = 0
+def clock_model(CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-')):
+    
+    global counter
+    PWM = False
+    WATCHDOG = True if CLOCK_STATE else False
+    
+    if CLOCK_STATE == False:
+        counter = 0
+    else:
+        if CLOCK:
+            counter = counter + 1
+        if counter > 16:
+            counter = 0
+            PWM = True
+        if counter >= 12:
+            PWM = False
+        else:
+            PWM = True
+
+    #print(CLOCK_STATE,CLOCK,counter,WATCHDOG,PWM)
+    
+    return [WATCHDOG,PWM]
+    
+def movement_model(PWM: Logic = Logic('-'), MOTOR_STATE: int = Motors.STOP):
+    
+    MOTOR_PWM = False
+    MOTOR_UP = False
+    MOTOR_DOWN = False
+    
+    match MOTOR_STATE:
+        case Motors.STOP.value:
+            MOTOR_PWM = False
+            MOTOR_UP = False
+            MOTOR_DOWN = False
+        case Motors.toDANGER.value:
+            MOTOR_PWM = PWM
+            MOTOR_UP = True
+            MOTOR_DOWN = False
+        case Motors.toBLANK.value:
+            MOTOR_PWM = PWM
+            MOTOR_UP = False
+            MOTOR_DOWN = True
+        case _:
+            MOTOR_PWM = False
+            MOTOR_UP = False
+            MOTOR_DOWN = False
+    
+    return [MOTOR_PWM,MOTOR_UP,MOTOR_DOWN]

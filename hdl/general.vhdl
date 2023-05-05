@@ -27,8 +27,8 @@ use work.Utilities.all;
 
 entity General is
 	port ( 
-		CLK         : in    std_logic := '0'; 
-  	  	CLK_STATE   : in    std_logic := '0';
+		CLOCK       : in    std_logic := '0'; 
+  	  	CLOCK_STATE : in    std_logic := '0';
   	  	INPUT_A     : in    std_logic := '0';
   	  	INPUT_B     : in    std_logic := '0';
         KEY         : in    std_logic := '0'; 
@@ -66,6 +66,7 @@ architecture BEHAVIORAL of General is
    signal OK_SIGNAL			: right_states;
    signal SYSTEM_SIGNAL		: system_states;
    signal MOTOR_SIGNAL  	: motors_states;
+   signal PWM_SIGNAL		: STD_LOGIC;
    
    component power_module
       Port ( POWER_MODE : in  STD_LOGIC;
@@ -119,6 +120,14 @@ architecture BEHAVIORAL of General is
 		   MOTOR_STATE		: out motors_states);
    end component;
    
+   component movement_module is
+    Port ( MOTOR_STATE 	: in  motors_states;
+		   PWM 			: in  STD_LOGIC;
+           MOTOR_PWM 	: out  STD_LOGIC;
+           MOTOR_UP 	: out  STD_LOGIC;
+           MOTOR_DOWN 	: out  STD_LOGIC);
+	end component;
+
    component lock_module
       port ( LOCK   	 : in    std_logic; 
       		 LOCK_A_I    : in    std_logic;
@@ -126,7 +135,14 @@ architecture BEHAVIORAL of General is
       		 LOCK_A_O    : out   std_logic;
       		 LOCK_B_O    : out   std_logic);
    end component;
-
+	
+   component clock_module
+      port ( CLOCK   	 	: in    std_logic; 
+      		 CLOCK_STATE    : in    std_logic;
+      		 WATCHDOG    	: out   std_logic;
+      		 PWM    		: out   std_logic);
+   end component;
+   
    component dummy_module
       port ( TBD_I    : in    std_logic;  
              TBD_O    : out   std_logic);
@@ -178,12 +194,25 @@ begin
    	  			  SENSOR_STATE			=> SENSOR_SIGNAL,
    	  			  MOTOR_STATE			=> MOTOR_SIGNAL);
    	  			  
+   movement_process : movement_module
+   		port map (MOTOR_STATE 			=> MOTOR_SIGNAL,
+   				  PWM					=> PWM_SIGNAL,
+   				  MOTOR_PWM				=> MOTOR_PWM,
+   				  MOTOR_UP				=> MOTOR_UP,
+   				  MOTOR_DOWN			=> MOTOR_DOWN);
+   
    lock_process : lock_module
    		port map (LOCK 					=> LOCK,
    				  LOCK_A_I				=> LOCK_A_I,
    				  LOCK_B_I				=> LOCK_B_I,
    				  LOCK_A_O				=> LOCK_A_O,
    				  LOCK_B_O				=> LOCK_B_O);
+   
+   clock_process : clock_module
+   		port map (CLOCK 				=> CLOCK,
+   				  CLOCK_STATE			=> CLOCK_STATE,
+   				  PWM					=> PWM_SIGNAL,
+   				  WATCHDOG				=> WATCHDOG);
    				  
    dummy_process : dummy_module
       port map (TBD_I	=>	TBD_I,

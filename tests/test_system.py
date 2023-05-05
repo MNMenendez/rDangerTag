@@ -10,6 +10,7 @@ import cocotb
 from cocotb.runner import get_runner
 from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
+from cocotb.binary import BinaryValue
 
 if cocotb.simulator.is_running():
     from models import enum,Powers,Modes,Sensors,Commands,Systems,Rights,power_model,key_model,system_model,tuple_create
@@ -18,30 +19,19 @@ if cocotb.simulator.is_running():
 async def system_states_test(dut):
     """Testing system states"""
     
-    POWER_MODE  = tuple_create(10,512)+(False,)
-    KEY         = tuple_create(10,256)+(False,)
-    KEY_A_I     = tuple_create(10,128)+(False,)
-    KEY_B_I     = tuple_create(10,64)+(False,)
-    INPUT_A     = tuple_create(10,32)+(False,)
-    INPUT_B     = tuple_create(10,16)+(False,)
-    SENSOR_1    = tuple_create(10,8)+(False,)
-    SENSOR_2    = tuple_create(10,4)+(False,)
-    SENSOR_3    = tuple_create(10,2)+(False,)
-    SENSOR_4    = tuple_create(10,1)+(False,)
-    
+    aux              =   tuple_create(7,2**6)+(False,)
+    POWER_STATE      =   tuple(x.value for x in Powers)
+    MODE_STATE       =   tuple(x.value for x in Modes)
+    COMMAND_STATE    =   tuple(x.value for x in Commands)
+    SENSOR_STATE     =   tuple(x.value for x in Sensors)
+
     message_old = ''
     message_new = ''
-    for i in range(len(POWER_MODE)):
-        dut.POWER_MODE.value = POWER_MODE[i]
-        dut.KEY.value = KEY[i]
-        dut.KEY_A_I.value = KEY_A_I[i]
-        dut.KEY_B_I.value = KEY_B_I[i]
-        dut.INPUT_A.value = INPUT_A[i]
-        dut.INPUT_B.value = INPUT_B[i]
-        dut.SENSOR_1.value = SENSOR_1[i]
-        dut.SENSOR_2.value = SENSOR_2[i]
-        dut.SENSOR_3.value = SENSOR_3[i]
-        dut.SENSOR_4.value = SENSOR_4[i]
+    for i in range(len(aux)):
+        dut.POWER_SIGNAL.value = BinaryValue(value=POWER_STATE[(i//64)%2],bits=8,bigEndian=False)
+        dut.MODE_SIGNAL.value = BinaryValue(value=MODE_STATE[(i//16)%4],bits=8,bigEndian=False)
+        dut.COMMAND_SIGNAL.value = BinaryValue(value=COMMAND_STATE[(i//4)%4],bits=8,bigEndian=False)
+        dut.SENSOR_SIGNAL.value = BinaryValue(value=SENSOR_STATE[(i//1)%4],bits=8,bigEndian=False)
         await Timer(1, units="ns")
         
         message_new = f'{Powers(dut.POWER_SIGNAL.value).name}|{Modes(dut.MODE_SIGNAL.value).name}|{Commands(dut.COMMAND_SIGNAL.value).name}|{Sensors(dut.SENSOR_SIGNAL.value).name} > [{Systems(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[0]).name},{Rights(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[1]).name}]'

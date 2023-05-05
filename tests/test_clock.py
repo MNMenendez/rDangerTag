@@ -30,7 +30,7 @@ async def clock_test(dut):
         message_new = f'Clock {"Alive" if dut.CLOCK_STATE.value else "Dead"}|{dut.CLOCK.value} > Clock {"Alive" if dut.WATCHDOG.value else "Dead"}|{dut.PWM_SIGNAL.value}'
         if message_old != message_new:
             message_old =  message_new
-            print(message_old)
+            #print(message_old)
         assert [dut.WATCHDOG.value,dut.PWM_SIGNAL.value] == clock_model(dut.CLOCK.value,dut.CLOCK_STATE.value), f'result is incorrect: [{dut.WATCHDOG.value},{dut.PWM_SIGNAL.value}] ! {clock_model(dut.CLOCK.value,dut.CLOCK_STATE.value)}'
     print('')
 

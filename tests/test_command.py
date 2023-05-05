@@ -10,6 +10,7 @@ import cocotb
 from cocotb.runner import get_runner
 from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
+from cocotb.binary import BinaryValue
 
 if cocotb.simulator.is_running():
     from models import enum,Modes,Commands,key_model,command_model,tuple_create
@@ -18,18 +19,14 @@ if cocotb.simulator.is_running():
 async def command_test(dut):
     """Test commands"""
     
-    KEY     = tuple_create(5,16)+(False,)
-    KEY_A_I = tuple_create(5,8)+(False,)
-    KEY_B_I = tuple_create(5,4)+(False,)
-    INPUT_A = tuple_create(5,2)+(False,)
-    INPUT_B = tuple_create(5,1)+(False,)
+    INPUT_A = tuple_create(4,2)+(False,)
+    INPUT_B = tuple_create(4,1)+(False,)
+    MODE_STATE       =   tuple(x.value for x in Modes)
     
-    for i in range(len(KEY)):
-        dut.KEY.value     = KEY[i]
-        dut.KEY_A_I.value = KEY_A_I[i]
-        dut.KEY_B_I.value = KEY_B_I[i]
+    for i in range(len(INPUT_A)):
         dut.INPUT_A.value = INPUT_A[i]
         dut.INPUT_B.value = INPUT_B[i]
+        dut.MODE_SIGNAL.value = BinaryValue(value=MODE_STATE[(i//4)%4],bits=8,bigEndian=False)
         
         await Timer(1, units="ns")
         print(f'{Modes(dut.MODE_SIGNAL.value).name}|{dut.INPUT_A.value}|{dut.INPUT_B.value} > {Commands(dut.COMMAND_SIGNAL.value).name}')

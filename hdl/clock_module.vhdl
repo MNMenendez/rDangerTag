@@ -40,25 +40,25 @@ end clock_module;
 
 architecture clock_func of clock_module is
 
---signal counter : STD_LOGIC_VECTOR ( 8-1 downto 0 ) := (others => '0');
---signal setting : STD_LOGIC_VECTOR ( 8-1 downto 0 ) := (others => '0');
-
 	signal counter : integer range 0 to 16 := 0;
-	--variable setting : integer range 0 to 127 := 0;
 begin
 	CLOCK_PROCESS: process ( CLOCK , CLOCK_STATE ) is
 	begin
 		WATCHDOG <= CLOCK_STATE;
-		if CLOCK_STATE = '1' and rising_edge (CLOCK) then
-			if counter = 16 then
-				counter <= 0;
-			else
-				counter <= counter + 1;
+
+		if CLOCK_STATE = '0' then
+			counter <= 0;
+		else
+			if rising_edge (CLOCK) then
+				if counter = 16 then
+					counter <= 0;
+				else
+					counter <= counter + 1;
+				end if;
 			end if;
 		end if;
 	end process;
-	
-	--setting <= STD_LOGIC_VECTOR(to_unsigned(pwm_setting, setting'length));
+
 	PWM <= '1' when (CLOCK_STATE = '1' and counter < pwm_setting) else '0';
 
 end clock_func;

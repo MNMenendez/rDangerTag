@@ -1,6 +1,0 @@
-<testsuites name="results">
-  <testsuite name="all" package="all">
-    <property name="random_seed" value="1683266835" />
-    <testcase name="movement_test" classname="test_movement" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_movement.py" lineno="18" time="0.07058572769165039" sim_time_ns="513.000001" ratio_time="7267.7581966854605" />
-  </testsuite>
-</testsuites>

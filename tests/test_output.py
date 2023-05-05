@@ -10,6 +10,7 @@ import cocotb
 from cocotb.runner import get_runner
 from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
+from cocotb.binary import BinaryValue
 
 if cocotb.simulator.is_running():
     from models import enum,Powers,Modes,Sensors,Commands,Systems,Rights,power_model,key_model,system_model,output_model,tuple_create
@@ -18,30 +19,12 @@ if cocotb.simulator.is_running():
 async def output_test(dut):
     """Testing output"""
     
-    POWER_MODE  = tuple_create(10,512)+(False,)
-    KEY         = tuple_create(10,256)+(False,)
-    KEY_A_I     = tuple_create(10,128)+(False,)
-    KEY_B_I     = tuple_create(10,64)+(False,)
-    INPUT_A     = tuple_create(10,32)+(False,)
-    INPUT_B     = tuple_create(10,16)+(False,)
-    SENSOR_1    = tuple_create(10,8)+(False,)
-    SENSOR_2    = tuple_create(10,4)+(False,)
-    SENSOR_3    = tuple_create(10,2)+(False,)
-    SENSOR_4    = tuple_create(10,1)+(False,)
+    SYSTEM_MODE = tuple(x.value for x in Systems)
     
     message_old = ''
     message_new = ''
-    for i in range(len(POWER_MODE)):
-        dut.POWER_MODE.value = POWER_MODE[i]
-        dut.KEY.value = KEY[i]
-        dut.KEY_A_I.value = KEY_A_I[i]
-        dut.KEY_B_I.value = KEY_B_I[i]
-        dut.INPUT_A.value = INPUT_A[i]
-        dut.INPUT_B.value = INPUT_B[i]
-        dut.SENSOR_1.value = SENSOR_1[i]
-        dut.SENSOR_2.value = SENSOR_2[i]
-        dut.SENSOR_3.value = SENSOR_3[i]
-        dut.SENSOR_4.value = SENSOR_4[i]
+    for i in range(len(Systems)):
+        dut.SYSTEM_SIGNAL.value = BinaryValue(value=SYSTEM_MODE[(i//1)%5],bits=8,bigEndian=False)
         await Timer(1, units="ns")
         
         message_new = f'{Systems(dut.SYSTEM_SIGNAL.value).name} > {output_model(dut.SYSTEM_SIGNAL.value)}'

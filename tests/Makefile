@@ -50,7 +50,8 @@ VHDL_SOURCES += $(PWD)/../hdl/clock_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/movement_module.vhdl
 
 TOPLEVEL := general
-#MODULE ?= test_dummy,test_power,test_key,test_sensor,test_command,test_lock,test_system,test_output,test_motor,test_clock,test_movement
-MODULE ?= test_movement
+MODULE ?= test_dummy,test_power,test_key,test_sensor,test_command,test_lock,test_system,test_output,test_motor,test_clock,test_movement
+
+#MODULE ?= test_clock
 
 include $(shell cocotb-config --makefiles)/Makefile.sim

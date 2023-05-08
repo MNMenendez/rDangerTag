@@ -46,6 +46,7 @@ begin
 
 	MODE_PROCESS: process (KEY,KEY_A_I,KEY_B_I) is
 	begin	
+		MODE_STATE <= MODE_ERROR;
 		if (KEY = '0') then
 			MODE_STATE <= REMOTE;
 		else

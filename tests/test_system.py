@@ -38,7 +38,7 @@ async def system_states_test(dut):
         if message_old != message_new:
             message_old =  message_new
             print(message_old)
-        assert ([dut.SYSTEM_SIGNAL.value,dut.OK_SIGNAL.value] == system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)), f'result is incorrect: [{Systems(dut.SYSTEM_SIGNAL.value).name},{Rights(dut.OK_SIGNAL.value).name}] ! [{Systems(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[0]).name},{Rights(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[1]).name}]'
+        assert ([dut.SYSTEM_SIGNAL.value,dut.ALL_OK.value] == system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)), f'result is incorrect: [{Systems(dut.SYSTEM_SIGNAL.value).name},{Rights(dut.ALL_OK.value).name}] ! [{Systems(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[0]).name},{Rights(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[1]).name}]'
     print('')
 
 def test_system_runner():

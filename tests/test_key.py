@@ -28,7 +28,8 @@ async def key_test(dut):
         dut.KEY_B_I.value = KEY_B_I[i]
         await Timer(1, units="ns")
         print(f'Key {"Enable" if dut.KEY.value else "Disable"} | {bool(dut.KEY_A_I.value)} | {bool(dut.KEY_B_I.value)} > {Modes(key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])[2]).name}')
-        assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])), f'result is incorrect: {dut.KEY_A_O.value} {dut.KEY_B_O.value} {dut.MODE_SIGNAL.value} != {key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])}'   
+        assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])), f'result is incorrect: {dut.KEY_A_O.value} {dut.KEY_B_O.value} {dut.MODE_SIGNAL.value} != {key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])}' 
+
     print('')
     
 def test_key_runner():

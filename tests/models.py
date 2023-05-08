@@ -260,3 +260,19 @@ def movement_model(PWM: Logic = Logic('-'), MOTOR_STATE: int = Motors.STOP):
             MOTOR_DOWN = False
     
     return [MOTOR_PWM,MOTOR_UP,MOTOR_DOWN]
+    
+def general_model(POWER_MODE: Logic = Logic('-'),KEY: Logic = Logic('-'), KEY_A_I: Logic = Logic('-'), KEY_B_I: Logic = Logic('-'),SENSOR_1: Logic = Logic('-'), SENSOR_2: Logic = Logic('-'), SENSOR_3: Logic = Logic('X'), SENSOR_4: Logic = Logic('-'),INPUT_A: Logic = Logic('-'), INPUT_B: Logic = Logic('-'),LOCK: Logic = Logic('-'),LOCK_A_I: Logic = Logic('-'), LOCK_B_I: Logic = Logic('-'),CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-'),TBD_I: Logic = Logic('-')):
+
+    POWER_STATE                     = power_model(POWER_MODE)
+    TBD_O                           = dummy_model(TBD_I)
+    KEY_A_O,KEY_B_O,MODE_STATE      = key_model(KEY, KEY_A_I, KEY_B_I)
+    SENSOR_STATE                    = sensor_model(SENSOR_1, SENSOR_2, SENSOR_3, SENSOR_4)
+    COMMAND_STATE                   = command_model(INPUT_A, INPUT_B, MODE_STATE)
+    SYSTEM_STATE,ALL_OK             = system_model(POWER_STATE, MODE_STATE, COMMAND_STATE, SENSOR_STATE)
+    WATCHDOG,PWM                    = clock_model(CLOCK, CLOCK_STATE)
+    LOCK_A_O,LOCK_B_O               = lock_model(LOCK, LOCK_A_I, LOCK_B_I)
+    OUTPUT_A,OUTPUT_B               = output_model(SYSTEM_STATE)
+    MOTOR_STATE                     = motor_model(LOCK, MODE_STATE, COMMAND_STATE, SENSOR_STATE)
+    MOTOR_PWM,MOTOR_UP,MOTOR_DOWN   = movement_model(PWM, MOTOR_STATE)
+    
+    return [KEY_A_O,KEY_B_O,LOCK_A_O,LOCK_B_O,ALL_OK,WATCHDOG,OUTPUT_A,OUTPUT_B,MOTOR_PWM,MOTOR_UP,MOTOR_DOWN,TBD_O]

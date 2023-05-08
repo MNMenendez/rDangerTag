@@ -25,7 +25,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 library work;
 use work.Utilities.all;
 
-entity General is
+entity general is
 	port ( 
 		CLOCK       : in    std_logic := '0'; 
   	  	CLOCK_STATE : in    std_logic := '0';
@@ -43,7 +43,7 @@ entity General is
         SENSOR_3    : in    std_logic := '0'; 
         SENSOR_4    : in    std_logic := '0'; 
         TBD_I       : in    std_logic := '0'; 
-        ALL_OK      : out   std_logic; 
+        ALL_OK      : out   right_states; 
         KEY_A_O     : out   std_logic; 
         KEY_B_O     : out   std_logic; 
         LOCK_A_O    : out   std_logic; 
@@ -56,9 +56,9 @@ entity General is
 		TBD_O		: out   std_logic;
 		WATCHDOG	: out	std_logic
 );
-end General;
+end general;
 
-architecture BEHAVIORAL of General is
+architecture BEHAVIORAL of general is
    signal MODE_SIGNAL		: mode_states;
    signal POWER_SIGNAL		: power_states;
    signal SENSOR_SIGNAL		: sensor_states;
@@ -154,7 +154,7 @@ begin
                 POWER_STATE	=>	POWER_SIGNAL);
    
    key_process : key_module
-		port map (KEY						=> KEY,
+		port map (KEY					=> KEY,
    	  			KEY_A_I					=> KEY_A_I,
    	  			KEY_B_I					=> KEY_B_I,
    	  			KEY_A_O					=> KEY_A_O,
@@ -179,7 +179,7 @@ begin
    	  			  MODE_STATE			=> MODE_SIGNAL,
    	  			  POWER_STATE			=> POWER_SIGNAL,
    	  			  SENSOR_STATE			=> SENSOR_SIGNAL,
-   	  			  ALL_OK				=> OK_SIGNAL,
+   	  			  ALL_OK				=> ALL_OK,
    	  			  SYSTEM_STATE  		=> SYSTEM_SIGNAL);
    	  			  
    output_process : output_module

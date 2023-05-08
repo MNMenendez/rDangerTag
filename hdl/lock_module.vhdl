@@ -42,7 +42,7 @@ architecture lock_func of lock_module is
 begin
 	LOCK_PROCESS: process (LOCK , LOCK_A_I , LOCK_B_I ) is
 	begin
-	LOCK_A_O <= '0';
+		LOCK_A_O <= '0';
 		LOCK_B_O <= '0';
 	if ( LOCK = '0') then
 		LOCK_A_O <= '0';

@@ -1,39 +1,39 @@
 v 4
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/motor_module.vhdl" "859899cfeea2f67dcb79be71f5db833934acee00" "20230704024134.610":
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/motor_module.vhdl" "023ebca3f886af724961367ce62a3a0544fe0568" "20230710041449.538":
   entity motor_module at 20( 472) + 0 on 4;
-  architecture motor_func of motor_module at 42( 1106) + 0 on 4;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/utilities.vhdl" "083af64ecfe07beb37921b8563016c8226e3c98c" "20230704024228.377":
-  package utilities at 4( 126) + 0 on 4;
+  architecture motor_func of motor_module at 44( 1145) + 0 on 4;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/utilities.vhdl" "1a90d6dd5558a8750e5e8f8bc0304cb26195303e" "20230710044554.220":
+  package utilities at 4( 126) + 0 on 13;
 file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/general.vhdl" "4745574b588d37a56849ad92e5852f893318273e" "20230704024134.606":
   entity general at 22( 1011) + 0 on 4;
   architecture behavioral of general at 61( 2320) + 0 on 4;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/dummy_module.vhdl" "83c7a897e88f3145b1a01bc4e87de55d1be32fb1" "20230704024228.416":
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/dummy_module.vhdl" "795d33f9facd1d55f904e785e54db9f8c2b3428e" "20230710041449.578":
   entity dummy_module at 20( 472) + 0 on 11;
-  architecture dummy_func of dummy_module at 37( 920) + 0 on 12;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/power_module.vhdl" "ffd45a62b2061886c2af7e93d3d836837d225f39" "20230704024134.607":
-  entity power_module at 20( 465) + 0 on 4;
-  architecture power_func of power_module at 39( 965) + 0 on 4;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/key_module.vhdl" "b4a157ef9fd554b5a383bad6f4c7dad24f208cf2" "20230704024134.608":
+  architecture dummy_func of dummy_module at 36( 894) + 0 on 12;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/power_module.vhdl" "b7fce29a8449dc83bdd9dcec561eb51a34a1730b" "20230710044554.220":
+  entity power_module at 20( 465) + 0 on 14;
+  architecture power_func of power_module at 40( 999) + 0 on 15;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/key_module.vhdl" "7083cc6698e8310300e67f3eda4a7e63d5af4e6b" "20230710041449.538":
   entity key_module at 20( 470) + 0 on 4;
-  architecture key_func of key_module at 43( 1103) + 0 on 4;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/sensor_module.vhdl" "92a80f5f33437bb19491784681c99c7bf340701f" "20230704024134.608":
+  architecture key_func of key_module at 41( 1069) + 0 on 4;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/sensor_module.vhdl" "2db4376b28c9881ccd0dae547637ecb4a63b4e3f" "20230710041449.538":
   entity sensor_module at 20( 474) + 0 on 4;
-  architecture sensor_func of sensor_module at 42( 1087) + 0 on 4;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/command_module.vhdl" "36a4435ce8f24c43d69bbd8dc4bd790bf5b358fb" "20230704024134.609":
+  architecture sensor_func of sensor_module at 39( 996) + 0 on 4;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/command_module.vhdl" "5c0b312b221179b27cb5b545f83c0bcf0c4c2d1f" "20230710041449.539":
   entity command_module at 20( 475) + 0 on 4;
-  architecture command_func of command_module at 42( 1097) + 0 on 4;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/lock_module.vhdl" "48a06b57773b2d8efdb30d765022eec532cf821f" "20230704024134.609":
+  architecture command_func of command_module at 41( 1072) + 0 on 4;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/lock_module.vhdl" "2d86bb2122af24a1a0fe3f31bb80288ea86efceb" "20230710041449.539":
   entity lock_module at 20( 470) + 0 on 4;
-  architecture lock_func of lock_module at 40( 1030) + 0 on 4;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/system_module.vhdl" "4f05e1f77aa0f001c213fb9cc1f31f461ea3c146" "20230704024134.609":
+  architecture lock_func of lock_module at 41( 1073) + 0 on 4;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/system_module.vhdl" "22ba3a526c3c8a272f43ccc3359dfaaf5f99d59d" "20230710041449.539":
   entity system_module at 20( 474) + 0 on 4;
-  architecture system_func of system_module at 43( 1152) + 0 on 4;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/output_module.vhdl" "307fe938c95ced5309e83bda992bb1b7ad6ba1a3" "20230704024134.609":
+  architecture system_func of system_module at 43( 1141) + 0 on 4;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/output_module.vhdl" "f2e97d0b60da84c3ad8d8aeadf77744ec26d513e" "20230710041449.539":
   entity output_module at 20( 474) + 0 on 4;
-  architecture output_func of output_module at 40( 1014) + 0 on 4;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/clock_module.vhdl" "04c39dbd8e408e80e3645fabe9237cd0157c22ed" "20230704024134.610":
+  architecture output_func of output_module at 44( 1208) + 0 on 4;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/clock_module.vhdl" "c995af599f29a1f2cca30a070ff2a7376f656a46" "20230710041449.539":
   entity clock_module at 20( 472) + 0 on 4;
-  architecture clock_func of clock_module at 41( 1079) + 0 on 4;
-file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/movement_module.vhdl" "83f7613177d8a070ef46f3f949ff11afe4e70b13" "20230704024134.610":
+  architecture clock_func of clock_module at 41( 1080) + 0 on 4;
+file / "/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/../hdl/movement_module.vhdl" "cb47425e44ac53ebf1505285ef5a5fd7ecf7ef9a" "20230710041449.539":
   entity movement_module at 20( 478) + 0 on 4;
-  architecture movement_func of movement_module at 42( 1095) + 0 on 4;
+  architecture movement_func of movement_module at 42( 1100) + 0 on 4;

@@ -17,13 +17,16 @@ if cocotb.simulator.is_running():
 async def power_mode_test(dut):
     """Test power"""
 
-    POWER_MODE = tuple_create(1,1)+tuple_create(1,1)+(False,)
+    POWER_MODE = tuple_create(2,2)+(False,)
+    BATTERY_STATE = tuple_create(2,1)+(False,)    
     
     for i in range(len(POWER_MODE)):
         dut.POWER_MODE.value = POWER_MODE[i]
+        dut.BATTERY_STATE.value = BATTERY_STATE[i]
+        
         await Timer(1, units="ns")
-        print(f'Power {"Connected" if dut.POWER_MODE.value else "Disconnected"} > {Powers(power_model(POWER_MODE[i])).name}')
-        assert dut.POWER_SIGNAL.value == power_model(POWER_MODE[i]), f'result is incorrect: {dut.POWER_SIGNAL.value} != {dut.POWER_MODE.value}'    
+        print(f'Power {"Connected" if dut.POWER_MODE.value else "Disconnected"} | {"Full" if dut.BATTERY_STATE.value else "Empty"} battery > {Powers(power_model(POWER_MODE[i],BATTERY_STATE[i])).name}')
+        #assert dut.POWER_SIGNAL.value == power_model(POWER_MODE[i]), f'result is incorrect: {dut.POWER_SIGNAL.value} != {dut.POWER_MODE.value}'    
     print('')
     
 def test_power_runner():

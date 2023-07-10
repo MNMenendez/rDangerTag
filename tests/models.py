@@ -7,8 +7,10 @@ from cocotb.types import Bit, Logic
 import enum
 
 class Powers(enum.Enum):
-    POWER_BATTERY       = 0
+    POWER_OFF           = 0
     POWER_ON            = 1
+    BATTERY             = 2
+    BATTERY_LOW         = 3
 class Modes(enum.Enum):
     MODE_ERROR          = 0
     REMOTE              = 1
@@ -42,13 +44,20 @@ def dummy_model(TBD_I: Logic = Logic('-')) -> int:
     """model of dummy"""
     return TBD_I
     
-def power_model(POWER_MODE: Logic = Logic('-')) -> int:
+def power_model(POWER_MODE: Logic = Logic('-'), BATTERY_STATE: Logic = Logic('-')) -> int:
     """model of power"""
-    if POWER_MODE:
-        return True
-    else:
-        return False
-
+    POWER_STATE = Powers.POWER_OFF
+    if ( not POWER_MODE and not BATTERY_STATE):
+        POWER_STATE = Powers.POWER_OFF
+    if ( not POWER_MODE and BATTERY_STATE):
+        POWER_STATE = Powers.BATTERY
+    if ( POWER_MODE and not BATTERY_STATE):
+        POWER_STATE = Powers.BATTERY_LOW
+    if ( POWER_MODE and BATTERY_STATE):
+        POWER_STATE = Powers.POWER_ON
+        
+    return POWER_STATE.value
+    
 def tuple_create(n_inputs,n):
 
     return ((False,)*n+(True,)*n)*((2**n_inputs)//(2*n))
@@ -118,7 +127,7 @@ def lock_model(LOCK: Logic = Logic('-'), LOCK_A_I: Logic = Logic('-'), LOCK_B_I:
         
     return [LOCK_A_O,LOCK_B_O]
     
-def system_model(POWER_STATE: int = Powers.POWER_BATTERY, MODE_STATE: int = Modes.MODE_ERROR, COMMAND_STATE: int = Commands.COMMAND_ERROR, SENSOR_STATE: int = Sensors.SENSOR_ERROR):
+def system_model(POWER_STATE: int = Powers.POWER_OFF, MODE_STATE: int = Modes.MODE_ERROR, COMMAND_STATE: int = Commands.COMMAND_ERROR, SENSOR_STATE: int = Sensors.SENSOR_ERROR):
 
     SYSTEM_STATE = Systems.SYSTEM_ERROR
     ALL_OK = Rights.FAULT

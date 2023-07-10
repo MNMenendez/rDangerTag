@@ -31,58 +31,88 @@ use work.Utilities.all;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity MOTOR_MODULE is
-    Port ( LOCK   	 		: in    std_logic;
+entity motor_module is
+    Port ( 
+			  CLOCK				: in std_logic;
+			  LOCK_STATE 		: in  lock_states;
            MODE_STATE 		: in  mode_states;
            COMMAND_STATE 	: in  command_states;
            SENSOR_STATE 	: in  sensor_states;
-		   MOTOR_STATE		: out motors_states);
-end MOTOR_MODULE;
+		     MOTOR_STATE		: out motor_states);
+end motor_module;
 
-architecture MOTOR_FUNC of MOTOR_MODULE is
-
+architecture motor_func of motor_module is
+signal STATE : motor_states := STOP;
+signal motor_timeout : integer range 0 to 100000000 := 0;
 begin
-	MOTOR_PROCESS: process ( LOCK , MODE_STATE , COMMAND_STATE , SENSOR_STATE )
+	
+	MOTOR_PROCESS: process ( CLOCK )
 	begin
-		MOTOR_STATE <= STOP;
-		if ( LOCK = '0' or MODE_STATE = MODE_ERROR or COMMAND_STATE = COMMAND_ERROR ) then
-			MOTOR_STATE <= STOP;
-		else
-			if ( SENSOR_STATE = SENSOR_ERROR ) then
-				MOTOR_STATE <= STOP;
-			else
-				if ( MODE_STATE = LOCAL_APPLY ) then
-					if ( SENSOR_STATE /= DANGER ) then
-						MOTOR_STATE <= toDANGER;
-					else
-						MOTOR_STATE <= STOP;
-					end if;
+	if (rising_edge(CLOCK)) then
+		case STATE is
+			when STOP =>	
+				if ( COMMAND_STATE /= COMMAND_ERROR and COMMAND_STATE = COMMAND_APPLY and SENSOR_STATE /= DANGER ) then
+					STATE <= toDANGER;
 				end if;
-				if ( MODE_STATE = LOCAL_REMOVE ) then
-					if ( SENSOR_STATE /= BLANK ) then
-						MOTOR_STATE <= toBLANK;
-					else
-						MOTOR_STATE <= STOP;
-					end if;
+				if ( COMMAND_STATE /= COMMAND_ERROR and COMMAND_STATE = COMMAND_REMOVE and SENSOR_STATE /= BLANK ) then
+					STATE <= toBLANK;
 				end if;
-				if ( MODE_STATE = REMOTE ) then
-					if ( COMMAND_STATE = COMMAND_APPLY ) then
-						if ( SENSOR_STATE /= DANGER ) then
-							MOTOR_STATE <= toDANGER;
-						else
-							MOTOR_STATE <= STOP;
-						end if;
-					end if;				
-					if ( COMMAND_STATE = COMMAND_REMOVE ) then
-						if ( SENSOR_STATE /= BLANK ) then
-							MOTOR_STATE <= toBLANK;
-						else
-							MOTOR_STATE <= STOP;
-						end if;
-					end if;
+			when toDANGER =>
+				if ( COMMAND_STATE = COMMAND_ERROR or SENSOR_STATE = SENSOR_ERROR or SENSOR_STATE = DANGER ) then
+					motor_timeout <= 0;
+					STATE <= STOP;
 				end if;
-		    end if;
-        end if;
+			when toBLANK =>
+				if ( COMMAND_STATE = COMMAND_ERROR or SENSOR_STATE = SENSOR_ERROR or SENSOR_STATE = BLANK ) then
+					motor_timeout <= 0;
+					STATE <= STOP;
+				end if;
+		end case;
+		MOTOR_STATE <= STATE;
+	end if;
 	end process;
 
-end MOTOR_FUNC;
+--	MOTOR_PROCESS: process ( LOCK_STATE, MODE_STATE, COMMAND_STATE, SENSOR_STATE )
+--	begin
+--		MOTOR_STATE <= STOP;
+--		if ( LOCK = '1' or MODE_STATE = MODE_ERROR or COMMAND_STATE = COMMAND_ERROR ) then
+--			MOTOR_STATE <= STOP;
+--		else
+--			if ( SENSOR_STATE = SENSOR_ERROR ) then
+--				MOTOR_STATE <= STOP;
+--			else
+--				if ( MODE_STATE = LOCAL_APPLY and LOCK_A_I = '1' and LOCK_B_I = '0' ) then
+--					if ( SENSOR_STATE /= DANGER ) then
+--						MOTOR_STATE <= toDANGER;
+--					else
+--						MOTOR_STATE <= STOP;
+--					end if;
+--				end if;
+--				if ( MODE_STATE = LOCAL_REMOVE and LOCK_A_I = '0' and LOCK_B_I = '1' ) then
+--					if ( SENSOR_STATE /= BLANK ) then
+--						MOTOR_STATE <= toBLANK;
+--					else
+--						MOTOR_STATE <= STOP;
+--					end if;
+--				end if;
+--				if ( MODE_STATE = REMOTE ) then
+--					if ( COMMAND_STATE = COMMAND_APPLY and LOCK_A_I = '1' and LOCK_B_I = '0') then
+--						if ( SENSOR_STATE /= DANGER ) then
+--							MOTOR_STATE <= toDANGER;
+--						else
+--							MOTOR_STATE <= STOP;
+--						end if;
+--					end if;				
+--					if ( COMMAND_STATE = COMMAND_REMOVE and LOCK_A_I = '0' and LOCK_B_I = '1') then
+--						if ( SENSOR_STATE /= BLANK ) then
+--							MOTOR_STATE <= toBLANK;
+--						else
+--							MOTOR_STATE <= STOP;
+--						end if;
+--					end if;
+--				end if;
+--		    end if;
+--        end if;
+--	end process;
+
+end motor_func;

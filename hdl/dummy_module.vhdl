@@ -30,15 +30,14 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity dummy_module is
-    Port ( TBD_I : in  STD_LOGIC;
-           TBD_O : out  STD_LOGIC);
+    Port ( TBD_O : out  STD_LOGIC := '0' );
 end dummy_module;
 
 architecture dummy_func of dummy_module is
 
 begin
 
-TBD_O <= TBD_I;
+TBD_O <= '0';
 
 end dummy_func;
 

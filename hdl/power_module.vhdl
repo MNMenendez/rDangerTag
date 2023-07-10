@@ -33,6 +33,7 @@ use work.Utilities.all;
 
 entity power_module is
     Port ( POWER_MODE : in  STD_LOGIC;
+			  BATTERY_STATE: in STD_LOGIC;
            POWER_STATE : out  power_states);
 end power_module;
 
@@ -40,14 +41,23 @@ architecture power_func of power_module is
 
 begin
 
-POWER_PROCESS: process (POWER_MODE) is
-begin
-	if (POWER_MODE = '0') then
-		POWER_STATE <= POWER_OFF;
-	else
-		POWER_STATE <= POWER_ON;
-	end if;
-end process;
+	POWER_PROCESS: process ( POWER_MODE , BATTERY_STATE ) is
+	variable POWER : std_logic_vector(1 downto 0);
+	begin
+		POWER	  := POWER_MODE & BATTERY_STATE;
+			case POWER is
+				when "00" =>
+					POWER_STATE <= POWER_OFF;
+				when "01" =>
+					POWER_STATE <= BATTERY;
+				when "10" =>
+					POWER_STATE <= BATTERY_LOW;
+				when "11" =>
+					POWER_STATE <= POWER_ON;
+				when others =>
+					POWER_STATE <= POWER_OFF;
+			end case;
+	end process;
 
 end power_func;
 

@@ -32,41 +32,35 @@ use work.Utilities.all;
 --use UNISIM.VComponents.all;
 
 entity key_module is
-    Port ( KEY : in  STD_LOGIC;
-           KEY_A_I : in  STD_LOGIC;
-           KEY_B_I : in  STD_LOGIC;
-           KEY_A_O : out  STD_LOGIC;
-           KEY_B_O : out  STD_LOGIC;
-           MODE_STATE : out  mode_states);
+    Port ( KEY_ENABLE : in  STD_LOGIC;
+           KEY_I : in  STD_LOGIC_VECTOR(1 downto 0);
+           KEY_O : out  STD_LOGIC_VECTOR(1 downto 0);
+           KEY_STATE : out  key_states);
 end key_module;
 
 architecture key_func of key_module is
 
 begin
-
-	MODE_PROCESS: process (KEY,KEY_A_I,KEY_B_I) is
+		
+	KEY_PROCESS: process ( KEY_ENABLE , KEY_I ) is
+	variable KEY_AB : std_logic_vector(2 downto 0);
 	begin	
-		MODE_STATE <= MODE_ERROR;
-		if (KEY = '0') then
-			MODE_STATE <= REMOTE;
-		else
-			if (KEY_A_I = '0' and KEY_B_I = '0') then
-				MODE_STATE <= REMOTE;
-			end if;
-			if (KEY_A_I = '0' and KEY_B_I = '1') then
-				MODE_STATE <= LOCAL_APPLY;
-			end if;
-			if (KEY_A_I = '1' and KEY_B_I = '0') then
-				MODE_STATE <= LOCAL_REMOVE;
-			end if;
-			if (KEY_A_I = '1' and KEY_B_I = '1') then
-				MODE_STATE <= MODE_ERROR;
-			end if;
-		end if;
+		KEY_AB	  := KEY_ENABLE & KEY_I;
+		case KEY_AB is
+			when "000" | "100" | "101" | "110" | "111" =>
+				KEY_STATE <= NO_KEY;
+			when "001" =>
+				KEY_STATE <= KEY_APPLY;
+			when "010" =>
+				KEY_STATE <= KEY_REMOVE;
+			when "011" =>
+				KEY_STATE <= KEY_ERROR;
+			when others =>
+				KEY_STATE <= KEY_ERROR;
+		end case;
 	end process;
 	
-	KEY_A_O <= KEY_A_I;
-	KEY_B_O <= KEY_B_I;
+	KEY_O <= KEY_I;
 	
 end key_func;
 

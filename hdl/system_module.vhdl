@@ -32,40 +32,78 @@ use work.Utilities.all;
 --use UNISIM.VComponents.all;
 
 entity system_module is
-    Port ( POWER_STATE 		: in  power_states;
-           MODE_STATE 		: in  mode_states;
+    Port ( CLOCK				: in std_logic;
+			  CLOCK_STATE		: in std_logic;
            COMMAND_STATE 	: in  command_states;
            SENSOR_STATE 	: in  sensor_states;
-		   ALL_OK			: out right_states;
-           SYSTEM_STATE 	: out system_states);
+           SYSTEM_STATE 	: out system_states;
+			  MOTOR_STATE		: out motor_states);
 end system_module;
 
 architecture system_func of system_module is
 
+signal STATE : system_states := SYSTEM_IDLE;
+signal FSM_STATE : general_states := STATE_STOP;
+signal MOTOR : motor_states := STOP;
+
+signal timer : integer := 0;
+signal TIMEOUT : STD_LOGIC := '0';
+signal toBLANK : STD_LOGIC := '0';
+signal toDANGER : STD_LOGIC := '0';
+signal stateERROR : STD_LOGIC := '0';
+
+
 begin
-	SYSTEM_PROCESS: process (POWER_STATE , MODE_STATE , COMMAND_STATE , SENSOR_STATE ) is
+
+	stateERROR 		<= '1' when ((SENSOR_STATE = SENSOR_ERROR) or (COMMAND_STATE = COMMAND_ERROR) or (CLOCK_STATE = '0')) else '0';
+	toBLANK 			<= '1' when ((stateERROR = '0') and (COMMAND_STATE = COMMAND_REMOVE) and (SENSOR_STATE = DANGER or SENSOR_STATE = TRANSITION)) else '0';
+	toDANGER 		<= '1' when ((stateERROR = '0') and (COMMAND_STATE = COMMAND_APPLY) and (SENSOR_STATE = BLANK or SENSOR_STATE = TRANSITION)) else '0';
+	SYSTEM_STATE 	<= STATE when (TIMEOUT = '0') else SYSTEM_ERROR;
+	MOTOR_STATE		<= MOTOR when (TIMEOUT = '0') else STOP;
+	
+	TIMEOUT_PROCESS: process ( CLOCK , SENSOR_STATE ) is
 	begin
-		SYSTEM_STATE <= SYSTEM_ERROR;
-		ALL_OK 		 <= FAULT;
-		
-		if (POWER_STATE = POWER_OFF) then
-			SYSTEM_STATE <= SYSTEM_BATTERY;
-		else
-			if ( MODE_STATE = MODE_ERROR or COMMAND_STATE = COMMAND_ERROR or SENSOR_STATE = SENSOR_ERROR ) then
-				SYSTEM_STATE <= SYSTEM_ERROR;
-				ALL_OK 		 <= FAULT;
+		if ( rising_edge ( CLOCK ) ) then
+			if ( SENSOR_STATE = TRANSITION ) then
+				if ( timer < 300 ) then
+					timer <=timer + 1;	
+				else
+					TIMEOUT <= '1';
+				end if;
 			else
-				ALL_OK			<= ALIVE;
-				if ( SENSOR_STATE = DANGER ) then
-					SYSTEM_STATE <= SYSTEM_DANGER;
-				end if;
-				if ( SENSOR_STATE = BLANK ) then
-					SYSTEM_STATE <= SYSTEM_BLANK;
-				end if;
-				if ( SENSOR_STATE = TRANSITION ) then
-					SYSTEM_STATE <= SYSTEM_TRANSITION;
-				end if;
+				timer <= 0;
+				TIMEOUT <= '0';
 			end if;
 		end if;
 	end process;
+	
+	STATE_PROCESS: process ( CLOCK , toDANGER, toBLANK , SENSOR_STATE ) is
+	begin
+		case SENSOR_STATE is
+			when SENSOR_ERROR =>
+				STATE <= SYSTEM_ERROR;
+				MOTOR <= STOP;
+			when BLANK =>
+				STATE <= SYSTEM_BLANK;
+				if ( toDANGER = '1' ) then -- stateOK and COMMAND_APPLY and (SENSOR_BLANK or SENSOR_TRANSITION);
+					MOTOR <= MoveToDanger;
+				else
+					MOTOR <= STOP;
+				end if;
+			when DANGER =>
+				STATE <= SYSTEM_DANGER;
+				if ( toBLANK = '1' ) then -- stateOK and COMMAND_REMOVE and (SENSOR_DANGER or SENSOR_TRANSITION);
+					MOTOR <= MoveToBLANK;
+				else
+					MOTOR <= STOP;
+				end if;
+			when TRANSITION =>
+				STATE <= SYSTEM_TRANSITION;
+			when others =>
+				STATE <= SYSTEM_ERROR;
+				MOTOR <= STOP;
+		end case;
+	end process;
+
+
 end system_func;

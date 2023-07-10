@@ -31,35 +31,45 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity clock_module is
-	Generic( pwm_setting : integer := 12 );
-    Port ( CLOCK 		: in  STD_LOGIC;
-           CLOCK_STATE 	: in  STD_LOGIC;
-           WATCHDOG 	: out  STD_LOGIC;
-           PWM 			: out  STD_LOGIC);
+    Port ( CLOCK 				: in  STD_LOGIC;
+           CLOCK_STATE 		: in  STD_LOGIC;
+           SLOW_CLOCK 		: out STD_LOGIC;
+			  SLOWEST_CLOCK 	: out STD_LOGIC;
+           PWM 				: out STD_LOGIC);
 end clock_module;
 
 architecture clock_func of clock_module is
-
-	signal counter : integer range 0 to 16 := 0;
-begin
-	CLOCK_PROCESS: process ( CLOCK , CLOCK_STATE ) is
+	component FF is
+	Port ( CLOCK : in  STD_LOGIC;
+			  RESET : in STD_LOGIC;
+           D : in  STD_LOGIC;
+           Q : out  STD_LOGIC);
+	end component;
+	
+	signal Q : std_logic_vector(10 downto 0) := (others => '0');
+	
+	-- Q(00) -> 32 KHz
+	-- Q(01) -> 16 KHz	
+	-- Q(02) -> 8 KHz
+	-- Q(03) -> 4 KHz
+	-- Q(04) -> 2 KHz
+	-- Q(05) -> 1 KHz
+	-- Q(06) -> 500 Hz
+	-- Q(07) -> 250 Hz
+	-- Q(08) -> 125 Hz
+	-- Q(09) -> 62.5 Hz
+	-- Q(10) -> 31.25 Hz
+	
 	begin
-		WATCHDOG <= CLOCK_STATE;
-
-		if CLOCK_STATE = '0' then
-			counter <= 0;
-		else
-			if rising_edge (CLOCK) then
-				if counter = 16 then
-					counter <= 0;
-				else
-					counter <= counter + 1;
-				end if;
-			end if;
-		end if;
-	end process;
-
-	PWM <= '1' when (CLOCK_STATE = '1' and counter < pwm_setting) else '0';
-
+		
+		gen: for i in 0 to 10-1 generate
+			inst : FF port map( CLOCK , '0', Q(i), Q(i+1) );
+		end generate;
+		
+		Q(0) 				<= CLOCK;
+		SLOW_CLOCK 		<= Q(10-1) and CLOCK_STATE;
+		SLOWEST_CLOCK 	<= Q(10) and CLOCK_STATE;
+				
+		PWM				<= CLOCK_STATE;
+		
 end clock_func;
-

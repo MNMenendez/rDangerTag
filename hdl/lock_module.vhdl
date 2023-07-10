@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+library work;
+use work.Utilities.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -30,29 +32,35 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity lock_module is
-    Port ( LOCK : in  STD_LOGIC;
-           LOCK_A_I : in  STD_LOGIC;
-           LOCK_B_I : in  STD_LOGIC;
-           LOCK_A_O : out  STD_LOGIC;
-           LOCK_B_O : out  STD_LOGIC);
+    Port ( LOCK_ENABLE 	: in  STD_LOGIC;
+           LOCK_I 		: in  STD_LOGIC_VECTOR(1 downto 0);
+           LOCK_O 		: out STD_LOGIC_VECTOR(1 downto 0);
+			  LOCK_STATE	: out lock_states);
 end lock_module;
 
 architecture lock_func of lock_module is
 
 begin
-	LOCK_PROCESS: process (LOCK , LOCK_A_I , LOCK_B_I ) is
+	LOCK_PROCESS: process ( LOCK_ENABLE , LOCK_I ) is
+	variable INTERLOCK : std_logic_vector(2 downto 0);
 	begin
-		LOCK_A_O <= '0';
-		LOCK_B_O <= '0';
-	if ( LOCK = '0') then
-		LOCK_A_O <= '0';
-		LOCK_B_O <= '0';
-	else
-		LOCK_A_O <= LOCK_A_I;
-		LOCK_B_O <= LOCK_B_I;
-	end if;
-	
+		INTERLOCK	  := LOCK_ENABLE & LOCK_I;
+		case INTERLOCK is
+			when "100" | "101" | "110" | "111" =>
+				LOCK_STATE <= NO_LOCK;
+				LOCK_O <= LOCK_I;
+			when "001" =>
+				LOCK_STATE <= LOCK_APPLY;
+				LOCK_O <= LOCK_I;
+			when "010" =>
+				LOCK_STATE <= LOCK_REMOVE;
+				LOCK_O <= LOCK_I;
+			when "000" | "011" =>
+				LOCK_STATE <= LOCK_ERROR;
+				LOCK_O <= LOCK_I;
+			when others =>
+				LOCK_STATE <= LOCK_ERROR;
+				LOCK_O <= (others => '0');
+		end case;	
 	end process;
-
 end lock_func;
-

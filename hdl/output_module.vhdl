@@ -32,37 +32,92 @@ use work.Utilities.all;
 --use UNISIM.VComponents.all;
 
 entity output_module is
-    Port ( SYSTEM_STATE : in  system_states;
-           OUTPUT_A : out  STD_LOGIC;
-           OUTPUT_B : out  STD_LOGIC);
+    Port ( SYSTEM_STATE 	: in  system_states;
+			  POWER_STATE		: in power_states;
+			  SLOWEST_CLOCK 	: in STD_LOGIC;
+			  OK_LED		   	: out STD_LOGIC_VECTOR(1 downto 0) := "00";
+			  PWR_LED	   	: out STD_LOGIC_VECTOR(1 downto 0) := "00";
+           OUTPUT : out  STD_LOGIC_VECTOR(1 downto 0) := "00"
+          );
 end output_module;
 
 architecture output_func of output_module is
-
+signal PWR_LED_SIGNAL:	led_states := RED;
+signal OK_LED_SIGNAL:	led_states := RED;
+signal PWR_LED_COLOR:	STD_LOGIC_VECTOR(1 downto 0) := "00";
+signal OK_LED_COLOR:		STD_LOGIC_VECTOR(1 downto 0) := "00";
 begin
 	OUTPUT_PROCESS: process ( SYSTEM_STATE ) is
 	begin
 		case SYSTEM_STATE is
 			WHEN SYSTEM_ERROR =>
-				OUTPUT_A <= '0';
-				OUTPUT_B <= '0';
+				OUTPUT <= "00";
 			WHEN SYSTEM_DANGER =>
-				OUTPUT_A <= '1';
-				OUTPUT_B <= '0';
+				OUTPUT <= "10";
 			WHEN SYSTEM_BLANK =>
-				OUTPUT_A <= '0';
-				OUTPUT_B <= '1';
+				OUTPUT <= "01";
 			WHEN SYSTEM_TRANSITION =>
-				OUTPUT_A <= '1';
-				OUTPUT_B <= '1';
-			WHEN SYSTEM_BATTERY =>
-				OUTPUT_A <= '0';
-				OUTPUT_B <= '0';
+				NULL;
+			WHEN SYSTEM_TIMEOUT =>
+				OUTPUT <= "00";
+			WHEN SYSTEM_IDLE =>
+				OUTPUT <= "00";
 			WHEN OTHERS =>
-				OUTPUT_A <= '0';
-				OUTPUT_B <= '0';
+				OUTPUT <= "11";
 		end case;
 	end process;
 
+	LED_STATE_PROCESS: process ( POWER_STATE , SYSTEM_STATE ) is
+	begin
+		case POWER_STATE is
+			WHEN POWER_OFF =>					-- No power, no battery
+				PWR_LED_SIGNAL <= RED;
+				OK_LED_SIGNAL 	<= RED;
+			WHEN POWER_ON =>					-- Power and battery
+				PWR_LED_SIGNAL <= GREEN;
+				OK_LED_SIGNAL 	<= GREEN;
+			WHEN BATTERY =>					-- No power, but battery
+				PWR_LED_SIGNAL <= AMBER;
+				OK_LED_SIGNAL 	<= GREEN;
+			WHEN BATTERY_LOW =>				-- Power, but battery flat
+				PWR_LED_SIGNAL <= GREEN;
+				OK_LED_SIGNAL  <= FLASHING;
+			WHEN OTHERS =>						-- No power, no battery
+				PWR_LED_SIGNAL <= RED;
+				OK_LED_SIGNAL 	<= RED;
+		end case;
+	end process;
+	
+	LED_PROCESS : process ( SLOWEST_CLOCK ) is
+	begin
+		if ( rising_edge( SLOWEST_CLOCK ) ) then
+			case PWR_LED_SIGNAL is
+				WHEN RED =>
+					PWR_LED_COLOR <= "00";
+				WHEN AMBER =>
+					PWR_LED_COLOR <= "10";
+				WHEN FLASHING =>
+					PWR_LED_COLOR <= PWR_LED_COLOR(1) & not PWR_LED_COLOR(0);
+				WHEN GREEN =>
+					PWR_LED_COLOR <= "11";
+				WHEN others =>
+			end case;
+		
+			case OK_LED_SIGNAL is
+				WHEN RED =>
+					OK_LED_COLOR <= "00";
+				WHEN AMBER =>
+					OK_LED_COLOR <= "10";
+				WHEN FLASHING =>
+					OK_LED_COLOR <= not OK_LED_COLOR;
+				WHEN GREEN =>
+					OK_LED_COLOR <= "11";
+				WHEN others =>
+			end case;
+		end if;
+	end process;
+	
+	PWR_LED <= PWR_LED_COLOR;
+	OK_LED <= OK_LED_COLOR;
 end output_func;
 

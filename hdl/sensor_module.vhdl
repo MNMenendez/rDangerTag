@@ -31,31 +31,25 @@ use work.Utilities.all;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity SENSOR_MODULE is
-    Port ( SENSOR_1 : in  STD_LOGIC;
-           SENSOR_2 : in  STD_LOGIC;
-           SENSOR_3 : in  STD_LOGIC;
-           SENSOR_4 : in  STD_LOGIC;
+entity sensor_module is
+    Port ( SENSORS_I : in  STD_LOGIC_VECTOR(3 downto 0);
            SENSOR_STATE : out  sensor_states);
-end SENSOR_MODULE;
+end sensor_module;
 
-architecture SENSOR_FUNC of SENSOR_MODULE is
+architecture sensor_func of sensor_module is
 
 begin
-	SENSOR_PROCESS: process (SENSOR_1,SENSOR_2,SENSOR_3,SENSOR_4) is
+	SENSOR_PROCESS: process ( SENSORS_I ) is
 	begin
-		SENSOR_STATE <= SENSOR_ERROR;
-		if ( SENSOR_1 /= SENSOR_3 or SENSOR_2 /= SENSOR_4 ) then
-			SENSOR_STATE <= SENSOR_ERROR;
-		end if;
-		if ( SENSOR_1 = '1' and SENSOR_2 = '0' and SENSOR_3 = '1' and SENSOR_4 = '0' ) then
-			SENSOR_STATE <= DANGER;
-		end if;
-		if ( SENSOR_1 = '0' and SENSOR_2 = '1' and SENSOR_3 = '0' and SENSOR_4 = '1' ) then
-			SENSOR_STATE <= BLANK;
-		end if;
-		if ( SENSOR_1 = SENSOR_2  and SENSOR_2 = SENSOR_3 and SENSOR_3 = SENSOR_4 ) then
-			SENSOR_STATE <= TRANSITION;
-		end if;
+		case SENSORS_I is
+			when "0000" | "1111" =>
+				SENSOR_STATE <= TRANSITION;
+			when "0101" =>
+				SENSOR_STATE <= BLANK;
+			when "1010" =>
+				SENSOR_STATE <= DANGER;
+			when others =>
+				SENSOR_STATE <= SENSOR_ERROR;
+		end case;
 	end process;
-end SENSOR_FUNC;
+end sensor_func;

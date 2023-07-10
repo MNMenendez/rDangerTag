@@ -6,12 +6,14 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 package utilities is
-	Type power_states is (POWER_OFF,POWER_ON);
-	Type key_states is (NOT_USED,USED);
-	Type mode_states is (MODE_ERROR,REMOTE,LOCAL_APPLY,LOCAL_REMOVE);
+	Type power_states is (POWER_OFF,POWER_ON,BATTERY,BATTERY_LOW);
+	Type key_states is (KEY_ERROR,NO_KEY,KEY_APPLY,KEY_REMOVE);
+	Type lock_states is (NO_LOCK,LOCK_APPLY,LOCK_REMOVE,LOCK_ERROR);
+	Type plc_states is (PLC_ERROR,PLC_APPLY,PLC_REMOVE,PLC_IDLE);
+	Type command_states is (COMMAND_ERROR,COMMAND_APPLY,COMMAND_REMOVE,COMMAND_IDLE);
 	Type sensor_states is (SENSOR_ERROR,DANGER,BLANK,TRANSITION);
-	Type command_states is (COMMAND_ERROR,COMMAND_IGNORE,COMMAND_APPLY,COMMAND_REMOVE);
-	Type system_states is (SYSTEM_ERROR,SYSTEM_DANGER,SYSTEM_BLANK,SYSTEM_TRANSITION,SYSTEM_BATTERY);
-	Type right_states is (FAULT,ALIVE);
-	Type motors_states is (STOP,toDANGER,toBLANK);
+	Type system_states is (SYSTEM_ERROR,SYSTEM_DANGER,SYSTEM_BLANK,SYSTEM_TRANSITION,SYSTEM_TIMEOUT,SYSTEM_IDLE);
+	Type general_states is (STATE_ERROR,STATE_MOVING,STATE_STOP);
+	Type motor_states is (STOP,MoveToDanger,MoveToBlank);
+	Type led_states is (RED,AMBER,FLASHING,GREEN);
 end package;

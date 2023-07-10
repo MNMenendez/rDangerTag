@@ -1,17 +1,6 @@
 <testsuites name="results">
   <testsuite name="all" package="all">
-    <property name="random_seed" value="1683522033" />
-    <testcase name="general_test" classname="test_general" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_general.py" lineno="17" time="71.1087417602539" sim_time_ns="131073.000001" ratio_time="1843.2754786031526" />
-    <testcase name="TBD_test" classname="test_dummy" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_dummy.py" lineno="17" time="0.0012598037719726562" sim_time_ns="5.000000999978511" ratio_time="3968.8728603735553" />
-    <testcase name="power_mode_test" classname="test_power" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_power.py" lineno="16" time="0.001287221908569336" sim_time_ns="5.0000010000076145" ratio_time="3884.3349128238447" />
-    <testcase name="key_test" classname="test_key" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_key.py" lineno="17" time="0.0025169849395751953" sim_time_ns="9.000001000007614" ratio_time="3575.707132171634" />
-    <testcase name="sensor_test" classname="test_sensor" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_sensor.py" lineno="17" time="0.004856586456298828" sim_time_ns="17.000001000007614" ratio_time="3500.4011877435414" />
-    <testcase name="command_test" classname="test_command" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_command.py" lineno="18" time="0.005597114562988281" sim_time_ns="17.00000099997851" ratio_time="3037.279442588766" />
-    <testcase name="interlocking_test" classname="test_lock" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_lock.py" lineno="17" time="0.003318309783935547" sim_time_ns="9.000001000007614" ratio_time="2712.2244714999238" />
-    <testcase name="system_states_test" classname="test_system" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_system.py" lineno="18" time="0.06790637969970703" sim_time_ns="129.00000100000761" ratio_time="1899.6742510860752" />
-    <testcase name="output_test" classname="test_output" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_output.py" lineno="18" time="0.002374410629272461" sim_time_ns="5.0000010000076145" ratio_time="2105.786142618329" />
-    <testcase name="motor_test" classname="test_motor" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_motor.py" lineno="18" time="0.05813455581665039" sim_time_ns="129.0000009999785" ratio_time="2218.990051404701" />
-    <testcase name="clock_test" classname="test_clock" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_clock.py" lineno="17" time="0.5696890354156494" sim_time_ns="4097.000001000008" ratio_time="7191.642714363996" />
-    <testcase name="movement_test" classname="test_movement" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_movement.py" lineno="18" time="0.09066462516784668" sim_time_ns="513.0000010000076" ratio_time="5658.215649712277" />
+    <property name="random_seed" value="1688438548" />
+    <testcase name="TBD_test" classname="test_dummy" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_dummy.py" lineno="17" time="0.0010499954223632812" sim_time_ns="5.000001" ratio_time="4761.926474637602" />
   </testsuite>
 </testsuites>

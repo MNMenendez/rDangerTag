@@ -149,6 +149,19 @@ def plc_model(PLC_I_A: Logic = Logic('-'), PLC_I_B: Logic = Logic('-')):
         PLC_STATE = PLCs.PLC_ERROR
         
     return PLC_STATE.value
+ 
+def ff_model(CLOCK: Logic = Logic('-'), RESET: Logic = Logic('-'), D: Logic = Logic('-')):
+    """model of flip flop D"""
+        
+    Q : LOGIC = Logic('u')
+    
+    if ( CLOCK ):
+        if RESET:
+            Q = False
+        else:
+            Q = not D       
+        
+    return Q
     
 def command_model(INPUT_A: Logic = Logic('-'), INPUT_B: Logic = Logic('-'), MODE_STATE: int = Modes.MODE_ERROR ):
     """model of commands"""

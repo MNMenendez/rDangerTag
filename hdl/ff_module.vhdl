@@ -29,14 +29,14 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity FF is
+entity FF_module is
     Port ( CLOCK : in  STD_LOGIC;
 			  RESET : in STD_LOGIC;
            D : in  STD_LOGIC;
-           Q : out  STD_LOGIC);
-end FF;
+           Q : out  STD_LOGIC := '0');
+end FF_module;
 
-architecture Behavioral of FF is
+architecture Behavioral of FF_module is
 
 begin
 	process ( CLOCK )

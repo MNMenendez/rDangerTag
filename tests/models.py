@@ -11,6 +11,11 @@ class Powers(enum.Enum):
     POWER_ON            = 1
     BATTERY             = 2
     BATTERY_LOW         = 3
+class PLCs(enum.Enum):
+    PLC_ERROR           = 0
+    PLC_APPLY           = 1
+    PLC_REMOVE          = 2
+    PLC_IDLE            = 3
 class Modes(enum.Enum):
     MODE_ERROR          = 0
     REMOTE              = 1
@@ -130,6 +135,20 @@ def sensor_model(SENSOR_1: Logic = Logic('-'), SENSOR_2: Logic = Logic('-'), SEN
     if (SENSOR_1 == SENSOR_3 == SENSOR_2 == SENSOR_4):
         SENSOR_STATE = Sensors.TRANSITION
     return SENSOR_STATE.value
+    
+def plc_model(PLC_I_A: Logic = Logic('-'), PLC_I_B: Logic = Logic('-')):
+    """model of plcs"""
+        
+    PLC_STATE = PLCs.PLC_IDLE
+    
+    if (not PLC_I_A and PLC_I_B):
+        PLC_STATE = PLCs.PLC_APPLY
+    if (PLC_I_A and not PLC_I_B):
+        PLC_STATE = PLCs.PLC_REMOVE    
+    if (PLC_I_A == PLC_I_B):
+        PLC_STATE = PLCs.PLC_ERROR
+        
+    return PLC_STATE.value
     
 def command_model(INPUT_A: Logic = Logic('-'), INPUT_B: Logic = Logic('-'), MODE_STATE: int = Modes.MODE_ERROR ):
     """model of commands"""

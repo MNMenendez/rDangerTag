@@ -34,7 +34,7 @@ use work.Utilities.all;
 entity command_module is
     Port ( KEY_STATE : in  key_states;
            PLC_STATE : in  plc_states;
-			  LOCK_STATE : in lock_states;
+			LOCK_STATE : in lock_states;
            COMMAND_STATE : out  command_states := COMMAND_IDLE);
 end command_module;
 

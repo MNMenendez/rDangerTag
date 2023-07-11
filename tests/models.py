@@ -147,9 +147,7 @@ def command_model(INPUT_A: Logic = Logic('-'), INPUT_B: Logic = Logic('-'), MODE
             COMMAND_STATE = Commands.COMMAND_REMOVE
             
     return COMMAND_STATE.value
-    
-
-    
+        
 def system_model(POWER_STATE: int = Powers.POWER_OFF, MODE_STATE: int = Modes.MODE_ERROR, COMMAND_STATE: int = Commands.COMMAND_ERROR, SENSOR_STATE: int = Sensors.SENSOR_ERROR):
 
     SYSTEM_STATE = Systems.SYSTEM_ERROR

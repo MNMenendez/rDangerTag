@@ -1,6 +1,6 @@
 <testsuites name="results">
   <testsuite name="all" package="all">
-    <property name="random_seed" value="1689034098" />
-    <testcase name="interlocking_test" classname="test_lock" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_lock.py" lineno="17" time="0.0014760494232177734" sim_time_ns="9000000000.000002" ratio_time="6097356808270.07" />
+    <property name="random_seed" value="1689034662" />
+    <testcase name="sensor_test" classname="test_sensor" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_sensor.py" lineno="17" time="0.0025339126586914062" sim_time_ns="17000000000.000002" ratio_time="6708992096349.267" />
   </testsuite>
 </testsuites>

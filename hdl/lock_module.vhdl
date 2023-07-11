@@ -35,7 +35,7 @@ entity lock_module is
     Port ( LOCK_ENABLE 	: in  STD_LOGIC;
            LOCK_I 		: in  STD_LOGIC_VECTOR(1 downto 0);
            LOCK_O 		: out STD_LOGIC_VECTOR(1 downto 0);
-			  LOCK_STATE	: out lock_states);
+		   LOCK_STATE	: out lock_states);
 end lock_module;
 
 architecture lock_func of lock_module is

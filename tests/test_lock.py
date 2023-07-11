@@ -12,7 +12,7 @@ from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
 
 if cocotb.simulator.is_running():
-    from models import enum,Modes,Commands,lock_model,tuple_create
+    from models import *
 
 @cocotb.test()
 async def interlocking_test(dut):
@@ -23,16 +23,18 @@ async def interlocking_test(dut):
     LOCK_B_I = tuple_create(3,1)+(False,)
         
     for i in range(len(LOCK)):
-        dut.LOCK.value = LOCK[i]
-        dut.LOCK_A_I.value = LOCK_A_I[i]
-        dut.LOCK_B_I.value = LOCK_B_I[i]
-        await Timer(1, units="ns")
-        print(f'Lock {"Enable" if dut.LOCK.value else "Disable"} [{bool(dut.LOCK_A_I.value)}, {bool(dut.LOCK_B_I.value)}] > {lock_model(LOCK[i],LOCK_A_I[i],LOCK_B_I[i])}')
-        assert ([dut.LOCK_A_O.value,dut.LOCK_B_O.value] == lock_model(LOCK[i],LOCK_A_I[i],LOCK_B_I[i])), f'result is incorrect: {dut.LOCK_A_O.value} {dut.LOCK_B_O.value} != {lock_model(LOCK[i],LOCK_A_I[i],LOCK_B_I[i])}'   
+        dut.LOCK_ENABLE.value = LOCK[i]
+        dut.LOCK_I.value = 2*LOCK_A_I[i]+LOCK_B_I[i]
+        await Timer(1, units="sec")
+        
+        print(f'Lock {"Enable" if dut.LOCK_ENABLE.value else "Disable"} | {Locks(dut.LOCK_I.value).name} > {lock_model(LOCK[i],LOCK_A_I[i],LOCK_B_I[i])[:2]} {Locks(lock_model(LOCK[i],LOCK_A_I[i],LOCK_B_I[i])[2]).name}')
+   
+        output = lock_model(LOCK[i],LOCK_A_I[i],LOCK_B_I[i])
+        assert ( [dut.LOCK_O.value,dut.LOCK_STATE.value]  == [2*output[0]+output[1],output[2]]), f'{[dut.LOCK_O.value,dut.LOCK_STATE.value]} != {output}'
     print('')
 
 def test_lock_runner():
-    """Simulate the key example using the Python runner.
+    """Simulate the interlock example using the Python runner.
 
     This file can be run directly or via pytest discovery.
     """

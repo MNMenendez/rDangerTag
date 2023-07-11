@@ -24,9 +24,9 @@ async def power_mode_test(dut):
         dut.POWER_MODE.value = POWER_MODE[i]
         dut.BATTERY_STATE.value = BATTERY_STATE[i]
         
-        await Timer(1, units="ns")
+        await Timer(1, units="sec")
         print(f'Power {"Connected" if dut.POWER_MODE.value else "Disconnected"} | {"Full" if dut.BATTERY_STATE.value else "Empty"} battery > {Powers(power_model(POWER_MODE[i],BATTERY_STATE[i])).name}')
-        #assert dut.POWER_SIGNAL.value == power_model(POWER_MODE[i]), f'result is incorrect: {dut.POWER_SIGNAL.value} != {dut.POWER_MODE.value}'    
+        assert dut.POWER_STATE.value == power_model(POWER_MODE[i],BATTERY_STATE[i]), f'result is incorrect: {dut.POWER_STATE.value} != {dut.POWER_MODE.value}|{dut.BATTERY_STATE.value}'    
     print('')
     
 def test_power_runner():

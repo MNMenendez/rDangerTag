@@ -39,6 +39,14 @@ class Motors(enum.Enum):
     STOP               = 0
     toDANGER           = 1
     toBLANK            = 2
+class Locks(enum.Enum):
+    NO_LOCK            = 0
+    LOCK_APPLY         = 1
+    LOCK_REMOVE        = 2
+    LOCK_ERROR         = 3
+  
+def tuple_create(n_inputs,n):
+    return ((False,)*n+(True,)*n)*((2**n_inputs)//(2*n))
     
 def dummy_model(TBD_I: Logic = Logic('-')) -> int:
     """model of dummy"""
@@ -57,11 +65,36 @@ def power_model(POWER_MODE: Logic = Logic('-'), BATTERY_STATE: Logic = Logic('-'
         POWER_STATE = Powers.POWER_ON
         
     return POWER_STATE.value
+
+def lock_model(LOCK: Logic = Logic('-'), LOCK_A_I: Logic = Logic('-'), LOCK_B_I: Logic = Logic('-')):
+    """model of lock"""
     
-def tuple_create(n_inputs,n):
-
-    return ((False,)*n+(True,)*n)*((2**n_inputs)//(2*n))
-
+    LOCK_STATE = Locks.NO_LOCK 
+    
+    if (LOCK):
+        LOCK_STATE = Locks.NO_LOCK 
+        LOCK_A_O = LOCK_A_I
+        LOCK_B_O = LOCK_B_I
+    else:
+        if ( not LOCK_A_I and not LOCK_B_I ):
+            LOCK_STATE = Locks.LOCK_ERROR
+            LOCK_A_O = LOCK_A_I
+            LOCK_B_O = LOCK_B_I
+        if ( not LOCK_A_I and LOCK_B_I ):
+            LOCK_STATE = Locks.LOCK_APPLY
+            LOCK_A_O = LOCK_A_I
+            LOCK_B_O = LOCK_B_I
+        if ( LOCK_A_I and not LOCK_B_I ):
+            LOCK_STATE = Locks.LOCK_REMOVE
+            LOCK_A_O = LOCK_A_I
+            LOCK_B_O = LOCK_B_I
+        if ( LOCK_A_I and LOCK_B_I ):
+            LOCK_STATE = Locks.LOCK_ERROR  
+            LOCK_A_O = LOCK_A_I
+            LOCK_B_O = LOCK_B_I
+    
+    return LOCK_A_O,LOCK_B_O,LOCK_STATE.value
+    
 def key_model(KEY: Logic = Logic('-'), KEY_A_I: Logic = Logic('-'), KEY_B_I: Logic = Logic('-')):
     """model of key"""
     
@@ -115,17 +148,7 @@ def command_model(INPUT_A: Logic = Logic('-'), INPUT_B: Logic = Logic('-'), MODE
             
     return COMMAND_STATE.value
     
-def lock_model(LOCK: Logic = Logic('-'), LOCK_A_I: Logic = Logic('-'), LOCK_B_I: Logic = Logic('-')):
-    """model of lock"""
 
-    if LOCK == True:
-        LOCK_A_O = LOCK_A_I
-        LOCK_B_O = LOCK_B_I
-    else:
-        LOCK_A_O = False
-        LOCK_B_O = False
-        
-    return [LOCK_A_O,LOCK_B_O]
     
 def system_model(POWER_STATE: int = Powers.POWER_OFF, MODE_STATE: int = Modes.MODE_ERROR, COMMAND_STATE: int = Commands.COMMAND_ERROR, SENSOR_STATE: int = Sensors.SENSOR_ERROR):
 

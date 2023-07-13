@@ -32,24 +32,26 @@ use work.Utilities.all;
 --use UNISIM.VComponents.all;
 
 entity command_module is
-    Port ( KEY_STATE : in  key_states;
-           PLC_STATE : in  plc_states;
-			LOCK_STATE : in lock_states;
+    Port ( KEY_STATE : in  key_states	:= NO_KEY;
+           PLC_STATE : in  plc_states	:= PLC_IDLE;
+		   LOCK_STATE : in lock_states		:= NO_LOCK;
            COMMAND_STATE : out  command_states := COMMAND_IDLE);
 end command_module;
 
 architecture command_func of command_module is
 signal COMMAND_SIGNAL : command_states := COMMAND_IDLE;
-signal COMMAND : std_logic_vector(2 downto 0);
+signal COMMAND : std_logic_vector(2 downto 0)	:= "000";
 signal APPLY_VALID 	: STD_LOGIC := '0';
-signal REMOVE_VALID 	: STD_LOGIC := '0';
-signal CMD_INVALID 	: STD_LOGIC := '1';
+signal REMOVE_VALID : STD_LOGIC := '0';
+signal CMD_INVALID 	: STD_LOGIC := '0';
 begin
 
-	APPLY_VALID 	<= '1' when (LOCK_STATE = LOCK_APPLY) and ( KEY_STATE = KEY_APPLY or ( KEY_STATE = NO_KEY and PLC_STATE = PLC_APPLY )) else '0';
-	REMOVE_VALID	<= '1' when (LOCK_STATE = LOCK_REMOVE) and ( KEY_STATE = KEY_REMOVE or ( KEY_STATE = NO_KEY and PLC_STATE = PLC_REMOVE )) else '0';
+	--APPLY_VALID		<= '1' when (LOCK_STATE = NO_LOCK) else '0';
+	APPLY_VALID 	<= '1' when (LOCK_STATE = NO_LOCK or LOCK_STATE = LOCK_APPLY) and ( KEY_STATE = KEY_APPLY or ( KEY_STATE = NO_KEY and PLC_STATE = PLC_APPLY )) else '0';
+	REMOVE_VALID	<= '1' when (LOCK_STATE = NO_LOCK or LOCK_STATE = LOCK_REMOVE) and ( KEY_STATE = KEY_REMOVE or ( KEY_STATE = NO_KEY and PLC_STATE = PLC_REMOVE )) else '0';
 	CMD_INVALID 	<= '1' when (LOCK_STATE = LOCK_ERROR) or (KEY_STATE = KEY_ERROR or (KEY_STATE = NO_KEY and PLC_STATE = PLC_ERROR)) else '0';
 	COMMAND	  		<= APPLY_VALID & REMOVE_VALID & CMD_INVALID;
+	COMMAND_STATE <= COMMAND_SIGNAL;
 	
 	COMMAND_PROCESS : process ( COMMAND , COMMAND_SIGNAL ) is
 	begin
@@ -93,6 +95,5 @@ begin
 			COMMAND_SIGNAL <= COMMAND_ERROR;
 		end case;
 	end process;
-	COMMAND_STATE <= COMMAND_SIGNAL;
 end command_func;
 

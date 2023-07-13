@@ -16,11 +16,11 @@ class PLCs(enum.Enum):
     PLC_APPLY           = 1
     PLC_REMOVE          = 2
     PLC_IDLE            = 3
-class Modes(enum.Enum):
-    MODE_ERROR          = 0
-    REMOTE              = 1
-    LOCAL_APPLY         = 2
-    LOCAL_REMOVE        = 3
+class Keys(enum.Enum):
+    KEY_ERROR           = 0
+    KEY_APPLY           = 1
+    KEY_REMOVE          = 2
+    NO_KEY              = 3
 class Sensors(enum.Enum):
     SENSOR_ERROR        = 0
     DANGER              = 1
@@ -28,9 +28,9 @@ class Sensors(enum.Enum):
     TRANSITION          = 3
 class Commands(enum.Enum):
     COMMAND_ERROR       = 0
-    COMMAND_IGNORE      = 1
-    COMMAND_APPLY       = 2
-    COMMAND_REMOVE      = 3
+    COMMAND_APPLY       = 1
+    COMMAND_REMOVE      = 2
+    COMMAND_IDLE        = 3
 class Systems(enum.Enum):
     SYSTEM_ERROR        = 0
     SYSTEM_DANGER       = 1
@@ -45,10 +45,10 @@ class Motors(enum.Enum):
     toDANGER           = 1
     toBLANK            = 2
 class Locks(enum.Enum):
-    NO_LOCK            = 0
+    LOCK_ERROR         = 0
     LOCK_APPLY         = 1
     LOCK_REMOVE        = 2
-    LOCK_ERROR         = 3
+    NO_LOCK            = 3
   
 def tuple_create(n_inputs,n):
     return ((False,)*n+(True,)*n)*((2**n_inputs)//(2*n))
@@ -163,23 +163,35 @@ def ff_model(CLOCK: Logic = Logic('-'), RESET: Logic = Logic('-'), D: Logic = Lo
         
     return Q
     
-def command_model(INPUT_A: Logic = Logic('-'), INPUT_B: Logic = Logic('-'), MODE_STATE: int = Modes.MODE_ERROR ):
+def command_model( KEY: int = Keys.NO_KEY, PLC: int = PLCs.PLC_IDLE, LOCK: int = Locks.NO_LOCK , PREVCOMMAND: int = Commands.COMMAND_IDLE ):
     """model of commands"""
+     
+    APPLY_VALID = True if ((LOCK == Locks.LOCK_APPLY or LOCK == Locks.NO_LOCK) and ( KEY == Keys.KEY_APPLY or ( KEY == Keys.NO_KEY and PLC == PLCs.PLC_APPLY ) ) ) else False
+    REMOVE_VALID = True if ((LOCK == Locks.LOCK_REMOVE or LOCK == Locks.NO_LOCK) and ( KEY == Keys.KEY_REMOVE or ( KEY == Keys.NO_KEY and PLC == PLCs.PLC_REMOVE ) ) ) else False
+    CMD_INVALID = True if (LOCK == Locks.LOCK_ERROR or KEY == Keys.KEY_ERROR or ( KEY == Keys.NO_KEY and PLC == PLCs.PLC_ERROR ) ) else False   
     
-    COMMAND_STATE = Commands.COMMAND_ERROR
+    #print(KEY,PLC,LOCK,PREVCOMMAND,APPLY_VALID,REMOVE_VALID,CMD_INVALID)
     
-    if ( MODE_STATE != Modes.REMOTE.value ):
-        COMMAND_STATE = Commands.COMMAND_IGNORE
-    else:
-        if ( INPUT_A == INPUT_B ):
-            COMMAND_STATE = Commands.COMMAND_ERROR
-        if ( INPUT_A == False and INPUT_B == True ):
-            COMMAND_STATE = Commands.COMMAND_APPLY
-        if ( INPUT_A == True and INPUT_B == False ):
-            COMMAND_STATE = Commands.COMMAND_REMOVE
-            
-    return COMMAND_STATE.value
+    if ( PREVCOMMAND == Commands.COMMAND_ERROR ):
+        COMMAND_STATE = Commands.COMMAND_ERROR
+        return COMMAND_STATE.value
         
+    if ( CMD_INVALID ):
+        COMMAND_STATE = Commands.COMMAND_ERROR
+    else:
+        if ( not APPLY_VALID and not REMOVE_VALID ):
+            COMMAND_STATE = Commands.COMMAND_IDLE
+        if ( not APPLY_VALID and REMOVE_VALID ):
+            COMMAND_STATE = Commands.COMMAND_REMOVE
+        if ( APPLY_VALID and not REMOVE_VALID ):
+            COMMAND_STATE = Commands.COMMAND_APPLY
+        if ( APPLY_VALID and REMOVE_VALID ):
+            COMMAND_STATE = Commands.COMMAND_ERROR
+ 
+     
+    return COMMAND_STATE.value
+    
+'''        
 def system_model(POWER_STATE: int = Powers.POWER_OFF, MODE_STATE: int = Modes.MODE_ERROR, COMMAND_STATE: int = Commands.COMMAND_ERROR, SENSOR_STATE: int = Sensors.SENSOR_ERROR):
 
     SYSTEM_STATE = Systems.SYSTEM_ERROR
@@ -204,7 +216,8 @@ def system_model(POWER_STATE: int = Powers.POWER_OFF, MODE_STATE: int = Modes.MO
                     SYSTEM_STATE = Systems.SYSTEM_ERROR
             
     return [SYSTEM_STATE.value,ALL_OK.value]
-    
+'''
+
 def output_model(SYSTEM_STATE: int = Systems.SYSTEM_ERROR):
     
     OUTPUT_A = False
@@ -231,7 +244,7 @@ def output_model(SYSTEM_STATE: int = Systems.SYSTEM_ERROR):
             OUTPUT_B = False
     
     return [OUTPUT_A,OUTPUT_B]
-    
+'''    
 def motor_model(LOCK: Logic = Logic('-'), MODE_STATE: int = Modes.MODE_ERROR, COMMAND_STATE: int = Commands.COMMAND_ERROR, SENSOR_STATE: int = Sensors.SENSOR_ERROR):
     
     MOTOR_STATE = Motors.STOP.value
@@ -272,7 +285,7 @@ def motor_model(LOCK: Logic = Logic('-'), MODE_STATE: int = Modes.MODE_ERROR, CO
         case _:
             return Motors.STOP.value
     return MOTOR_STATE
-
+'''
 counter = 0
 def clock_model(CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-')):
     

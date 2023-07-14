@@ -33,7 +33,7 @@ use work.Utilities.all;
 
 entity movement_module is
     Port ( MOTOR_STATE 	: in  motor_states;
-			  PWM 			: in  STD_LOGIC;
+		   PWM 			: in  STD_LOGIC;
            MOTOR_PWM 	: out  STD_LOGIC;
            MOTOR_UPDOWN	: out  STD_LOGIC_VECTOR(1 downto 0) := (others => '0')
 			  );

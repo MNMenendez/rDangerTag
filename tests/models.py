@@ -36,7 +36,8 @@ class Systems(enum.Enum):
     SYSTEM_DANGER       = 1
     SYSTEM_BLANK        = 2
     SYSTEM_TRANSITION   = 3
-    SYSTEM_BATTERY      = 4
+    SYSTEM_TIMEOUT      = 4
+    SYSTEM_IDLE         = 5 
 class Rights(enum.Enum):
     FAULT               = 0
     ALIVE               = 1
@@ -49,7 +50,16 @@ class Locks(enum.Enum):
     LOCK_APPLY         = 1
     LOCK_REMOVE        = 2
     NO_LOCK            = 3
-  
+class Leds(enum.Enum):
+    RED                = 0
+    AMBER              = 1
+    FLASHING           = 2
+    GREEN              = 3
+class Outputs(enum.Enum):
+    ERROR              = 0
+    DANGER             = 1
+    BLANK              = 2
+
 def tuple_create(n_inputs,n):
     return ((False,)*n+(True,)*n)*((2**n_inputs)//(2*n))
     
@@ -218,11 +228,13 @@ def system_model(POWER_STATE: int = Powers.POWER_OFF, MODE_STATE: int = Modes.MO
     return [SYSTEM_STATE.value,ALL_OK.value]
 '''
 
-def output_model(SYSTEM_STATE: int = Systems.SYSTEM_ERROR):
+def output_model(SYSTEM_STATE: int = Systems.SYSTEM_IDLE, POWER_STATE: int = Powers.POWER_OFF, SLOWEST_CLOCK: Logic = Logic('-')):
     
-    OUTPUT_A = False
-    OUTPUT_B = False
+    OUTPUT = [False,False]
+    OK_LED = [True,False]
+    PWR_LED = [False,True]
     
+    '''
     match SYSTEM_STATE:
         case Systems.SYSTEM_ERROR.value:
             OUTPUT_A = False
@@ -242,8 +254,8 @@ def output_model(SYSTEM_STATE: int = Systems.SYSTEM_ERROR):
         case _:
             OUTPUT_A = False
             OUTPUT_B = False
-    
-    return [OUTPUT_A,OUTPUT_B]
+    '''
+    return [OUTPUT,OK_LED,PWR_LED]
 '''    
 def motor_model(LOCK: Logic = Logic('-'), MODE_STATE: int = Modes.MODE_ERROR, COMMAND_STATE: int = Commands.COMMAND_ERROR, SENSOR_STATE: int = Sensors.SENSOR_ERROR):
     
@@ -312,9 +324,7 @@ def clock_model(CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-')):
     
 def movement_model(PWM: Logic = Logic('-'), MOTOR_STATE: int = Motors.STOP):
     
-    MOTOR_PWM = False
-    MOTOR_UP = False
-    MOTOR_DOWN = False
+    #print(f'Receive: {PWM} {Motors(int(MOTOR_STATE))}')
     
     match MOTOR_STATE:
         case Motors.STOP.value:

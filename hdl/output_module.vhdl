@@ -101,6 +101,7 @@ begin
 				WHEN GREEN =>
 					PWR_LED_COLOR <= "11";
 				WHEN others =>
+					NULL;
 			end case;
 		
 			case OK_LED_SIGNAL is
@@ -109,10 +110,11 @@ begin
 				WHEN AMBER =>
 					OK_LED_COLOR <= "10";
 				WHEN FLASHING =>
-					OK_LED_COLOR <= not OK_LED_COLOR;
+					OK_LED_COLOR <= OK_LED_COLOR(1) & not OK_LED_COLOR(0);
 				WHEN GREEN =>
 					OK_LED_COLOR <= "11";
 				WHEN others =>
+					NULL;
 			end case;
 		end if;
 	end process;

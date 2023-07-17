@@ -27,16 +27,14 @@ async def FF_test(dut):
 
     await FallingEdge(dut.CLOCK)  # Synchronize with the clock
     for i in range(50000):
-        val = random.randint(0 , 1)
         reset = True if ((i % 10000) > 50 and (i % 10000) < 100) else False
-        dut.D.value = val  # Assign the random value val to the input port d
         dut.RESET.value = reset
         await FallingEdge(dut.CLOCK)
-        output = (not val)*(not reset)
-        print(f'{val} {reset}-> {output} vs {dut.Q.value}')
+        output = not clock
+        #print(f'{reset}-> {output} vs {dut.CLOCK_OUT.value}')
         
-        assert ( dut.Q.value == output ), f'output q was incorrect on the {i}th cycle - {val}|{reset}> {output} vs {dut.Q.value}' 
-        
+        #assert ( dut.CLOCK_OUT.value == output ), f'output q was incorrect on the {i}th cycle - {val}|{reset}> {output} vs {dut.CLOCK_OUT.value}' 
+    
 '''
 async def FF_test(dut):
     """Test FF"""

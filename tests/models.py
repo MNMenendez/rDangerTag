@@ -59,6 +59,7 @@ class Outputs(enum.Enum):
     ERROR              = 0
     DANGER             = 1
     BLANK              = 2
+    CATASTROPHIC_FAILURE = 3
 
 def tuple_create(n_inputs,n):
     return ((False,)*n+(True,)*n)*((2**n_inputs)//(2*n))
@@ -160,7 +161,7 @@ def plc_model(PLC_I_A: Logic = Logic('-'), PLC_I_B: Logic = Logic('-')):
         
     return PLC_STATE.value
  
-def ff_model(CLOCK: Logic = Logic('-'), RESET: Logic = Logic('-'), D: Logic = Logic('-')):
+def ff_model(CLOCK: Logic = Logic('-'), RESET: Logic = Logic('-')):
     """model of flip flop D"""
         
     Q : LOGIC = Logic('u')
@@ -169,7 +170,7 @@ def ff_model(CLOCK: Logic = Logic('-'), RESET: Logic = Logic('-'), D: Logic = Lo
         if RESET:
             Q = False
         else:
-            Q = not D       
+            Q = not CLOCK       
         
     return Q
     
@@ -228,34 +229,79 @@ def system_model(POWER_STATE: int = Powers.POWER_OFF, MODE_STATE: int = Modes.MO
     return [SYSTEM_STATE.value,ALL_OK.value]
 '''
 
-def output_model(SYSTEM_STATE: int = Systems.SYSTEM_IDLE, POWER_STATE: int = Powers.POWER_OFF, SLOWEST_CLOCK: Logic = Logic('-')):
+def output_model(SYSTEM_STATE: int = Systems.SYSTEM_IDLE, POWER_STATE: int = Powers.POWER_OFF, SLOWEST_CLOCK: Logic = Logic('-'), PREV_OUTPUT = [False,False],PREV_PWR_LED =[False,False],PREV_OK_LED=[False,False]):
     
-    OUTPUT = [False,False]
-    OK_LED = [True,False]
-    PWR_LED = [False,True]
     
-    '''
+    PWR_LED_SIGNAL = Leds.RED
+    OK_LED_SIGNAL  = Leds.RED
+    
     match SYSTEM_STATE:
         case Systems.SYSTEM_ERROR.value:
-            OUTPUT_A = False
-            OUTPUT_B = False
+            OUTPUT = [False,False]
         case Systems.SYSTEM_DANGER.value:
-            OUTPUT_A = True
-            OUTPUT_B = False
+            OUTPUT = [False,True]
         case Systems.SYSTEM_BLANK.value:
-            OUTPUT_A = False
-            OUTPUT_B = True
+            OUTPUT = [True,False]
         case Systems.SYSTEM_TRANSITION.value:
-            OUTPUT_A = True
-            OUTPUT_B = True
-        case Systems.SYSTEM_BATTERY.value:
-            OUTPUT_A = False
-            OUTPUT_B = False
+            OUTPUT = PREV_OUTPUT
+        case Systems.SYSTEM_TIMEOUT.value:
+            OUTPUT = [False,False]
+        case Systems.SYSTEM_IDLE.value:
+            OUTPUT = [False,False]
         case _:
-            OUTPUT_A = False
-            OUTPUT_B = False
-    '''
-    return [OUTPUT,OK_LED,PWR_LED]
+            OUTPUT = [True,True]
+    
+    match POWER_STATE:
+        case Powers.POWER_OFF.value:
+            PWR_LED_SIGNAL = Leds.RED.value
+        case Powers.POWER_ON.value:
+            PWR_LED_SIGNAL = Leds.GREEN.value
+        case Powers.BATTERY.value:
+            PWR_LED_SIGNAL = Leds.AMBER.value
+        case Powers.BATTERY_LOW.value:
+            PWR_LED_SIGNAL = Leds.GREEN.value
+        case _:
+            PWR_LED_SIGNAL = Leds.RED.value
+    
+    if SYSTEM_STATE == Systems.SYSTEM_ERROR.value:
+        OK_LED_SIGNAL  = Leds.RED.value
+    else:
+        if POWER_STATE == Powers.POWER_ON.value or POWER_STATE == Powers.BATTERY.value:
+            OK_LED_SIGNAL  = Leds.GREEN.value
+        elif POWER_STATE == Powers.BATTERY_LOW.value:
+            OK_LED_SIGNAL  = Leds.FLASHING.value
+        else:
+            OK_LED_SIGNAL  = Leds.RED.value
+    
+    if SLOWEST_CLOCK:
+        match PWR_LED_SIGNAL:
+            case Leds.RED.value:
+                PREV_PWR_LED = [False,False]
+            case Leds.AMBER.value:
+                PREV_PWR_LED = [True,False]
+            case Leds.FLASHING.value:
+                PREV_PWR_LED = [PREV_PWR_LED[1] , not PREV_PWR_LED[0]]
+            case Leds.GREEN.value:
+                PREV_PWR_LED = [True,True]
+            case _:
+                PREV_PWR_LED = PREV_PWR_LED
+        
+        match OK_LED_SIGNAL:
+            case Leds.RED.value:
+                PREV_OK_LED = [False,False]
+            case Leds.AMBER.value:
+                PREV_OK_LED = [True,False]
+            case Leds.FLASHING.value:
+                PREV_OK_LED = [PREV_OK_LED[0], not PREV_OK_LED[1]]
+            case Leds.GREEN.value:
+                PREV_OK_LED = [True,True]
+            case _:
+                PREV_OK_LED = PREV_OK_LED
+                
+    PWR_LED = PREV_PWR_LED
+    OK_LED = PREV_OK_LED
+    
+    return [OUTPUT,PWR_LED,OK_LED]
 '''    
 def motor_model(LOCK: Logic = Logic('-'), MODE_STATE: int = Modes.MODE_ERROR, COMMAND_STATE: int = Commands.COMMAND_ERROR, SENSOR_STATE: int = Sensors.SENSOR_ERROR):
     

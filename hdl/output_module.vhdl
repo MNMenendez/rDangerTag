@@ -53,9 +53,9 @@ begin
 			WHEN SYSTEM_ERROR =>
 				OUTPUT <= "00";
 			WHEN SYSTEM_DANGER =>
-				OUTPUT <= "10";
-			WHEN SYSTEM_BLANK =>
 				OUTPUT <= "01";
+			WHEN SYSTEM_BLANK =>
+				OUTPUT <= "10";
 			WHEN SYSTEM_TRANSITION =>
 				NULL;
 			WHEN SYSTEM_TIMEOUT =>
@@ -71,21 +71,30 @@ begin
 	begin
 		case POWER_STATE is
 			WHEN POWER_OFF =>					-- No power, no battery
-				PWR_LED_SIGNAL <= RED;
-				OK_LED_SIGNAL 	<= RED;
+				PWR_LED_SIGNAL <= RED;		
 			WHEN POWER_ON =>					-- Power and battery
 				PWR_LED_SIGNAL <= GREEN;
-				OK_LED_SIGNAL 	<= GREEN;
 			WHEN BATTERY =>					-- No power, but battery
 				PWR_LED_SIGNAL <= AMBER;
-				OK_LED_SIGNAL 	<= GREEN;
 			WHEN BATTERY_LOW =>				-- Power, but battery flat
 				PWR_LED_SIGNAL <= GREEN;
-				OK_LED_SIGNAL  <= FLASHING;
 			WHEN OTHERS =>						-- No power, no battery
 				PWR_LED_SIGNAL <= RED;
-				OK_LED_SIGNAL 	<= RED;
 		end case;
+		
+		if ( SYSTEM_STATE = SYSTEM_ERROR ) then
+        	OK_LED_SIGNAL 	<= RED;
+        else 
+        	if ( POWER_STATE = POWER_ON or POWER_STATE = BATTERY ) then
+        		OK_LED_SIGNAL 	<= GREEN;
+        	elsif ( POWER_STATE = BATTERY_LOW ) then
+        		OK_LED_SIGNAL  <= FLASHING;
+        	else
+        		OK_LED_SIGNAL 	<= RED;
+        	end if;
+        end if;
+		
+		
 	end process;
 	
 	LED_PROCESS : process ( SLOWEST_CLOCK ) is

@@ -7,35 +7,65 @@ import sys
 from pathlib import Path
 
 import cocotb
+import itertools
+import warnings
+from decimal import Decimal
+from numbers import Real
+from typing import Union
+
+from cocotb.log import SimLog
 from cocotb.runner import get_runner
-from cocotb.triggers import Timer
+from cocotb.triggers import Timer, FallingEdge, RisingEdge
 from cocotb.types import Bit, Logic
+from cocotb.binary import BinaryValue
+from cocotb.clock import Clock
+from cocotb.utils import get_sim_steps, get_time_from_sim_steps, lazy_property
 
 if cocotb.simulator.is_running():
     from models import *
 
 @cocotb.test()
 async def clock_test(dut):
-    """Testing clock"""
+    """Testing movement"""
+
+    clock = Clock(dut.CLOCK, 30.77, units="us")  # Create a 30us period clock on port clk
+    cocotb.start_soon(clock.start(start_high = False))  # Start the clock
     
-    CLOCK_STATE   = tuple_create(12,1024)+(False,)
-    CLOCK         = tuple_create(12,1)+(False,)
+    dut.CLOCK_STATE.value = True
     
-    message_old = ''
-    message_new = ''
-    for i in range(len(CLOCK_STATE)):
-        dut.CLOCK_STATE.value = CLOCK_STATE[i]
-        dut.CLOCK.value = CLOCK[i]
-        await Timer(1, units="ns")
-        message_new = f'Clock {"Alive" if dut.CLOCK_STATE.value else "Dead"}|{dut.CLOCK.value} > Clock {"Alive" if dut.WATCHDOG.value else "Dead"}|{dut.PWM_SIGNAL.value}'
-        if message_old != message_new:
-            message_old =  message_new
-            #print(message_old)
-        assert [dut.WATCHDOG.value,dut.PWM_SIGNAL.value] == clock_model(dut.CLOCK.value,dut.CLOCK_STATE.value), f'result is incorrect: [{dut.WATCHDOG.value},{dut.PWM_SIGNAL.value}] ! {clock_model(dut.CLOCK.value,dut.CLOCK_STATE.value)}'
+    SLOW_CLOCK = False
+    SLOWEST_CLOCK = False
+    
+    #await FallingEdge(dut.CLOCK)  # Synchronize with the clock
+    j = 0
+    for i in range(100000):
+        
+        reset = True if ((i % 20000) > 50 and (i % 20000) < 500) else False
+        dut.CLOCK_STATE.value = not reset   
+        
+        if ( ( j % 2**8 -1 ) == 0 ):
+            SLOW_CLOCK = (not SLOW_CLOCK)
+        if ( ( j % 2**9 -1 ) == 0 ):
+            SLOWEST_CLOCK = (not SLOWEST_CLOCK)
+        
+        if reset:
+            #j = i
+            SLOW_CLOCK = False
+            SLOWEST_CLOCK = False
+        else:
+            j = j + 1
+            
+        await FallingEdge(dut.CLOCK)  # Synchronize with the clock
+        assert( [SLOW_CLOCK,SLOWEST_CLOCK] == [dut.SLOW_CLOCK.value,dut.SLOWEST_CLOCK.value] ), f'[{1*reset} {i} {j}|{1*SLOW_CLOCK},{1*SLOWEST_CLOCK}] != [{dut.SLOW_CLOCK.value},{dut.SLOWEST_CLOCK.value}]'
+               
+        await RisingEdge(dut.CLOCK)          
+        assert( [SLOW_CLOCK,SLOWEST_CLOCK] == [dut.SLOW_CLOCK.value,dut.SLOWEST_CLOCK.value] ), f'[{1*reset}|{1*SLOW_CLOCK},{1*SLOWEST_CLOCK}] != [{dut.SLOW_CLOCK.value},{dut.SLOWEST_CLOCK.value}]'
+    
+        #print (f'{1*dut.CLOCK.value},{1*SLOW_CLOCK},{1*SLOWEST_CLOCK} ({dut.CLOCK_STATE.value}) > {1*dut.SLOW_CLOCK.value} {1*dut.SLOWEST_CLOCK.value}')
     print('')
 
     
-def test_clock_runner():
+def test_movement_runner():
     """Simulate the key example using the Python runner.
 
     This file can be run directly or via pytest discovery.
@@ -69,4 +99,4 @@ def test_clock_runner():
 
 
 if __name__ == "__main__":
-    test_clock_runner()
+    test_movement_runner()

@@ -29,21 +29,21 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity debounce is
+entity debounce_module is
 	 Generic ( SIZE : integer := 2 );
     Port ( CLOCK : in  STD_LOGIC;
            CLOCK_STATE : in  STD_LOGIC;
            DATA_I : in  STD_LOGIC_VECTOR (SIZE-1 downto 0);
            DATA_O : out  STD_LOGIC_VECTOR (SIZE-1 downto 0) := (others => '0')
 	 );
-end debounce;
+end debounce_module;
 
-architecture Behavioral of debounce is
+architecture Behavioral of debounce_module is
 	--signal counter: integer := 0;
 	signal DATA_R: STD_LOGIC_VECTOR(SIZE-1 downto 0) := (others => '0');
 	signal RESET_SIGNAL : STD_LOGIC := '0';
 	
-	component FF is
+	component FF_module is
 	Port ( CLOCK : in  STD_LOGIC;
 			  RESET: in STD_LOGIC;
            D : in  STD_LOGIC;
@@ -54,7 +54,7 @@ architecture Behavioral of debounce is
 begin
 	
 	gen: for i in 0 to 4-1 generate
-		inst : FF port map( CLOCK , RESET_SIGNAL , Q(i), Q(i+1) );
+		inst : FF_module port map( CLOCK , RESET_SIGNAL , Q(i), Q(i+1) );
 	end generate;
 		
 	DEBOUNCE: process ( CLOCK  ) is

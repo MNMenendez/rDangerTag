@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -29,25 +30,26 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity FF_module is
+entity ff_module is
     Port ( CLOCK : in  STD_LOGIC;
-			  RESET : in STD_LOGIC;
-           D : in  STD_LOGIC;
-           Q : out  STD_LOGIC := '0');
-end FF_module;
+		   RESET : in STD_LOGIC;
+           CLOCK_OUT : out  STD_LOGIC := '0');
+end ff_module;
 
-architecture Behavioral of FF_module is
+architecture ff_func of ff_module is
 
+signal CLOCK_AUX : STD_LOGIC := '0';
 begin
-	process ( CLOCK )
+	process ( CLOCK , RESET )
 	begin
-		if ( rising_edge ( CLOCK ) ) then
+		if ( rising_edge ( CLOCK) ) then
 			if ( RESET = '1' ) then
-				Q <= '0';
+				CLOCK_AUX <= '0';
 			else
-				Q <= not D;
+				CLOCK_AUX <= not CLOCK_AUX;
 			end if;
-		end if;	
+		end if;
 	end process;
-end Behavioral;
+	CLOCK_OUT <= CLOCK_AUX;
+end ff_func;
 

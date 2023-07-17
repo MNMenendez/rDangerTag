@@ -31,21 +31,21 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity clock_module is
-    Port ( CLOCK 				: in  STD_LOGIC;
+    Port ( CLOCK 			: in  STD_LOGIC;
            CLOCK_STATE 		: in  STD_LOGIC;
            SLOW_CLOCK 		: out STD_LOGIC;
-			  SLOWEST_CLOCK 	: out STD_LOGIC;
+		  SLOWEST_CLOCK 	: out STD_LOGIC;
            PWM 				: out STD_LOGIC);
 end clock_module;
 
 architecture clock_func of clock_module is
-	component FF is
+	component FF_module is
 	Port ( CLOCK : in  STD_LOGIC;
-			  RESET : in STD_LOGIC;
-           D : in  STD_LOGIC;
-           Q : out  STD_LOGIC);
+		   RESET : in STD_LOGIC;
+           CLOCK_OUT : out  STD_LOGIC);
 	end component;
 	
+	signal RESET : STD_LOGIC;
 	signal Q : std_logic_vector(10 downto 0) := (others => '0');
 	
 	-- Q(00) -> 32 KHz
@@ -62,11 +62,12 @@ architecture clock_func of clock_module is
 	
 	begin
 		
+		RESET <= not CLOCK_STATE;
 		gen: for i in 0 to 10-1 generate
-			inst : FF port map( CLOCK , '0', Q(i), Q(i+1) );
+			inst : FF_module port map( Q(i) , RESET, Q(i+1) );
 		end generate;
 		
-		Q(0) 				<= CLOCK;
+		Q(0) 			<= CLOCK;
 		SLOW_CLOCK 		<= Q(10-1) and CLOCK_STATE;
 		SLOWEST_CLOCK 	<= Q(10) and CLOCK_STATE;
 				

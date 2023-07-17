@@ -25,7 +25,7 @@ if cocotb.simulator.is_running():
     from models import *
 
 @cocotb.test()
-async def output_test(dut):
+async def debounce_test(dut):
     """Testing movement"""
 
     clock = Clock(dut.SLOWEST_CLOCK, 32, units="ms")  # Create a 30us period clock on port clk
@@ -82,9 +82,9 @@ def test_movement_runner():
     vhdl_sources = []
 
     if hdl_toplevel_lang == "verilog":
-        verilog_sources = [proj_path / "hdl" / "output_module.sv"]
+        verilog_sources = [proj_path / "hdl" / "debounce_module.sv"]
     else:
-        vhdl_sources = [proj_path / "hdl" / "output_module.vhdl"]
+        vhdl_sources = [proj_path / "hdl" / "debounce_module.vhdl"]
 
     # equivalent to setting the PYTHONPATH environment variable
     sys.path.append(str(proj_path / "tests"))
@@ -93,10 +93,10 @@ def test_movement_runner():
     runner.build(
         verilog_sources=verilog_sources,
         vhdl_sources=vhdl_sources,
-        hdl_toplevel="output_module",
+        hdl_toplevel="debounce_module",
         always=True,
     )
-    runner.test(hdl_toplevel="output_module", test_module="test_output")
+    runner.test(hdl_toplevel="debounce_module", test_module="test_debounce")
 
 
 if __name__ == "__main__":

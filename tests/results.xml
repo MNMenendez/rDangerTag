@@ -1,0 +1,6 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1689636263" />
+    <testcase name="clock_divider_test" classname="test_clock" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_clock.py" lineno="27" time="49.052552223205566" sim_time_ns="3076984615.000001" ratio_time="62728328.60966518" />
+  </testsuite>
+</testsuites>

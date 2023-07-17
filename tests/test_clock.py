@@ -25,8 +25,8 @@ if cocotb.simulator.is_running():
     from models import *
 
 @cocotb.test()
-async def clock_test(dut):
-    """Testing movement"""
+async def clock_divider_test(dut):
+    """Testing clock divider"""
 
     clock = Clock(dut.CLOCK, 30.77, units="us")  # Create a 30us period clock on port clk
     cocotb.start_soon(clock.start(start_high = False))  # Start the clock
@@ -39,6 +39,8 @@ async def clock_test(dut):
     #await FallingEdge(dut.CLOCK)  # Synchronize with the clock
     j = 0
     for i in range(100000):
+         
+        print(f'Clock test progress: {i/100000:2.1%}\r', end="\r")
         
         reset = True if ((i % 20000) > 50 and (i % 20000) < 500) else False
         dut.CLOCK_STATE.value = not reset   
@@ -49,7 +51,7 @@ async def clock_test(dut):
             SLOWEST_CLOCK = (not SLOWEST_CLOCK)
         
         if reset:
-            #j = i
+            j = 0
             SLOW_CLOCK = False
             SLOWEST_CLOCK = False
         else:

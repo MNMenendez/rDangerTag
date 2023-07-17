@@ -66,11 +66,10 @@ architecture clock_func of clock_module is
 		gen: for i in 0 to 10-1 generate
 			inst : FF_module port map( Q(i) , RESET, Q(i+1) );
 		end generate;
-		
+	
 		Q(0) 			<= CLOCK;
-		SLOW_CLOCK 		<= Q(10-1) and CLOCK_STATE;
-		SLOWEST_CLOCK 	<= Q(10) and CLOCK_STATE;
-				
+		SLOW_CLOCK 		<= Q(10-1);
+		SLOWEST_CLOCK 	<= Q(10);
 		PWM				<= CLOCK_STATE;
 		
 end clock_func;

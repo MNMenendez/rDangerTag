@@ -42,12 +42,10 @@ signal CLOCK_AUX : STD_LOGIC := '0';
 begin
 	process ( CLOCK , RESET )
 	begin
-		if ( rising_edge ( CLOCK) ) then
-			if ( RESET = '1' ) then
-				CLOCK_AUX <= '0';
-			else
-				CLOCK_AUX <= not CLOCK_AUX;
-			end if;
+		if ( RESET = '1' ) then
+			CLOCK_AUX <= '0';
+		elsif ( rising_edge ( CLOCK ) ) then
+			CLOCK_AUX <= not CLOCK_AUX;
 		end if;
 	end process;
 	CLOCK_OUT <= CLOCK_AUX;

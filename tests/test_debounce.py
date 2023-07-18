@@ -26,47 +26,55 @@ if cocotb.simulator.is_running():
 
 @cocotb.test()
 async def debounce_test(dut):
-    """Testing movement"""
+    """Testing debouncing"""
 
-    clock = Clock(dut.SLOWEST_CLOCK, 32, units="ms")  # Create a 30us period clock on port clk
+    # Clock used is the slowest clock -> 31.25 Hz
+    clock = Clock(dut.CLOCK, 32, units="ms")  # Create a 32ms period clock on port clk
     cocotb.start_soon(clock.start(start_high = False))  # Start the clock
     
-    powerStates = [Powers.POWER_OFF,Powers.POWER_ON,Powers.BATTERY,Powers.BATTERY_LOW]
-    systemStates = [Systems.SYSTEM_ERROR,Systems.SYSTEM_DANGER,Systems.SYSTEM_BLANK,Systems.SYSTEM_TRANSITION,Systems.SYSTEM_TIMEOUT,Systems.SYSTEM_IDLE]
+    dut.CLOCK_STATE.value = True
     
-    dut.POWER_STATE.value = BinaryValue(value=Powers.POWER_OFF.value,bits=8,bigEndian=False)
-    dut.SYSTEM_STATE.value = BinaryValue(value=Systems.SYSTEM_IDLE.value,bits=8,bigEndian=False)
+    counter = 0
+    output = "00"
     
-    j = 0
-    k = 0
-    
-    for i in range(10000):
-        if ( i % 50 == 0 ):  
-            #print(f'{i} -> {j % len(powerStates)} {k % len(systemStates)}')
-            if ( (j+1) % 5*len(powerStates) == 0 ):
-                k = k + 1
-            j = j + 1
+    for i in range(20000):
+        print(f'Debouncing test progress: {i/20000:2.1%}\r', end="\r")
+        
+        reset = True if ((i % 5000) > 50 and (i % 5000) < 250) else False
+        dut.CLOCK_STATE.value = not reset   
+        
+        if ( i % 20 == 0 ):
+            j = random.randint(0 , 3)
+            k = BinaryValue(value=j,bits=2,bigEndian=False)
+            #print(f'{j//2}{j%2} {dut.DATA_I.value}')
             
-            dut.POWER_STATE.value = BinaryValue( value = j % len(powerStates) , bits = 8 , bigEndian = False )
-            dut.SYSTEM_STATE.value = BinaryValue( value = k % len(systemStates) , bits = 8 , bigEndian = False )
+        if reset:
+            counter = 0
+            output = "00"
+        else:  
+            counter += 1 
+            
+            if counter == 30:
+                output = str(dut.DATA_I.value)#str(j//2)+str(j%2)
+            if ( str(j//2)+str(j%2) != str(dut.DATA_I.value) ):
+                counter = 0
+            
+            dut.DATA_I.value = k       
+   
+        await FallingEdge(dut.CLOCK)  # Synchronize with the clock
+        assert( output == str(dut.DATA_O.value) ), f' {output} != {str(dut.DATA_O.value)} {j}'     
+       
         
-        await FallingEdge(dut.SLOWEST_CLOCK)  # Synchronize with the clock
-        output = output_model(dut.SYSTEM_STATE.value,dut.POWER_STATE.value,dut.SLOWEST_CLOCK.value,dut.OUTPUT.value,dut.PWR_LED.value,dut.OK_LED.value)
-        await Timer(1, units="ns")
-        assert( [2*output[0][0]+1*output[0][1],2*output[1][0]+1*output[1][1],2*output[2][0]+1*output[2][1]] == [dut.OUTPUT.value,dut.PWR_LED.value,dut.OK_LED.value] ), f'{output} != [{dut.OUTPUT.value},{dut.PWR_LED.value},{dut.OK_LED.value}]'
-               
-        await RisingEdge(dut.SLOWEST_CLOCK)          
-        output = output_model(dut.SYSTEM_STATE.value,dut.POWER_STATE.value,dut.SLOWEST_CLOCK.value,dut.OUTPUT.value,dut.PWR_LED.value,dut.OK_LED.value)
-        await Timer(1, units="ns")
-        assert( [2*output[0][0]+1*output[0][1],2*output[1][0]+1*output[1][1],2*output[2][0]+1*output[2][1]] == [dut.OUTPUT.value,dut.PWR_LED.value,dut.OK_LED.value] ), f'{output} != [{dut.OUTPUT.value},{dut.PWR_LED.value},{dut.OK_LED.value}]'
+        await RisingEdge(dut.CLOCK)          
+        assert( output == str(dut.DATA_O.value) ), f' {output} != {str(dut.DATA_O.value)} {j}'           
         
-        if ( i % 50 == 0 ):
-            print(f'[{Powers(dut.POWER_STATE.value).name},{Systems(dut.SYSTEM_STATE.value).name}] > Py:[{Outputs(2*output[0][0]+1*output[0][1]).name},{Leds(2*output[1][0]+1*output[1][1]).name},{Leds(2*output[2][0]+1*output[2][1]).name}] vs VHDL: [{Outputs(dut.OUTPUT.value).name},{Leds(dut.PWR_LED.value).name},{Leds(dut.OK_LED.value).name}]')
-    
+        #if ( output != str(dut.DATA_O.value)):
+        #    print('x'*50+' '+str(j))
+        #print(f'{dut.DATA_I.value}|{counter}[{1*reset}|{dut.CLOCK_STATE.value}] >> Py:{output} vs VHDL:{str(dut.DATA_O.value)}')
+        
     print('')
-
     
-def test_movement_runner():
+def test_debounce_runner():
     """Simulate the key example using the Python runner.
 
     This file can be run directly or via pytest discovery.

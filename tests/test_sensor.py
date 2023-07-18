@@ -10,6 +10,7 @@ import cocotb
 from cocotb.runner import get_runner
 from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
+from cocotb.binary import BinaryValue
 
 if cocotb.simulator.is_running():
     from models import *
@@ -18,6 +19,19 @@ if cocotb.simulator.is_running():
 async def sensor_test(dut):
     """Sensor test"""
     
+    for i in range (5000):
+        print(f'Sensor test progress: {i/5000:2.1%}\r', end="\r")
+        j = random.randint(0 , 15)
+        k = BinaryValue(value=j,bits=4,bigEndian=False)
+        dut.SENSORS_I.value = k
+        await Timer(1, units="sec")
+        output = sensor_model((k//8)%2,(k//4)%2,(k//2)%2,k%2)
+        
+        #print(f'{k}-{(k//8)%2}{(k//4)%2}{(k//2)%2}{k%2} > {Sensors(output).name}')
+        #print(f'{k} > Py:{Sensors(output).name} vs VHDL:{Sensors(dut.SENSOR_STATE.value).name}')
+
+        assert ( dut.SENSOR_STATE.value == output ), f'result is incorrect: {dut.SENSOR_STATE.value} != {output}' 
+    '''
     SENSOR_1 = tuple_create(4,8)+(False,)
     SENSOR_2 = tuple_create(4,4)+(False,)
     SENSOR_3 = tuple_create(4,2)+(False,)
@@ -30,6 +44,7 @@ async def sensor_test(dut):
         print(f'{dut.SENSORS_I.value} > {Sensors(sensor_model(SENSOR_1[i],SENSOR_2[i],SENSOR_3[i],SENSOR_4[i])).name}')
         output = sensor_model(SENSOR_1[i],SENSOR_2[i],SENSOR_3[i],SENSOR_4[i])
         assert ( dut.SENSOR_STATE.value == output ), f'result is incorrect: {dut.SENSOR_STATE.value} != {output}'   
+    '''
     print('')
 
 def test_sensor_runner():

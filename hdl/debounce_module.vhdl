@@ -42,36 +42,40 @@ architecture Behavioral of debounce_module is
 	--signal counter: integer := 0;
 	signal DATA_R: STD_LOGIC_VECTOR(SIZE-1 downto 0) := (others => '0');
 	signal RESET_SIGNAL : STD_LOGIC := '0';
-	
-	component FF_module is
+	signal DONE : STD_LOGIC := '0';
+	component ff_module is
 	Port ( CLOCK : in  STD_LOGIC;
-			  RESET: in STD_LOGIC;
-           D : in  STD_LOGIC;
-           Q : out  STD_LOGIC);
+		   RESET: in STD_LOGIC;
+           CLOCK_OUT : out  STD_LOGIC);
 	end component;
 	
-	signal Q : std_logic_vector(4 downto 0) := (others => '0');
+	signal Q : std_logic_vector(5 downto 0) := (others => '1');
 begin
 	
-	gen: for i in 0 to 4-1 generate
-		inst : FF_module port map( CLOCK , RESET_SIGNAL , Q(i), Q(i+1) );
+	gen: for i in 0 to 5-1 generate
+		inst : ff_module port map( Q(i) , RESET_SIGNAL , Q(i+1) );
 	end generate;
 		
-	DEBOUNCE: process ( CLOCK  ) is
+	Q(0) <= CLOCK;
+	
+	DEBOUNCE: process ( CLOCK , CLOCK_STATE  ) is
 	begin	
 		if ( CLOCK_STATE = '0' ) then
 			DATA_O <= (others => '0');
+			RESET_SIGNAL <= '1';
 		else
 			if ( rising_edge ( CLOCK ) ) then
 				if ( DATA_I = DATA_R ) then
 					RESET_SIGNAL <= '0';
-					Q(0) 	<= CLOCK;
-					if ( Q = "11111" ) then
+					if ( Q = "001000" ) then
 						DATA_O <= DATA_I;
+						DONE <= '1';
+					else
+						DONE <= '0';
 					end if;
 				else
 					RESET_SIGNAL <= '1';
-					DATA_O <= (others => '0');
+					--DATA_O <= (others => '0');
 				end if;
 				DATA_R <= DATA_I;
 			end if;

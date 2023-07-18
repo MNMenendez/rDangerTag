@@ -116,23 +116,23 @@ def key_model(KEY: Logic = Logic('-'), KEY_A_I: Logic = Logic('-'), KEY_B_I: Log
     
     KEY_A_O = KEY_A_I
     KEY_B_O = KEY_B_I
-    MODE_STATE = Modes.MODE_ERROR 
+    KEY_STATE = Keys.KEY_ERROR 
     
-    if (not KEY):
-        MODE_STATE = Modes.REMOTE
+    if (KEY):
+        KEY_STATE = Keys.NO_KEY
     else:
         if ( not KEY_A_I and not KEY_B_I ):
-            MODE_STATE = Modes.REMOTE
+            KEY_STATE = Keys.NO_KEY
         if ( not KEY_A_I and KEY_B_I ):
-            MODE_STATE = Modes.LOCAL_APPLY
+            KEY_STATE = Keys.KEY_APPLY
         if ( KEY_A_I and not KEY_B_I ):
-            MODE_STATE = Modes.LOCAL_REMOVE
+            KEY_STATE = Keys.KEY_REMOVE
         if ( KEY_A_I and KEY_B_I ):
-            MODE_STATE = Modes.MODE_ERROR    
+            KEY_STATE = Keys.KEY_ERROR    
     
-    return KEY_A_O,KEY_B_O,MODE_STATE.value
+    return KEY_A_O,KEY_B_O,KEY_STATE.value
 
-def sensor_model(SENSOR_1: Logic = Logic('-'), SENSOR_2: Logic = Logic('-'), SENSOR_3: Logic = Logic('X'), SENSOR_4: Logic = Logic('-')):
+def sensor_model(SENSOR_1: Logic = Logic('-'), SENSOR_2: Logic = Logic('-'), SENSOR_3: Logic = Logic('-'), SENSOR_4: Logic = Logic('-')):
     """model of sensors"""
         
     SENSOR_STATE = Sensors.SENSOR_ERROR
@@ -302,48 +302,7 @@ def output_model(SYSTEM_STATE: int = Systems.SYSTEM_IDLE, POWER_STATE: int = Pow
     OK_LED = PREV_OK_LED
     
     return [OUTPUT,PWR_LED,OK_LED]
-'''    
-def motor_model(LOCK: Logic = Logic('-'), MODE_STATE: int = Modes.MODE_ERROR, COMMAND_STATE: int = Commands.COMMAND_ERROR, SENSOR_STATE: int = Sensors.SENSOR_ERROR):
-    
-    MOTOR_STATE = Motors.STOP.value
 
-    #print(LOCK,MODE_STATE,COMMAND_STATE,SENSOR_STATE)
-    
-    if ( LOCK == False ):
-        return Motors.STOP.value
-    if ( MODE_STATE == Modes.MODE_ERROR.value ):
-        return Motors.STOP.value
-    if ( COMMAND_STATE == Commands.COMMAND_ERROR.value ):
-        return Motors.STOP.value
-    if ( SENSOR_STATE == Sensors.SENSOR_ERROR.value ):
-        return Motors.STOP.value
- 
-    match MODE_STATE:
-        case Modes.LOCAL_APPLY.value:
-            if SENSOR_STATE != Sensors.DANGER.value :
-                return Motors.toDANGER.value
-            else:
-                return Motors.STOP.value
-        case Modes.LOCAL_REMOVE.value:
-            if SENSOR_STATE != Sensors.BLANK.value:
-                return Motors.toBLANK.value
-            else:
-                return Motors.STOP.value
-        case Modes.REMOTE.value:
-            if ( COMMAND_STATE == Commands.COMMAND_APPLY.value ):
-                if SENSOR_STATE != Sensors.DANGER.value :
-                    return Motors.toDANGER.value
-                else:
-                    return Motors.STOP.value
-            if ( COMMAND_STATE == Commands.COMMAND_REMOVE.value):
-                if SENSOR_STATE != Sensors.BLANK.value:
-                    return Motors.toBLANK.value
-                else:
-                    return Motors.STOP.value
-        case _:
-            return Motors.STOP.value
-    return MOTOR_STATE
-'''
 counter = 0
 def clock_model(CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-')):
     

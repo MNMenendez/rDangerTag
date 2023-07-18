@@ -26,13 +26,17 @@ async def key_test(dut):
         j = random.randint(0 ,3)
         k = BinaryValue(value=j,bits=2,bigEndian=False)
         dut.KEY_I.value = k
-        await Timer(1, units="sec")
-        #output = key_model((k//8)%2,(k//4)%2,(k//2)%2,k%2)
         
-        #print(f'{k}-{(k//8)%2}{(k//4)%2}{(k//2)%2}{k%2} > {Sensors(output).name}')
-        #print(f'{k} > Py:{Sensors(output).name} vs VHDL:{Sensors(dut.SENSOR_STATE.value).name}')
+        reset = True if ((i % 100) > 20 and (i % 100) < 30) else False
+        dut.KEY_ENABLE.value = reset 
+        
+        await Timer(1, units="sec")
+        output = key_model(dut.KEY_ENABLE.value,(k//2)%2,k%2)
+        
+        print(f'{(k//2)%2}{k%2} > Py:[{output[0]}{output[1]},{Keys(output[2]).name}] vs VHDL:[{dut.KEY_O.value},{Keys(dut.KEY_STATE.value).name}]')
+        
+        assert ([2*output[0]+output[1],output[2]] == [dut.KEY_O.value,dut.KEY_STATE.value]), f'result is incorrect: [{output[0]}{output[1]},{Keys(output[2]).name}] != [{dut.KEY_O.value},{Keys(dut.KEY_STATE.value).name}]'
 
-        #assert ( dut.SENSOR_STATE.value == output ), f'result is incorrect: {dut.SENSOR_STATE.value} != {output}' 
 
 
     '''

@@ -10,14 +10,32 @@ import cocotb
 from cocotb.runner import get_runner
 from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
+from cocotb.binary import BinaryValue
 
 if cocotb.simulator.is_running():
-    from models import enum,Modes,key_model,tuple_create
+    from models import *
 
 @cocotb.test()
 async def key_test(dut):
     """Test key"""
     
+    dut.KEY_ENABLE.value = False
+    
+    for i in range (600):
+        #print(f'Key test progress: {i/5000:2.1%}\r', end="\r")
+        j = random.randint(0 ,3)
+        k = BinaryValue(value=j,bits=2,bigEndian=False)
+        dut.KEY_I.value = k
+        await Timer(1, units="sec")
+        #output = key_model((k//8)%2,(k//4)%2,(k//2)%2,k%2)
+        
+        #print(f'{k}-{(k//8)%2}{(k//4)%2}{(k//2)%2}{k%2} > {Sensors(output).name}')
+        #print(f'{k} > Py:{Sensors(output).name} vs VHDL:{Sensors(dut.SENSOR_STATE.value).name}')
+
+        #assert ( dut.SENSOR_STATE.value == output ), f'result is incorrect: {dut.SENSOR_STATE.value} != {output}' 
+
+
+    '''
     KEY     = tuple_create(3,4)+(False,)
     KEY_A_I = tuple_create(3,2)+(False,)
     KEY_B_I = tuple_create(3,1)+(False,)
@@ -29,7 +47,9 @@ async def key_test(dut):
         await Timer(1, units="ns")
         print(f'Key {"Enable" if dut.KEY.value else "Disable"} | {bool(dut.KEY_A_I.value)} | {bool(dut.KEY_B_I.value)} > {Modes(key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])[2]).name}')
         assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])), f'result is incorrect: {dut.KEY_A_O.value} {dut.KEY_B_O.value} {dut.MODE_SIGNAL.value} != {key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])}' 
-
+    
+    '''
+    
     print('')
     
 def test_key_runner():

@@ -39,7 +39,7 @@ VHDL_SOURCES += $(PWD)/../hdl/utilities.vhdl
 #VHDL_SOURCES += $(PWD)/../hdl/general.vhdl
 #VHDL_SOURCES += $(PWD)/../hdl/dummy_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/power_module.vhdl
-#VHDL_SOURCES += $(PWD)/../hdl/key_module.vhdl
+VHDL_SOURCES += $(PWD)/../hdl/key_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/sensor_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/command_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/plc_module.vhdl
@@ -51,8 +51,8 @@ VHDL_SOURCES += $(PWD)/../hdl/debounce_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/clock_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/movement_module.vhdl
 
-TOPLEVEL := debounce_module
-MODULE ?= test_debounce
+TOPLEVEL := key_module
+MODULE ?= test_key
 
 #test_dummy,test_power,test_key,test_FF,test_sensor,test_command,test_lock,test_system,test_output,test_motor,test_clock,test_movement
 #test_general

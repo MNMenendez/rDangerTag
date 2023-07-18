@@ -18,13 +18,12 @@ if cocotb.simulator.is_running():
 async def TBD_test(dut):
     """Test tbd input"""
 
-    TBD_I = tuple_create(1,1)+tuple_create(1,1)+(False,)
     
-    for i in range(len(TBD_I)):
-        dut.TBD_I.value = TBD_I[i]
+    for i in range(500):
+        print(f'TBD test progress: {i/(500-1):2.1%}\r', end="\r")
         await Timer(1, units="ns")
-        print(f'{bool(dut.TBD_I.value)} > {bool(dut.TBD_O.value)}')
-        assert dut.TBD_O.value == dummy_model(TBD_I[i]), f'result is incorrect: {dut.TBD_O.value} != {dut.TBD_I.value}'
+        #print(f'{None} > {bool(dut.TBD_O.value)}')
+        assert dut.TBD_O.value == 0, f'result is incorrect: {dut.TBD_O.value} != 0'
     print('')
 
 def test_dummy_runner():

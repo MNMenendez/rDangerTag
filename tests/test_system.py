@@ -24,45 +24,46 @@ async def system_states_test(dut):
     clock = Clock(dut.CLOCK, 32, units="ms")  # Create a 32ms period clock on port clk
     cocotb.start_soon(clock.start(start_high = False))  # Start the clock    
     
+    counter = 0
+    oldMotor = Motors.STOP.value
     for i in range (10000):
-        print(f'System test progress: {i/(10000-1):2.1%}\r', end="\r")
+        #print(f'System test progress: {i/(10000-1):2.1%}\r', end="\r")
         
         reset = True if ((i % 2000) > 50 and (i % 2000) < 100) else False
         dut.CLOCK_STATE.value = not reset  
-        if ( i % 30 == 0 ):
-            j = random.randint(0 , 3)
+        if ( i % 50 == 0 ):
+            if (random.randint(0 , 99) < 97):
+                j = random.randint(1 , 2)
+            else:
+                j = random.randint(0 , 1)*3
+            #print(f'{Commands(j).name}')    
             dut.COMMAND_STATE.value = BinaryValue(value=j,bits=8,bigEndian=False)
-        if ( i % 100 == 0 ):
-            k = random.randint(0 , 3)
+        if ( i % 120 == 0 ):
+            if (random.randint(0 , 99) < 97):
+                k = random.randint(1 , 3)
+            else:
+                k = 0
             dut.SENSOR_STATE.value = BinaryValue(value=k,bits=8,bigEndian=False)  
+            #print(f'{Sensors(k).name}')  
         
-        await FallingEdge(dut.CLOCK)
-               
+        stateERROR  = True if ((k == Sensors.SENSOR_ERROR.value) or (j == Commands.COMMAND_ERROR.value) or (reset != False)) else False
+        toBLANK     = True if ((stateERROR == False) and (j == Commands.COMMAND_REMOVE.value) and (k == Sensors.DANGER.value or k == Sensors.TRANSITION.value)) else False
+        toDANGER    = True if ((stateERROR == False) and (j == Commands.COMMAND_APPLY.value) and (k == Sensors.BLANK.value or k == Sensors.TRANSITION.value)) else False
+        
+        if ( k == Sensors.DANGER.value or k == Sensors.BLANK.value):
+            counter = 0
+        
+        if ( k == Sensors.TRANSITION.value ):
+            counter += 1
+        
+        await FallingEdge(dut.CLOCK)  
+        
         await RisingEdge(dut.CLOCK) 
         
-    
-    '''
-    aux              =   tuple_create(7,2**6)+(False,)
-    POWER_STATE      =   tuple(x.value for x in Powers)
-    MODE_STATE       =   tuple(x.value for x in Modes)
-    COMMAND_STATE    =   tuple(x.value for x in Commands)
-    SENSOR_STATE     =   tuple(x.value for x in Sensors)
-
-    message_old = ''
-    message_new = ''
-    for i in range(len(aux)):
-        dut.POWER_SIGNAL.value = BinaryValue(value=POWER_STATE[(i//64)%2],bits=8,bigEndian=False)
-        dut.MODE_SIGNAL.value = BinaryValue(value=MODE_STATE[(i//16)%4],bits=8,bigEndian=False)
-        dut.COMMAND_SIGNAL.value = BinaryValue(value=COMMAND_STATE[(i//4)%4],bits=8,bigEndian=False)
-        dut.SENSOR_SIGNAL.value = BinaryValue(value=SENSOR_STATE[(i//1)%4],bits=8,bigEndian=False)
-        await Timer(1, units="ns")
+        output = system_model(dut.CLOCK.value, dut.CLOCK_STATE.value, dut.COMMAND_STATE.value, dut.SENSOR_STATE.value,counter,oldMotor)
+        oldMotor = dut.MOTOR_STATE.value
+        print(f'{1*dut.CLOCK_STATE.value}|{Commands(dut.COMMAND_STATE.value).name}|{Sensors(dut.SENSOR_STATE.value).name}[{counter}] > Py:[{Systems(output[0]).name},{Motors(output[1]).name}] vs VHDL:[{Systems(dut.SYSTEM_STATE.value).name},{Motors(dut.MOTOR_STATE.value).name}]')
         
-        message_new = f'{Powers(dut.POWER_SIGNAL.value).name}|{Modes(dut.MODE_SIGNAL.value).name}|{Commands(dut.COMMAND_SIGNAL.value).name}|{Sensors(dut.SENSOR_SIGNAL.value).name} > [{Systems(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[0]).name},{Rights(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[1]).name}]'
-        if message_old != message_new:
-            message_old =  message_new
-            print(message_old)
-        assert ([dut.SYSTEM_SIGNAL.value,dut.ALL_OK.value] == system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)), f'result is incorrect: [{Systems(dut.SYSTEM_SIGNAL.value).name},{Rights(dut.ALL_OK.value).name}] ! [{Systems(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[0]).name},{Rights(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[1]).name}]'
-    '''
     print('')
 
 def test_system_runner():

@@ -43,7 +43,6 @@ end system_module;
 architecture system_func of system_module is
 
 signal STATE : system_states := SYSTEM_IDLE;
-signal FSM_STATE : general_states := STATE_STOP;
 signal MOTOR : motor_states := STOP;
 
 signal timer : integer := 0;
@@ -51,7 +50,6 @@ signal TIMEOUT : STD_LOGIC := '0';
 signal toBLANK : STD_LOGIC := '0';
 signal toDANGER : STD_LOGIC := '0';
 signal stateERROR : STD_LOGIC := '0';
-
 
 begin
 

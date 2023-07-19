@@ -199,35 +199,49 @@ def command_model( KEY: int = Keys.NO_KEY, PLC: int = PLCs.PLC_IDLE, LOCK: int =
         if ( APPLY_VALID and REMOVE_VALID ):
             COMMAND_STATE = Commands.COMMAND_ERROR
  
-     
     return COMMAND_STATE.value
     
-'''        
-def system_model(POWER_STATE: int = Powers.POWER_OFF, MODE_STATE: int = Modes.MODE_ERROR, COMMAND_STATE: int = Commands.COMMAND_ERROR, SENSOR_STATE: int = Sensors.SENSOR_ERROR):
+def system_model(CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-'), COMMAND_STATE: int = Commands.COMMAND_IDLE, SENSOR_STATE: int = Sensors.SENSOR_ERROR, timeout: int = 0, oldMotor: int = Motors.STOP):
 
-    SYSTEM_STATE = Systems.SYSTEM_ERROR
-    ALL_OK = Rights.FAULT
+    sensor      = SENSOR_STATE.value
+    command     = COMMAND_STATE.value
     
-    if (POWER_STATE == Powers.POWER_BATTERY.value):
-        SYSTEM_STATE = Systems.SYSTEM_BATTERY
-    else:
-        if (MODE_STATE == Modes.MODE_ERROR.value or COMMAND_STATE == Commands.COMMAND_ERROR.value or SENSOR_STATE == Sensors.SENSOR_ERROR.value):
-            SYSTEM_STATE = Systems.SYSTEM_ERROR
-            ALL_OK       = Rights.FAULT
-        else:
-            ALL_OK       = Rights.ALIVE
-            match SENSOR_STATE:
-                case Sensors.DANGER.value:
-                    SYSTEM_STATE = Systems.SYSTEM_DANGER
-                case Sensors.BLANK.value:
-                    SYSTEM_STATE = Systems.SYSTEM_BLANK 
-                case Sensors.TRANSITION.value:
-                    SYSTEM_STATE = Systems.SYSTEM_TRANSITION
-                case _:
-                    SYSTEM_STATE = Systems.SYSTEM_ERROR
-            
-    return [SYSTEM_STATE.value,ALL_OK.value]
-'''
+    stateERROR  = True if ((sensor == Sensors.SENSOR_ERROR.value) or (command == Commands.COMMAND_ERROR.value) or (CLOCK_STATE == False)) else False
+    toBLANK     = True if ((stateERROR == False) and (command == Commands.COMMAND_REMOVE.value) and (sensor == Sensors.DANGER.value or sensor == Sensors.TRANSITION.value)) else False
+    toDANGER    = True if ((stateERROR == False) and (command == Commands.COMMAND_APPLY.value) and (sensor == Sensors.BLANK.value or sensor == Sensors.TRANSITION.value)) else False
+        
+    #print(f'{1*stateERROR} {1*toBLANK} {1*toDANGER}')    
+    
+    STATE       = Systems.SYSTEM_IDLE
+    MOTOR       = oldMotor
+    
+    match sensor:
+        case Sensors.SENSOR_ERROR.value:
+            STATE = Systems.SYSTEM_ERROR
+            MOTOR = Motors.STOP
+        case Sensors.BLANK.value:
+            STATE = Systems.SYSTEM_BLANK
+            if toDANGER:
+                MOTOR = Motors.toDANGER
+            else:
+                MOTOR = Motors.STOP
+        case Sensors.DANGER.value:
+            STATE = Systems.SYSTEM_DANGER
+            if toBLANK:
+                MOTOR = Motors.toBLANK
+            else:
+                MOTOR = Motors.STOP
+        case Sensors.TRANSITION.value:
+            STATE = Systems.SYSTEM_TRANSITION
+        case _:
+            STATE = Systems.SYSTEM_ERROR
+            MOTOR = Motors.STOP
+
+    
+    SYSTEM_STATE = STATE if timeout < 160 else Systems.SYSTEM_ERROR
+    MOTOR_STATE  = MOTOR if timeout < 160 else Motors.STOP
+    
+    return [SYSTEM_STATE,MOTOR_STATE]
 
 def output_model(SYSTEM_STATE: int = Systems.SYSTEM_IDLE, POWER_STATE: int = Powers.POWER_OFF, SLOWEST_CLOCK: Logic = Logic('-'), PREV_OUTPUT = [False,False],PREV_PWR_LED =[False,False],PREV_OK_LED=[False,False]):
     

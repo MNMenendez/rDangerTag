@@ -32,12 +32,12 @@ use work.Utilities.all;
 --use UNISIM.VComponents.all;
 
 entity system_module is
-    Port ( CLOCK				: in std_logic;
-			  CLOCK_STATE		: in std_logic;
+    Port ( CLOCK			: in std_logic;
+		   CLOCK_STATE		: in std_logic;
            COMMAND_STATE 	: in  command_states;
            SENSOR_STATE 	: in  sensor_states;
            SYSTEM_STATE 	: out system_states;
-			  MOTOR_STATE		: out motor_states);
+		   MOTOR_STATE		: out motor_states);
 end system_module;
 
 architecture system_func of system_module is
@@ -56,7 +56,7 @@ signal stateERROR : STD_LOGIC := '0';
 begin
 
 	stateERROR 		<= '1' when ((SENSOR_STATE = SENSOR_ERROR) or (COMMAND_STATE = COMMAND_ERROR) or (CLOCK_STATE = '0')) else '0';
-	toBLANK 			<= '1' when ((stateERROR = '0') and (COMMAND_STATE = COMMAND_REMOVE) and (SENSOR_STATE = DANGER or SENSOR_STATE = TRANSITION)) else '0';
+	toBLANK 		<= '1' when ((stateERROR = '0') and (COMMAND_STATE = COMMAND_REMOVE) and (SENSOR_STATE = DANGER or SENSOR_STATE = TRANSITION)) else '0';
 	toDANGER 		<= '1' when ((stateERROR = '0') and (COMMAND_STATE = COMMAND_APPLY) and (SENSOR_STATE = BLANK or SENSOR_STATE = TRANSITION)) else '0';
 	SYSTEM_STATE 	<= STATE when (TIMEOUT = '0') else SYSTEM_ERROR;
 	MOTOR_STATE		<= MOTOR when (TIMEOUT = '0') else STOP;
@@ -65,8 +65,8 @@ begin
 	begin
 		if ( rising_edge ( CLOCK ) ) then
 			if ( SENSOR_STATE = TRANSITION ) then
-				if ( timer < 300 ) then
-					timer <=timer + 1;	
+				if ( timer < 160 ) then
+					timer <= timer + 1;	
 				else
 					TIMEOUT <= '1';
 				end if;
@@ -104,6 +104,5 @@ begin
 				MOTOR <= STOP;
 		end case;
 	end process;
-
 
 end system_func;

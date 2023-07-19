@@ -45,14 +45,14 @@ VHDL_SOURCES += $(PWD)/../hdl/command_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/plc_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/ff_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/lock_module.vhdl
-#VHDL_SOURCES += $(PWD)/../hdl/system_module.vhdl
+VHDL_SOURCES += $(PWD)/../hdl/system_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/output_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/debounce_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/clock_module.vhdl
 VHDL_SOURCES += $(PWD)/../hdl/movement_module.vhdl
 
-TOPLEVEL := dummy_module
-MODULE ?= test_dummy
+TOPLEVEL := system_module
+MODULE ?= test_system
 
 #test_dummy,test_power,test_key,test_FF,test_sensor,test_command,test_lock,test_system,test_output,test_motor,test_clock,test_movement
 #test_general

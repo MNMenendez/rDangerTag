@@ -36,23 +36,6 @@ async def key_test(dut):
         print(f'{(k//2)%2}{k%2} > Py:[{output[0]}{output[1]},{Keys(output[2]).name}] vs VHDL:[{dut.KEY_O.value},{Keys(dut.KEY_STATE.value).name}]')
         
         assert ([2*output[0]+output[1],output[2]] == [dut.KEY_O.value,dut.KEY_STATE.value]), f'result is incorrect: [{output[0]}{output[1]},{Keys(output[2]).name}] != [{dut.KEY_O.value},{Keys(dut.KEY_STATE.value).name}]'
-
-
-
-    '''
-    KEY     = tuple_create(3,4)+(False,)
-    KEY_A_I = tuple_create(3,2)+(False,)
-    KEY_B_I = tuple_create(3,1)+(False,)
-    
-    for i in range(len(KEY)):
-        dut.KEY.value = KEY[i]
-        dut.KEY_A_I.value = KEY_A_I[i]
-        dut.KEY_B_I.value = KEY_B_I[i]
-        await Timer(1, units="ns")
-        print(f'Key {"Enable" if dut.KEY.value else "Disable"} | {bool(dut.KEY_A_I.value)} | {bool(dut.KEY_B_I.value)} > {Modes(key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])[2]).name}')
-        assert ((dut.KEY_A_O.value,dut.KEY_B_O.value,dut.MODE_SIGNAL.value) == key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])), f'result is incorrect: {dut.KEY_A_O.value} {dut.KEY_B_O.value} {dut.MODE_SIGNAL.value} != {key_model(KEY[i],KEY_A_I[i],KEY_B_I[i])}' 
-    
-    '''
     
     print('')
     

@@ -8,17 +8,40 @@ from pathlib import Path
 
 import cocotb
 from cocotb.runner import get_runner
-from cocotb.triggers import Timer
+from cocotb.triggers import Timer, FallingEdge, RisingEdge
 from cocotb.types import Bit, Logic
 from cocotb.binary import BinaryValue
+from cocotb.clock import Clock
 
 if cocotb.simulator.is_running():
-    from models import enum,Powers,Modes,Sensors,Commands,Systems,Rights,power_model,key_model,system_model,tuple_create
+    from models import *
 
 @cocotb.test()
 async def system_states_test(dut):
     """Testing system states"""
     
+    # Clock used is the slowest clock -> 31.25 Hz
+    clock = Clock(dut.CLOCK, 32, units="ms")  # Create a 32ms period clock on port clk
+    cocotb.start_soon(clock.start(start_high = False))  # Start the clock    
+    
+    for i in range (10000):
+        print(f'System test progress: {i/(10000-1):2.1%}\r', end="\r")
+        
+        reset = True if ((i % 2000) > 50 and (i % 2000) < 100) else False
+        dut.CLOCK_STATE.value = not reset  
+        if ( i % 30 == 0 ):
+            j = random.randint(0 , 3)
+            dut.COMMAND_STATE.value = BinaryValue(value=j,bits=8,bigEndian=False)
+        if ( i % 100 == 0 ):
+            k = random.randint(0 , 3)
+            dut.SENSOR_STATE.value = BinaryValue(value=k,bits=8,bigEndian=False)  
+        
+        await FallingEdge(dut.CLOCK)
+               
+        await RisingEdge(dut.CLOCK) 
+        
+    
+    '''
     aux              =   tuple_create(7,2**6)+(False,)
     POWER_STATE      =   tuple(x.value for x in Powers)
     MODE_STATE       =   tuple(x.value for x in Modes)
@@ -39,6 +62,7 @@ async def system_states_test(dut):
             message_old =  message_new
             print(message_old)
         assert ([dut.SYSTEM_SIGNAL.value,dut.ALL_OK.value] == system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)), f'result is incorrect: [{Systems(dut.SYSTEM_SIGNAL.value).name},{Rights(dut.ALL_OK.value).name}] ! [{Systems(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[0]).name},{Rights(system_model(dut.POWER_SIGNAL.value,dut.MODE_SIGNAL.value,dut.COMMAND_SIGNAL.value,dut.SENSOR_SIGNAL.value)[1]).name}]'
+    '''
     print('')
 
 def test_system_runner():

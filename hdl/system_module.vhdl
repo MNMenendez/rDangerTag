@@ -63,7 +63,7 @@ begin
 	begin
 		if ( rising_edge ( CLOCK ) ) then
 			if ( SENSOR_STATE = TRANSITION ) then
-				if ( timer < 160 ) then
+				if ( timer < 160-1 ) then
 					timer <= timer + 1;	
 				else
 					TIMEOUT <= '1';

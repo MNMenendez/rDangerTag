@@ -1,6 +1,6 @@
 <testsuites name="results">
   <testsuite name="all" package="all">
-    <property name="random_seed" value="1689747125" />
-    <testcase name="system_states_test" classname="test_system" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_system.py" lineno="19" time="3.1421396732330322" sim_time_ns="319984000000.0" ratio_time="101836338698.06934" />
+    <property name="random_seed" value="1689811569" />
+    <testcase name="system_states_test" classname="test_system" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_system.py" lineno="19" time="68.67175674438477" sim_time_ns="3200000000000.0" ratio_time="46598487525.39247" />
   </testsuite>
 </testsuites>

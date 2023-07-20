@@ -26,8 +26,8 @@ async def system_states_test(dut):
     
     counter = 0
     oldMotor = Motors.STOP.value
-    for i in range (10000):
-        #print(f'System test progress: {i/(10000-1):2.1%}\r', end="\r")
+    for i in range (100000):
+        print(f'System test progress: {i/(100000-1):2.1%}\r', end="\r")
         
         reset = True if ((i % 2000) > 50 and (i % 2000) < 100) else False
         dut.CLOCK_STATE.value = not reset  
@@ -50,19 +50,27 @@ async def system_states_test(dut):
         toBLANK     = True if ((stateERROR == False) and (j == Commands.COMMAND_REMOVE.value) and (k == Sensors.DANGER.value or k == Sensors.TRANSITION.value)) else False
         toDANGER    = True if ((stateERROR == False) and (j == Commands.COMMAND_APPLY.value) and (k == Sensors.BLANK.value or k == Sensors.TRANSITION.value)) else False
         
-        if ( k == Sensors.DANGER.value or k == Sensors.BLANK.value):
-            counter = 0
-        
         if ( k == Sensors.TRANSITION.value ):
             counter += 1
+        else:
+            counter = 0
         
-        await FallingEdge(dut.CLOCK)  
-        
-        await RisingEdge(dut.CLOCK) 
-        
-        output = system_model(dut.CLOCK.value, dut.CLOCK_STATE.value, dut.COMMAND_STATE.value, dut.SENSOR_STATE.value,counter,oldMotor)
+        #await Timer(15, units="us")  
+        await RisingEdge(dut.CLOCK)
         oldMotor = dut.MOTOR_STATE.value
-        print(f'{1*dut.CLOCK_STATE.value}|{Commands(dut.COMMAND_STATE.value).name}|{Sensors(dut.SENSOR_STATE.value).name}[{counter}] > Py:[{Systems(output[0]).name},{Motors(output[1]).name}] vs VHDL:[{Systems(dut.SYSTEM_STATE.value).name},{Motors(dut.MOTOR_STATE.value).name}]')
+        output = system_model(dut.CLOCK.value, dut.CLOCK_STATE.value, dut.COMMAND_STATE.value, dut.SENSOR_STATE.value,counter,oldMotor)
+        #await RisingEdge(dut.CLOCK) 
+         
+        #print(f'R{1*dut.CLOCK_STATE.value}|{Commands(dut.COMMAND_STATE.value).name}|{Sensors(dut.SENSOR_STATE.value).name}[{counter}] > Py:[{Systems(output[0]).name},{Motors(output[1]).name}] vs VHDL:[{Systems(dut.SYSTEM_STATE.value).name},{Motors(dut.MOTOR_STATE.value).name}]')
+        
+        #await Timer(15, units="us")  
+        #oldMotor = dut.MOTOR_STATE.value
+        #output = system_model(dut.CLOCK.value, dut.CLOCK_STATE.value, dut.COMMAND_STATE.value, dut.SENSOR_STATE.value,counter,oldMotor)
+        await FallingEdge(dut.CLOCK) 
+        assert ([Systems(output[0]).name,Motors(output[1]).name] == [Systems(dut.SYSTEM_STATE.value).name,Motors(dut.MOTOR_STATE.value).name]), f' [{Systems(output[0]).name},{Motors(output[1]).name}] != [{Systems(dut.SYSTEM_STATE.value).name},{Motors(dut.MOTOR_STATE.value).name}]'
+        
+        #print(f'F{1*dut.CLOCK_STATE.value}|{Commands(dut.COMMAND_STATE.value).name}|{Sensors(dut.SENSOR_STATE.value).name}[{counter}] > Py:[{Systems(output[0]).name},{Motors(output[1]).name}] vs VHDL:[{Systems(dut.SYSTEM_STATE.value).name},{Motors(dut.MOTOR_STATE.value).name}]')
+        
         
     print('')
 

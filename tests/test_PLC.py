@@ -29,7 +29,6 @@ async def PLC_test(dut):
         
         print(f'{PLCs(dut.PLC_I.value).name} > {PLCs(output).name}')
    
-        
         assert ( dut.PLC_STATE.value  == output ), f'{PLCs(dut.PLC_STATE.value).name} != {PLCs(output).name}'
     print('')
 

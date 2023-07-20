@@ -19,33 +19,57 @@ from cocotb.handle import Force, Release, Deposit
 if cocotb.simulator.is_running():
     from models import *
 
-
-@cocotb.test()
-async def general_test(dut):
-    """Integration test"""
-    clock = Clock(dut.CLOCK, 30.77, units="us")  # Create a 30us period clock on port clk
+def startClock(dut,freq):
+    clock = Clock(dut.CLOCK, round(1000/freq,4), units="us")  # Create a 30us period clock on port clk
     cocotb.start_soon(clock.start(start_high = False))  # Start the clock
     
+def initialize_rDT(dut):
+    #inputs
     dut.CLOCK_ENABLE.value = True
-    
-    dut.KEY_I.value = BinaryValue(value=0,bits=2,bigEndian=False)
-    dut.KEY_ENABLE.value = True
-    
-    dut.LOCK_I.value = BinaryValue(value=0,bits=2,bigEndian=False)
-    dut.LOCK_ENABLE.value = True
-    
     dut.POWER_MODE.value = True
     dut.BATT_STATE.value = True
-    
-    dut.SENSORS.value = BinaryValue(value=0,bits=4,bigEndian=False)
-    
-    dut.PLC.value = BinaryValue(value=0,bits=2,bigEndian=False)
-    
-    for i in range(10000):
-        print(f'Integration test progress: {i/(10000-1):2.1%}\r', end="\r")
-        await RisingEdge(dut.CLOCK)
-    print('')
+    dut.SENSORS.value = 0
+    dut.KEY_I.value = 0
+    dut.KEY_ENABLE.value = True
+    dut.LOCK_I.value = 0
+    dut.LOCK_ENABLE.value = True
+    dut.PLC.value = 0
 
+def reset_rDT(dut):
+    #inputs
+    dut.CLOCK_ENABLE.value = False
+    dut.POWER_MODE.value = False
+    dut.BATT_STATE.value = False
+    dut.SENSORS.value = 0
+    dut.KEY_I.value = 0
+    dut.KEY_ENABLE.value = False
+    dut.LOCK_I.value = 0
+    dut.LOCK_ENABLE.value = False
+    dut.PLC.value = 0
+
+    #outputs
+    
+@cocotb.test()
+async def clock_test(dut):
+    """Integration test"""
+    startClock(dut,32.5)
+    
+    
+    initialize_rDT(dut)
+    
+    for i in range(100000):
+        print(f'Integration test progress: {i/(100000-1):2.1%}\r', end="\r")
+        await RisingEdge(dut.CLOCK)
+        #assert(i>500),f'{i} > 500'
+    print('')
+    reset_rDT(dut)
+    
+    #dut.MOTOR_STATE.value = BinaryValue(value=Motors.STOP.value,bits=8,bigEndian=False)
+    #dut.PWM.value = False
+    #dut.MOTOR_UPDOWN.value = Deposit(BinaryValue(value=0,bits=2,bigEndian=False))
+    #dut.MOTOR_PWM.value = Deposit(False)
+    await Timer(1, units="sec")
+    
 '''
 @cocotb.test()
 async def general_test(dut):

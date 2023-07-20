@@ -1,6 +1,0 @@
-<testsuites name="results">
-  <testsuite name="all" package="all">
-    <property name="random_seed" value="1689827957" />
-    <testcase name="general_test" classname="test_general" file="/home/martin/Documents/cocotb-master/examples/rDangerTag/tests/test_general.py" lineno="23" time="1.4957962036132812" sim_time_ns="307684615.000001" ratio_time="205699556.03360316" />
-  </testsuite>
-</testsuites>

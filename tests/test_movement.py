@@ -20,6 +20,7 @@ from cocotb.types import Bit, Logic
 from cocotb.binary import BinaryValue
 from cocotb.clock import Clock
 from cocotb.utils import get_sim_steps, get_time_from_sim_steps, lazy_property
+from cocotb.handle import Force, Release, Deposit
 
 if cocotb.simulator.is_running():
     from models import *
@@ -90,6 +91,7 @@ async def movement_test(dut):
     dut.MOTOR_STATE.value = BinaryValue(value=Motors.STOP.value,bits=8,bigEndian=False)
     
     for i in range(100000):
+        print(f'Movement test progress: {i/(100000-1):2.1%}\r', end="\r")
         if ( i % 5000 == 0 ):
             j = random.randint(0 , len(motorStates)-1)
             dut.MOTOR_STATE.value = BinaryValue(value=j,bits=8,bigEndian=False)
@@ -109,7 +111,12 @@ async def movement_test(dut):
         assert( [output[0],2*output[1]+output[2]] == [dut.MOTOR_PWM.value,dut.MOTOR_UPDOWN.value] ), f'{output} != [{dut.MOTOR_PWM.value},{dut.MOTOR_UPDOWN.value}]'
 
     print('')
-
+    dut.MOTOR_STATE.value = BinaryValue(value=Motors.STOP.value,bits=8,bigEndian=False)
+    dut.PWM.value = False
+    dut.MOTOR_UPDOWN.value = Deposit(BinaryValue(value=0,bits=2,bigEndian=False))
+    dut.MOTOR_PWM.value = Deposit(False)
+    await Timer(100, units="ms")
+    
     
 def test_movement_runner():
     """Simulate the key example using the Python runner.

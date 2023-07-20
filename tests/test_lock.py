@@ -10,6 +10,8 @@ import cocotb
 from cocotb.runner import get_runner
 from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
+from cocotb.binary import BinaryValue
+from cocotb.handle import Force, Release, Deposit
 
 if cocotb.simulator.is_running():
     from models import *
@@ -23,16 +25,22 @@ async def interlocking_test(dut):
     LOCK_B_I = tuple_create(3,1)+(False,)
         
     for i in range(len(LOCK)):
+        print(f'PLC test progress: {i/(len(LOCK)-1):2.1%}\r', end="\r")
         dut.LOCK_ENABLE.value = LOCK[i]
         dut.LOCK_I.value = 2*LOCK_A_I[i]+LOCK_B_I[i]
         await Timer(1, units="sec")
         
-        print(f'Lock {"Enable" if dut.LOCK_ENABLE.value else "Disable"} | {Locks(dut.LOCK_I.value).name} > {lock_model(LOCK[i],LOCK_A_I[i],LOCK_B_I[i])[:2]} {Locks(lock_model(LOCK[i],LOCK_A_I[i],LOCK_B_I[i])[2]).name}')
+        #print(f'Lock {"Enable" if dut.LOCK_ENABLE.value else "Disable"} | {Locks(dut.LOCK_I.value).name} > {lock_model(LOCK[i],LOCK_A_I[i],LOCK_B_I[i])[:2]} {Locks(lock_model(LOCK[i],LOCK_A_I[i],LOCK_B_I[i])[2]).name}')
    
         output = lock_model(LOCK[i],LOCK_A_I[i],LOCK_B_I[i])
         assert ( [dut.LOCK_O.value,dut.LOCK_STATE.value]  == [2*output[0]+output[1],output[2]]), f'{[dut.LOCK_O.value,dut.LOCK_STATE.value]} != {output}'
     print('')
-
+    dut.LOCK_ENABLE.value = False
+    dut.LOCK_I.value = BinaryValue(value=0,bits=2,bigEndian=False)
+    dut.LOCK_O.value = Deposit(BinaryValue(value=0,bits=2,bigEndian=False))
+    dut.LOCK_STATE.value = Deposit(BinaryValue(value=Locks.NO_LOCK.value,bits=8,bigEndian=False))
+    await Timer(100, units="ms")
+    
 def test_lock_runner():
     """Simulate the interlock example using the Python runner.
 

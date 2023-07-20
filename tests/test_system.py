@@ -12,6 +12,7 @@ from cocotb.triggers import Timer, FallingEdge, RisingEdge
 from cocotb.types import Bit, Logic
 from cocotb.binary import BinaryValue
 from cocotb.clock import Clock
+from cocotb.handle import Force, Release, Deposit
 
 if cocotb.simulator.is_running():
     from models import *
@@ -73,7 +74,14 @@ async def system_states_test(dut):
         
         
     print('')
-
+    dut.CLOCK_STATE.value = False
+    dut.COMMAND_STATE.value = BinaryValue(value=Commands.COMMAND_IDLE.value,bits=8,bigEndian=False)
+    dut.SENSOR_STATE.value = BinaryValue(value=Sensors.DANGER.value,bits=8,bigEndian=False)
+    dut.SYSTEM_STATE.value = Deposit(BinaryValue(value=Systems.SYSTEM_IDLE.value,bits=8,bigEndian=False))
+    dut.MOTOR_STATE.value = Deposit(BinaryValue(value=Motors.STOP.value,bits=8,bigEndian=False))
+    await Timer(100, units="ms")
+    
+    
 def test_system_runner():
     """Simulate the key example using the Python runner.
 

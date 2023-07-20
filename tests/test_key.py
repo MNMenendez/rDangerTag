@@ -11,6 +11,7 @@ from cocotb.runner import get_runner
 from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
 from cocotb.binary import BinaryValue
+from cocotb.handle import Force, Release, Deposit
 
 if cocotb.simulator.is_running():
     from models import *
@@ -22,7 +23,7 @@ async def key_test(dut):
     dut.KEY_ENABLE.value = False
     
     for i in range (600):
-        #print(f'Key test progress: {i/5000:2.1%}\r', end="\r")
+        print(f'Key test progress: {i/(600-1):2.1%}\r', end="\r")
         j = random.randint(0 ,3)
         k = BinaryValue(value=j,bits=2,bigEndian=False)
         dut.KEY_I.value = k
@@ -33,11 +34,16 @@ async def key_test(dut):
         await Timer(1, units="sec")
         output = key_model(dut.KEY_ENABLE.value,(k//2)%2,k%2)
         
-        print(f'{(k//2)%2}{k%2} > Py:[{output[0]}{output[1]},{Keys(output[2]).name}] vs VHDL:[{dut.KEY_O.value},{Keys(dut.KEY_STATE.value).name}]')
+        #print(f'{(k//2)%2}{k%2} > Py:[{output[0]}{output[1]},{Keys(output[2]).name}] vs VHDL:[{dut.KEY_O.value},{Keys(dut.KEY_STATE.value).name}]')
         
         assert ([2*output[0]+output[1],output[2]] == [dut.KEY_O.value,dut.KEY_STATE.value]), f'result is incorrect: [{output[0]}{output[1]},{Keys(output[2]).name}] != [{dut.KEY_O.value},{Keys(dut.KEY_STATE.value).name}]'
     
     print('')
+    dut.KEY_ENABLE.value = False
+    dut.KEY_I.value = BinaryValue(value=0,bits=2,bigEndian=False)
+    dut.KEY_O.value = Deposit(BinaryValue(value=0,bits=2,bigEndian=False))
+    dut.KEY_STATE.value = Deposit(BinaryValue(value=Keys.NO_KEY.value,bits=8,bigEndian=False))
+    await Timer(100, units="ms")
     
 def test_key_runner():
     """Simulate the key example using the Python runner.

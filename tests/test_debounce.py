@@ -20,6 +20,7 @@ from cocotb.types import Bit, Logic
 from cocotb.binary import BinaryValue
 from cocotb.clock import Clock
 from cocotb.utils import get_sim_steps, get_time_from_sim_steps, lazy_property
+from cocotb.handle import Force, Release, Deposit
 
 if cocotb.simulator.is_running():
     from models import *
@@ -73,6 +74,10 @@ async def debounce_test(dut):
         #print(f'{dut.DATA_I.value}|{counter}[{1*reset}|{dut.CLOCK_STATE.value}] >> Py:{output} vs VHDL:{str(dut.DATA_O.value)}')
         
     print('')
+    dut.CLOCK_STATE.value = False
+    dut.DATA_I.value = BinaryValue(value=0,bits=2,bigEndian=False)
+    dut.DATA_O.value = Deposit(BinaryValue(value=0,bits=2,bigEndian=False))
+    await Timer(100, units="ms")
     
 def test_debounce_runner():
     """Simulate the key example using the Python runner.

@@ -8,12 +8,45 @@ from pathlib import Path
 
 import cocotb
 from cocotb.runner import get_runner
-from cocotb.triggers import Timer
+from cocotb.triggers import Timer, FallingEdge, RisingEdge
 from cocotb.types import Bit, Logic
+from cocotb.binary import BinaryValue
+from cocotb.clock import Clock
+from cocotb.utils import get_sim_steps, get_time_from_sim_steps, lazy_property
+from cocotb.handle import Force, Release, Deposit
+
 
 if cocotb.simulator.is_running():
     from models import *
 
+
+@cocotb.test()
+async def general_test(dut):
+    """Integration test"""
+    clock = Clock(dut.CLOCK, 30.77, units="us")  # Create a 30us period clock on port clk
+    cocotb.start_soon(clock.start(start_high = False))  # Start the clock
+    
+    dut.CLOCK_ENABLE.value = True
+    
+    dut.KEY_I.value = BinaryValue(value=0,bits=2,bigEndian=False)
+    dut.KEY_ENABLE.value = True
+    
+    dut.LOCK_I.value = BinaryValue(value=0,bits=2,bigEndian=False)
+    dut.LOCK_ENABLE.value = True
+    
+    dut.POWER_MODE.value = True
+    dut.BATT_STATE.value = True
+    
+    dut.SENSORS.value = BinaryValue(value=0,bits=4,bigEndian=False)
+    
+    dut.PLC.value = BinaryValue(value=0,bits=2,bigEndian=False)
+    
+    for i in range(10000):
+        print(f'Integration test progress: {i/(10000-1):2.1%}\r', end="\r")
+        await RisingEdge(dut.CLOCK)
+    print('')
+
+'''
 @cocotb.test()
 async def general_test(dut):
     """Integration test"""
@@ -68,7 +101,7 @@ async def general_test(dut):
         assert dut.TBD_O.value == TBD_O, f'TBD are incorrect: {dut.TBD_O.value} != {TBD_O}'
         assert [dut.MOTOR_PWM.value,dut.MOTOR_UP.value,dut.MOTOR_DOWN.value] == [MOTOR_PWM,MOTOR_UP,MOTOR_DOWN], f'Motor is incorrect: [{dut.MOTOR_PWM.value},{dut.MOTOR_UP.value},{dut.MOTOR_DOWN.value}] != [{MOTOR_PWM},{MOTOR_UP},{MOTOR_DOWN}]'
     print('')
-
+'''
     
 def test_general_runner():
     """Simulate the key example using the Python runner.
@@ -86,9 +119,9 @@ def test_general_runner():
     vhdl_sources = []
 
     if hdl_toplevel_lang == "verilog":
-        verilog_sources = [proj_path / "hdl" / "general.sv"]
+        verilog_sources = [proj_path / "hdl" / "rdangertag.sv"]
     else:
-        vhdl_sources = [proj_path / "hdl" / "general.vhdl"]
+        vhdl_sources = [proj_path / "hdl" / "rdangertag.vhdl"]
 
     # equivalent to setting the PYTHONPATH environment variable
     sys.path.append(str(proj_path / "tests"))
@@ -97,10 +130,10 @@ def test_general_runner():
     runner.build(
         verilog_sources=verilog_sources,
         vhdl_sources=vhdl_sources,
-        hdl_toplevel="general",
+        hdl_toplevel="rdangertag",
         always=True,
     )
-    runner.test(hdl_toplevel="general", test_module="test_general")
+    runner.test(hdl_toplevel="rdangertag", test_module="test_general")
 
 
 if __name__ == "__main__":

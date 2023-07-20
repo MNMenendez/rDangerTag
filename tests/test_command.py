@@ -85,8 +85,7 @@ combinations = [
     {"lock":Locks.NO_LOCK,      "key":Keys.NO_KEY,     "plc":PLCs.PLC_REMOVE, "applyValid":False,"removeValid":True,"cmdValid":True},
     {"lock":Locks.NO_LOCK,      "key":Keys.NO_KEY,     "plc":PLCs.PLC_IDLE,   "applyValid":False,"removeValid":False,"cmdValid":True}]
    
- 
-   
+'''
 @cocotb.test()
 async def command_info_test(dut):
     """Test commands"""
@@ -136,7 +135,8 @@ async def command_info_test(dut):
     print(f'idleToApplyRetain:{idleToApplyRetain}\nidletoRemoveRetain:{idleToRemoveRetain}\nidletoApplyRemoveLoop:{idleToApplyRemoveLoop}\nidletoRemoveApplyLoop:{idleToRemoveApplyLoop}\nidleToError:{idleToError}\napplyToError:{applyToError}\nremoveToError:{removeToError}')
     print('---------')
     print(f'totalValid:{totalValid}\ntotalError:{totalError}\ntotal:{totalValid+totalError}')
-    
+'''
+
 @cocotb.test()
 async def command_idleToApplyRetain_test(dut):
     """Test commands between idle and apply state, retaining apply state"""
@@ -161,9 +161,8 @@ async def command_idleToApplyRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
             
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'A_{validApplies.index(i)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'A_{validApplies.index(i)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
   
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -178,9 +177,8 @@ async def command_idleToApplyRetain_test(dut):
                 dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
                 output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
             
-                #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
                 await Timer(15, units="us")  
-                print(f'\tA_{validApplies.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+                #print(f'\tA_{validApplies.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
       
                 assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
                 prevOutput = Commands(output)
@@ -194,9 +192,8 @@ async def command_idleToApplyRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
             
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'I_{invalidCommands.index(k)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'I_{invalidCommands.index(k)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
   
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -212,9 +209,8 @@ async def command_idleToApplyRetain_test(dut):
     dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
     output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-    #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
     await Timer(15, units="us")  
-    print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+    #print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
     assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
     prevOutput = Commands(output)
@@ -243,9 +239,8 @@ async def command_idleToRemoveRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
             
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'R_{validRemoves.index(i)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'R_{validRemoves.index(i)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
   
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -260,9 +255,8 @@ async def command_idleToRemoveRetain_test(dut):
                 dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
                 output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
             
-                #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
                 await Timer(15, units="us")  
-                print(f'\tR_{validRemoves.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+                #print(f'\tR_{validRemoves.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
       
                 assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
                 prevOutput = Commands(output)
@@ -275,10 +269,9 @@ async def command_idleToRemoveRetain_test(dut):
             dut.PLC_STATE.value = BinaryValue(value=PLC_STATE.value,bits=8,bigEndian=False)
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
-            
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
+
             await Timer(15, units="us")  
-            print(f'I_{invalidCommands.index(k)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'I_{invalidCommands.index(k)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
   
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -294,9 +287,8 @@ async def command_idleToRemoveRetain_test(dut):
     dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
     output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-    #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
     await Timer(15, units="us")  
-    print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+    #print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
     assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
     prevOutput = Commands(output)
@@ -325,9 +317,8 @@ async def command_idleToApplyRemoveLoop_test(dut):
     dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
     output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-    #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
     await Timer(15, units="us")  
-    print(f'A_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+    #print(f'A_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
     assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
     prevOutput = Commands(output)
@@ -342,9 +333,8 @@ async def command_idleToApplyRemoveLoop_test(dut):
         dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
         output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-        #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
         await Timer(15, units="us")  
-        print(f'\tR_{validRemoves.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+        #print(f'\tR_{validRemoves.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
         assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
         prevOutput = Commands(output)
@@ -358,9 +348,8 @@ async def command_idleToApplyRemoveLoop_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
             
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\t\tA_{validApplies.index(k)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\t\tA_{validApplies.index(k)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
   
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -374,9 +363,8 @@ async def command_idleToApplyRemoveLoop_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tR_{validRemoves.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tR_{validRemoves.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
   
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -392,9 +380,8 @@ async def command_idleToApplyRemoveLoop_test(dut):
     dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
     output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-    #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
     await Timer(15, units="us")  
-    print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+    #print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
     assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
     prevOutput = Commands(output)
@@ -423,9 +410,8 @@ async def command_idleToRemoveApplyLoop_test(dut):
     dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
     output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-    #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
     await Timer(15, units="us")  
-    print(f'R_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+    #print(f'R_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
     assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
     prevOutput = Commands(output)
@@ -440,9 +426,8 @@ async def command_idleToRemoveApplyLoop_test(dut):
         dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
         output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-        #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
         await Timer(15, units="us")  
-        print(f'\tA_{validApplies.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+        #print(f'\tA_{validApplies.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
         assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
         prevOutput = Commands(output)
@@ -456,9 +441,8 @@ async def command_idleToRemoveApplyLoop_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
             
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\t\tR_{validRemoves.index(k)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\t\tR_{validRemoves.index(k)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
   
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -472,9 +456,8 @@ async def command_idleToRemoveApplyLoop_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tA_{validApplies.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tA_{validApplies.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
   
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -490,9 +473,8 @@ async def command_idleToRemoveApplyLoop_test(dut):
     dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
     output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-    #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
     await Timer(15, units="us")  
-    print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+    #print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
     assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
     prevOutput = Commands(output)
@@ -523,15 +505,12 @@ async def command_idleToErrorRetain_test(dut):
         dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
         output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-        #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
         await Timer(15, units="us")  
-        print(f'\E_{errors.index(i)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+        #print(f'\E_{errors.index(i)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
         assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
         prevOutput = Commands(output)
-        
-       
-       
+         
         for j in validApplies:
             KEY_STATE = validApplies[validApplies.index(j)]["key"]
             LOCK_STATE = validApplies[validApplies.index(j)]["lock"]
@@ -542,9 +521,8 @@ async def command_idleToErrorRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tA_{validApplies.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tA_{validApplies.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -559,9 +537,8 @@ async def command_idleToErrorRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tR_{validRemoves.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tR_{validRemoves.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -576,9 +553,8 @@ async def command_idleToErrorRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tI_{invalidCommands.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tI_{invalidCommands.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -593,9 +569,8 @@ async def command_idleToErrorRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tE_{errors.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tE_{errors.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -616,9 +591,8 @@ async def command_idleToErrorRetain_test(dut):
         
         output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-        #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
         await Timer(15, units="us")  
-        print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+        #print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
         assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
         prevOutput = Commands(output)
@@ -655,9 +629,8 @@ async def command_applyToErrorRetain_test(dut):
     
     output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-    #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
     await Timer(15, units="us")  
-    print(f'A_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+    #print(f'A_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
     assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
     prevOutput = Commands(output)
@@ -675,9 +648,8 @@ async def command_applyToErrorRetain_test(dut):
         dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
         output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-        #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
         await Timer(15, units="us")  
-        print(f'\E_{errors.index(i)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+        #print(f'\E_{errors.index(i)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
         assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
         prevOutput = Commands(output)
@@ -692,9 +664,8 @@ async def command_applyToErrorRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tA_{validApplies.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tA_{validApplies.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -709,9 +680,8 @@ async def command_applyToErrorRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tR_{validRemoves.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tR_{validRemoves.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -726,9 +696,8 @@ async def command_applyToErrorRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tI_{invalidCommands.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tI_{invalidCommands.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -743,9 +712,8 @@ async def command_applyToErrorRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tE_{errors.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tE_{errors.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -766,9 +734,8 @@ async def command_applyToErrorRetain_test(dut):
         
         output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-        #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
         await Timer(15, units="us")  
-        print(f'A_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+        #print(f'A_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
         assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
         prevOutput = Commands(output)
@@ -790,9 +757,8 @@ async def command_applyToErrorRetain_test(dut):
     
     output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-    #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
     await Timer(15, units="us")  
-    print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+    #print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
     assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
     prevOutput = Commands(output)
@@ -828,9 +794,8 @@ async def command_removeToErrorRetain_test(dut):
     
     output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-    #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
     await Timer(15, units="us")  
-    print(f'R_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+    #print(f'R_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
     assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
     prevOutput = Commands(output)
@@ -848,9 +813,8 @@ async def command_removeToErrorRetain_test(dut):
         dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
         output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-        #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
         await Timer(15, units="us")  
-        print(f'\E_{errors.index(i)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+        #print(f'\E_{errors.index(i)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
         assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
         prevOutput = Commands(output)
@@ -865,9 +829,8 @@ async def command_removeToErrorRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tA_{validApplies.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tA_{validApplies.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -882,9 +845,8 @@ async def command_removeToErrorRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tR_{validRemoves.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tR_{validRemoves.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -899,9 +861,8 @@ async def command_removeToErrorRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tI_{invalidCommands.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tI_{invalidCommands.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -916,9 +877,8 @@ async def command_removeToErrorRetain_test(dut):
             dut.LOCK_STATE.value = BinaryValue(value=LOCK_STATE.value,bits=8,bigEndian=False)
             output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-            #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
             await Timer(15, units="us")  
-            print(f'\tE_{errors.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+            #print(f'\tE_{errors.index(j)} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
             assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
             prevOutput = Commands(output)
@@ -939,9 +899,8 @@ async def command_removeToErrorRetain_test(dut):
         
         output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
         
-        #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
         await Timer(15, units="us")  
-        print(f'R_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+        #print(f'R_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
         assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
         prevOutput = Commands(output)
@@ -964,9 +923,8 @@ async def command_removeToErrorRetain_test(dut):
     
     output = command_model(KEY_STATE,PLC_STATE,LOCK_STATE,prevOutput)
     
-    #print(KEY_STATE.value,PLC_STATE.value,LOCK_STATE.value,dut.KEY_STATE.value,dut.PLC_STATE.value,dut.LOCK_STATE.value)
     await Timer(15, units="us")  
-    print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
+    #print(f'I_{i} --> {KEY_STATE},{LOCK_STATE},{PLC_STATE} ==> Py:{Commands(output).name} vs VHDL:{Commands(dut.COMMAND_STATE.value).name}')
 
     assert ( dut.COMMAND_STATE.value == output ), f'Py:{Commands(output).name} != VHDL:{Commands(dut.COMMAND_STATE.value).name}' 
     prevOutput = Commands(output)

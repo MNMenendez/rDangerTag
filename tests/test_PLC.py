@@ -10,6 +10,8 @@ import cocotb
 from cocotb.runner import get_runner
 from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
+from cocotb.binary import BinaryValue
+from cocotb.handle import Force, Release, Deposit
 
 if cocotb.simulator.is_running():
     from models import *
@@ -22,16 +24,19 @@ async def PLC_test(dut):
     PLC_B_I = tuple_create(2,1)+(False,)
         
     for i in range(len(PLC_A_I)):
+        print(f'PLC test progress: {i/(len(PLC_A_I)-1):2.1%}\r', end="\r")
         dut.PLC_I.value = 2*PLC_A_I[i]+PLC_B_I[i]
         await Timer(1, units="sec")
         
-        output = plc_model(PLC_A_I[i],PLC_B_I[i])
-        
-        print(f'{PLCs(dut.PLC_I.value).name} > {PLCs(output).name}')
-   
+        output = plc_model(PLC_A_I[i],PLC_B_I[i]) 
+        #print(f'{PLCs(dut.PLC_I.value).name} > {PLCs(output).name}')
         assert ( dut.PLC_STATE.value  == output ), f'{PLCs(dut.PLC_STATE.value).name} != {PLCs(output).name}'
+        
     print('')
-
+    dut.PLC_I.value = BinaryValue(value=0,bits=2,bigEndian=False)
+    dut.PLC_STATE.value = Deposit(BinaryValue(value=PLCs.PLC_IDLE.value,bits=8,bigEndian=False))
+    await Timer(1, units="sec")
+    
 def test_plc_runner():
     """Simulate the interlock example using the Python runner.
 

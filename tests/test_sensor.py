@@ -11,6 +11,7 @@ from cocotb.runner import get_runner
 from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
 from cocotb.binary import BinaryValue
+from cocotb.handle import Force, Release, Deposit
 
 if cocotb.simulator.is_running():
     from models import *
@@ -20,7 +21,7 @@ async def sensor_test(dut):
     """Sensor test"""
     
     for i in range (5000):
-        print(f'Sensor test progress: {i/5000:2.1%}\r', end="\r")
+        print(f'Sensor test progress: {i/(5000-1):2.1%}\r', end="\r")
         j = random.randint(0 , 15)
         k = BinaryValue(value=j,bits=4,bigEndian=False)
         dut.SENSORS_I.value = k
@@ -33,7 +34,11 @@ async def sensor_test(dut):
         assert ( dut.SENSOR_STATE.value == output ), f'result is incorrect: {dut.SENSOR_STATE.value} != {output}' 
 
     print('')
-
+    dut.SENSORS_I.value = BinaryValue(value=0,bits=4,bigEndian=False)
+    dut.SENSOR_STATE.value = Deposit(BinaryValue(value=Sensors.TRANSITION.value,bits=8,bigEndian=False))
+    await Timer(100, units="ms")
+    
+    
 def test_sensor_runner():
     """Simulate the key example using the Python runner.
 

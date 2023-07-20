@@ -20,6 +20,7 @@ from cocotb.types import Bit, Logic
 from cocotb.binary import BinaryValue
 from cocotb.clock import Clock
 from cocotb.utils import get_sim_steps, get_time_from_sim_steps, lazy_property
+from cocotb.handle import Force, Release, Deposit
 
 if cocotb.simulator.is_running():
     from models import *
@@ -39,8 +40,7 @@ async def clock_divider_test(dut):
     #await FallingEdge(dut.CLOCK)  # Synchronize with the clock
     j = 0
     for i in range(100000):
-         
-        print(f'Clock test progress: {i/100000:2.1%}\r', end="\r")
+        print(f'Clock test progress: {i/(100000-1):2.1%}\r', end="\r")
         
         reset = True if ((i % 20000) > 50 and (i % 20000) < 500) else False
         dut.CLOCK_STATE.value = not reset   
@@ -65,7 +65,11 @@ async def clock_divider_test(dut):
     
         #print (f'{1*dut.CLOCK.value},{1*SLOW_CLOCK},{1*SLOWEST_CLOCK} ({dut.CLOCK_STATE.value}) > {1*dut.SLOW_CLOCK.value} {1*dut.SLOWEST_CLOCK.value}')
     print('')
-
+    dut.CLOCK_STATE.value = False
+    dut.SLOW_CLOCK.value = False
+    dut.SLOWEST_CLOCK.value = False
+    dut.PWM.value = False
+    await Timer(100, units="ms")
     
 def test_movement_runner():
     """Simulate the key example using the Python runner.

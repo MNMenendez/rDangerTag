@@ -9,6 +9,8 @@ from pathlib import Path
 import cocotb
 from cocotb.runner import get_runner
 from cocotb.triggers import Timer
+from cocotb.binary import BinaryValue
+from cocotb.handle import Force, Release, Deposit
 
 if cocotb.simulator.is_running():
     from models import enum,Powers,power_model,tuple_create
@@ -21,13 +23,18 @@ async def power_mode_test(dut):
     BATTERY_STATE = tuple_create(2,1)+(False,)    
     
     for i in range(len(POWER_MODE)):
+        print(f'Power test progress: {i/(len(POWER_MODE)-1):2.1%}\r', end="\r")
         dut.POWER_MODE.value = POWER_MODE[i]
         dut.BATTERY_STATE.value = BATTERY_STATE[i]
         
         await Timer(1, units="sec")
-        print(f'Power {"Connected" if dut.POWER_MODE.value else "Disconnected"} | {"Full" if dut.BATTERY_STATE.value else "Empty"} battery > {Powers(power_model(POWER_MODE[i],BATTERY_STATE[i])).name}')
+        #print(f'Power {"Connected" if dut.POWER_MODE.value else "Disconnected"} | {"Full" if dut.BATTERY_STATE.value else "Empty"} battery > {Powers(power_model(POWER_MODE[i],BATTERY_STATE[i])).name}')
         assert dut.POWER_STATE.value == power_model(POWER_MODE[i],BATTERY_STATE[i]), f'result is incorrect: {dut.POWER_STATE.value} != {dut.POWER_MODE.value}|{dut.BATTERY_STATE.value}'    
     print('')
+    dut.POWER_MODE.value = False
+    dut.BATTERY_STATE.value = False
+    dut.POWER_STATE.value = Deposit(BinaryValue(value=Powers.POWER_ON.value,bits=8,bigEndian=False))
+    await Timer(100, units="ms")
     
 def test_power_runner():
     """Simulate the power example using the Python runner.

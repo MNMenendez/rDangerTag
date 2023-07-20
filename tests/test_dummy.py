@@ -10,6 +10,8 @@ import cocotb
 from cocotb.runner import get_runner
 from cocotb.triggers import Timer
 from cocotb.types import Bit, Logic
+from cocotb.binary import BinaryValue
+from cocotb.handle import Force, Release, Deposit
 
 if cocotb.simulator.is_running():
     from models import dummy_model,tuple_create
@@ -24,8 +26,11 @@ async def TBD_test(dut):
         await Timer(1, units="ns")
         #print(f'{None} > {bool(dut.TBD_O.value)}')
         assert dut.TBD_O.value == 0, f'result is incorrect: {dut.TBD_O.value} != 0'
+        
     print('')
-
+    dut.TBD_O.value = Deposit(False)
+    await Timer(100, units="ms")
+    
 def test_dummy_runner():
     """Simulate the dummy example using the Python runner.
 

@@ -22,8 +22,8 @@
 library ieee;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
-library UNISIM;
-use UNISIM.Vcomponents.ALL;
+--library UNISIM;
+--use UNISIM.Vcomponents.ALL;
 library work;
 use work.Utilities.all;
 
@@ -77,7 +77,7 @@ architecture BEHAVIORAL of rDangerTag is
              LOCK_STATE    : in    lock_states);
    end component;
    
-   component debounce
+   component debounce_module
       port ( CLOCK_STATE : in    std_logic; 
              DATA_I      : in    std_logic_vector (1 downto 0); 
              DATA_O      : out   std_logic_vector (1 downto 0); 
@@ -158,8 +158,8 @@ begin
                 PLC_STATE=>PLC_STATE,
                 COMMAND_STATE=>COMMAND_STATE);
    
-   debounce_process : debounce
-      port map (CLOCK=>SLOW_CLOCK,
+   debounce_process : debounce_module
+      port map (CLOCK=>SLOWEST_CLOCK,
                 CLOCK_STATE=>CLOCK_ENABLE,
                 DATA_I(1 downto 0)=>KEY_I(1 downto 0),
                 DATA_O(1 downto 0)=>DATA_O(1 downto 0));
@@ -207,7 +207,7 @@ begin
                 SENSOR_STATE=>SENSOR_STATE);
    
    system_process : system_module
-      port map (CLOCK=>SLOW_CLOCK,
+      port map (CLOCK=>SLOWEST_CLOCK,
                 CLOCK_STATE=>CLOCK_ENABLE,
                 COMMAND_STATE=>COMMAND_STATE,
                 SENSOR_STATE=>SENSOR_STATE,

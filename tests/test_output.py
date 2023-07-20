@@ -20,6 +20,7 @@ from cocotb.types import Bit, Logic
 from cocotb.binary import BinaryValue
 from cocotb.clock import Clock
 from cocotb.utils import get_sim_steps, get_time_from_sim_steps, lazy_property
+from cocotb.handle import Force, Release, Deposit
 
 if cocotb.simulator.is_running():
     from models import *
@@ -41,6 +42,7 @@ async def output_test(dut):
     k = 0
     
     for i in range(10000):
+        print(f'Output test progress: {i/(10000-1):2.1%}\r', end="\r")
         if ( i % 50 == 0 ):  
             #print(f'{i} -> {j % len(powerStates)} {k % len(systemStates)}')
             if ( (j+1) % 5*len(powerStates) == 0 ):
@@ -60,11 +62,17 @@ async def output_test(dut):
         await Timer(1, units="ns")
         assert( [2*output[0][0]+1*output[0][1],2*output[1][0]+1*output[1][1],2*output[2][0]+1*output[2][1]] == [dut.OUTPUT.value,dut.PWR_LED.value,dut.OK_LED.value] ), f'{output} != [{dut.OUTPUT.value},{dut.PWR_LED.value},{dut.OK_LED.value}]'
         
-        if ( i % 50 == 0 ):
-            print(f'[{Powers(dut.POWER_STATE.value).name},{Systems(dut.SYSTEM_STATE.value).name}] > Py:[{Outputs(2*output[0][0]+1*output[0][1]).name},{Leds(2*output[1][0]+1*output[1][1]).name},{Leds(2*output[2][0]+1*output[2][1]).name}] vs VHDL: [{Outputs(dut.OUTPUT.value).name},{Leds(dut.PWR_LED.value).name},{Leds(dut.OK_LED.value).name}]')
+        #if ( i % 50 == 0 ):
+        #    print(f'[{Powers(dut.POWER_STATE.value).name},{Systems(dut.SYSTEM_STATE.value).name}] > Py:[{Outputs(2*output[0][0]+1*output[0][1]).name},{Leds(2*output[1][0]+1*output[1][1]).name},{Leds(2*output[2][0]+1*output[2][1]).name}] vs VHDL: [{Outputs(dut.OUTPUT.value).name},{Leds(dut.PWR_LED.value).name},{Leds(dut.OK_LED.value).name}]')
     
     print('')
-
+    dut.POWER_STATE.value = BinaryValue(value=Powers.POWER_ON.value,bits=8,bigEndian=False)
+    dut.SYSTEM_STATE.value = BinaryValue(value=Systems.SYSTEM_IDLE.value,bits=8,bigEndian=False)
+    dut.OUTPUT.value = Deposit(BinaryValue(value=Outputs.DANGER.value,bits=2,bigEndian=False))
+    dut.PWR_LED.value = Deposit(BinaryValue(value=Leds.GREEN.value,bits=2,bigEndian=False))
+    dut.OK_LED.value = Deposit(BinaryValue(value=Leds.GREEN.value,bits=2,bigEndian=False))
+    await Timer(100, units="ms")
+    
     
 def test_movement_runner():
     """Simulate the key example using the Python runner.

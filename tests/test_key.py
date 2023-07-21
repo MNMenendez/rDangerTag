@@ -26,7 +26,7 @@ async def key_test(dut):
         print(f'Key test progress: {i/(600-1):2.1%}\r', end="\r")
         j = random.randint(0 ,3)
         k = BinaryValue(value=j,bits=2,bigEndian=False)
-        dut.KEY_I.value = k
+        dut.KEY_I_F.value = k
         
         reset = True if ((i % 100) > 20 and (i % 100) < 30) else False
         dut.KEY_ENABLE.value = reset 
@@ -40,7 +40,7 @@ async def key_test(dut):
     
     print('')
     dut.KEY_ENABLE.value = False
-    dut.KEY_I.value = BinaryValue(value=0,bits=2,bigEndian=False)
+    dut.KEY_I_F.value = BinaryValue(value=0,bits=2,bigEndian=False)
     dut.KEY_O.value = Deposit(BinaryValue(value=0,bits=2,bigEndian=False))
     dut.KEY_STATE.value = Deposit(BinaryValue(value=Keys.NO_KEY.value,bits=8,bigEndian=False))
     await Timer(100, units="ms")

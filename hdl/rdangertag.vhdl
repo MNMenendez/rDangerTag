@@ -30,14 +30,14 @@ use work.Utilities.all;
 entity rDangerTag is
    port ( BATT_STATE   : in    std_logic; 
           CLOCK        : in    std_logic; 
-          CLOCK_ENABLE : in    std_logic; 
+          CLOCK_STATE : in    std_logic; 
           KEY_ENABLE   : in    std_logic; 
           KEY_I        : in    std_logic_vector (1 downto 0); 
           LOCK_ENABLE  : in    std_logic; 
           LOCK_I       : in    std_logic_vector (1 downto 0); 
           PLC          : in    std_logic_vector (1 downto 0); 
           POWER_MODE   : in    std_logic; 
-          SENSORS      : in    std_logic_vector (3 downto 0); 
+          SENSORS      : in    std_logic_vector (3 downto 0)	:= "0000"; 
           KEY_O        : out   std_logic_vector (1 downto 0); 
           LOCK_O       : out   std_logic_vector (1 downto 0); 
           MOTOR        : out   std_logic_vector (1 downto 0); 
@@ -130,8 +130,8 @@ architecture BEHAVIORAL of rDangerTag is
    end component;
    
    component sensor_module
-      port ( SENSOR_STATE : out   sensor_states; 
-             SENSORS_I    : in    std_logic_vector (3 downto 0));
+      Port ( SENSORS : in  STD_LOGIC_VECTOR(3 downto 0)	:= "0000";
+           SENSOR_STATE : out  sensor_states := TRANSITION);
    end component;
    
    component system_module
@@ -147,7 +147,7 @@ begin
    WATCHDOG <= SLOW_CLOCK;
    clock_process : clock_module
       port map (CLOCK=>CLOCK,
-                CLOCK_STATE=>CLOCK_ENABLE,
+                CLOCK_STATE=>CLOCK_STATE,
                 PWM=>PWM_SIGNAL,
                 SLOWEST_CLOCK=>SLOWEST_CLOCK,
                 SLOW_CLOCK=>SLOW_CLOCK);
@@ -160,7 +160,7 @@ begin
    
    debounce_process : debounce_module
       port map (CLOCK=>SLOWEST_CLOCK,
-                CLOCK_STATE=>CLOCK_ENABLE,
+                CLOCK_STATE=>CLOCK_STATE,
                 DATA_I(1 downto 0)=>KEY_I(1 downto 0),
                 DATA_O(1 downto 0)=>DATA_O(1 downto 0));
    
@@ -203,12 +203,12 @@ begin
                 POWER_STATE=>POWER_STATE);
    
    sensor_process : sensor_module
-      port map (SENSORS_I(3 downto 0)=>SENSORS(3 downto 0),
+      port map (SENSORS(3 downto 0)=>SENSORS(3 downto 0),
                 SENSOR_STATE=>SENSOR_STATE);
    
    system_process : system_module
       port map (CLOCK=>SLOWEST_CLOCK,
-                CLOCK_STATE=>CLOCK_ENABLE,
+                CLOCK_STATE=>CLOCK_STATE,
                 COMMAND_STATE=>COMMAND_STATE,
                 SENSOR_STATE=>SENSOR_STATE,
                 MOTOR_STATE=>MOTOR_STATE,

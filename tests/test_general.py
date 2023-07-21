@@ -13,9 +13,8 @@ from cocotb.types import Bit, Logic
 from cocotb.binary import BinaryValue
 from cocotb.clock import Clock
 from cocotb.utils import get_sim_steps, get_time_from_sim_steps, lazy_property
-from cocotb.handle import Force, Release, Deposit
-
-
+from cocotb.handle import Force, Release, Deposit	
+			
 if cocotb.simulator.is_running():
     from models import *
 
@@ -25,107 +24,119 @@ def startClock(dut,freq):
     
 def initialize_rDT(dut):
     #inputs
-    dut.CLOCK_ENABLE.value = True
-    dut.POWER_MODE.value = True
-    dut.BATT_STATE.value = True
-    dut.SENSORS.value = 0
-    dut.KEY_I.value = 0
-    dut.KEY_ENABLE.value = True
-    dut.LOCK_I.value = 0
-    dut.LOCK_ENABLE.value = True
-    dut.PLC.value = 0
+    dut.CLOCK_STATE.value  = True
+    dut.POWER_MODE.value    = True
+    dut.BATT_STATE.value    = True
+    dut.KEY_ENABLE.value    = False     # Negative logic
+    dut.LOCK_ENABLE.value   = False     # Negative logic
+    dut.SENSORS.value       = 0
+    dut.KEY_I.value         = 0
+    dut.LOCK_I.value        = 1
+    dut.PLC.value           = 1
 
 def reset_rDT(dut):
     #inputs
-    dut.CLOCK_ENABLE.value = False
-    dut.POWER_MODE.value = False
-    dut.BATT_STATE.value = False
-    dut.SENSORS.value = 0
-    dut.KEY_I.value = 0
-    dut.KEY_ENABLE.value = False
-    dut.LOCK_I.value = 0
-    dut.LOCK_ENABLE.value = False
-    dut.PLC.value = 0
+    initialize_rDT(dut)
 
     #outputs
+    #dut.TBD_O.value         =   Deposit(0)
+    #dut.KEY_O.value         =   Deposit(0)
+    #dut.LOCK_O.value        =   Deposit(0)
+    #dut.OUTPUT.value        =   Deposit(0)
+    #dut.PWR_LED.value       =   Deposit(0)
+    #dut.OK_LED.value        =   Deposit(0)
+    #dut.MOTOR.value         =   Deposit(0)
+    #dut.MOTOR_PWM.value     =   Deposit(0)
+    #dut.WATCHDOG.value      =   Deposit(0)
+    
+def each_X_seconds(sec,T,i):
+    
+    cycle = round(sec*1000000/T,0)+1
+    #print(f'{T}us {sec}s {i}={i*T/1000000}|{cycle}')
+    #if ( i % cycle == 0 ):
+        #print(f'\t{round(i*T/1000000,2)}sec')
+ 
+    return (i % cycle == 0)
     
 @cocotb.test()
-async def clock_test(dut):
-    """Integration test"""
-    startClock(dut,32.5)
-    
+async def test_00(dut):
+    """Clock test"""
+    freq = 32.5
+    startClock(dut,freq)
     
     initialize_rDT(dut)
+    await Timer(100, units="ms")
     
-    for i in range(100000):
-        print(f'Integration test progress: {i/(100000-1):2.1%}\r', end="\r")
+    T = round(1000/freq,4)
+    print(f'Frequency:{freq}kHz | Period:{T}us')
+    
+    sec     = 3
+    cycle   = int(round(sec*1000000/T,0)+1)
+    
+    for i in range(cycle):
+        print(f'Clock test progress: {i/(cycle-1):2.1%}\r', end="\r")
         await RisingEdge(dut.CLOCK)
-        #assert(i>500),f'{i} > 500'
+        
+        if ( each_X_seconds(0.5,T,i) ):
+            dut.KEY_I.value = random.randint(0 , 2)
+        if ( each_X_seconds(0.25,T,i) ):
+            dut.LOCK_I.value = random.randint(1 , 2) 
+        if ( each_X_seconds(0.4,T,i) ):
+            dut.PLC.value = random.randint(1 , 2) 
+        if ( each_X_seconds(0.3,T,i) ):
+            dut.SENSORS.value = random.randint(0 , 3)*5  
+            
+        '''
+        if ( each_X_seconds(0.5,T,i) ):
+            dut.POWER_MODE.value = True if random.randint(1 , 100) < 99 else False
+        dut.CLOCK_ENABLE.value = not dut.CLOCK_ENABLE.value
+        dut.POWER_MODE.value = not dut.POWER_MODE.value
+        dut.BATT_STATE.value = not dut.BATT_STATE.value
+        dut.KEY_ENABLE.value = not dut.KEY_ENABLE.value
+        dut.LOCK_ENABLE.value = not dut.LOCK_ENABLE.value
+        
+        sensor = random.randint(0 , 16-1)
+        dut.SENSORS.value = sensor
+        
+        key = random.randint(0 , 4-1)
+        dut.KEY_I.value = key
+        
+        lock = random.randint(0 , 4-1)
+        dut.LOCK_I.value = lock
+        
+        plc = random.randint(0 , 4-1)
+        dut.PLC.value = plc
+        '''
+        
     print('')
     reset_rDT(dut)
     
-    #dut.MOTOR_STATE.value = BinaryValue(value=Motors.STOP.value,bits=8,bigEndian=False)
-    #dut.PWM.value = False
-    #dut.MOTOR_UPDOWN.value = Deposit(BinaryValue(value=0,bits=2,bigEndian=False))
-    #dut.MOTOR_PWM.value = Deposit(False)
-    await Timer(1, units="sec")
     
-'''
+    await Timer(100, units="ms")
+  
 @cocotb.test()
-async def general_test(dut):
-    """Integration test"""
+async def test_01(dut):
+    """Clock test"""
+    startClock(dut,32.5)
     
-    POWER_MODE      = tuple_create(17,2**16)+(False,)
-    CLOCK_STATE     = tuple_create(17,2**16)+(False,)
-    LOCK            = tuple_create(17,2**15)+(False,)
-    KEY             = tuple_create(17,2**14)+(False,)
-    KEY_A_I         = tuple_create(17,2**13)+(False,)
-    KEY_B_I         = tuple_create(17,2**12)+(False,)
-    INPUT_A         = tuple_create(17,2**11)+(False,)
-    INPUT_B         = tuple_create(17,2**10)+(False,)
-    SENSOR_1        = tuple_create(17,2**9)+(False,)
-    SENSOR_2        = tuple_create(17,2**8)+(False,)
-    SENSOR_3        = tuple_create(17,2**7)+(False,)
-    SENSOR_4        = tuple_create(17,2**6)+(False,)
-    LOCK_A_I        = tuple_create(17,2**5)+(False,)
-    LOCK_B_I        = tuple_create(17,2**4)+(False,)
-    TBD_I           = tuple_create(17,2**3)+(False,)
-    CLOCK           = tuple_create(17,2**0)+(False,)    
+    initialize_rDT(dut)
+    await Timer(100, units="ms")
     
-    message_old = ''
-    message_new = ''
-    for i in range(len(CLOCK)):
-        dut.CLOCK_STATE.value   = CLOCK_STATE[i]
-        dut.POWER_MODE.value    = POWER_MODE[i]
-        dut.KEY.value           = KEY[i]
-        dut.KEY_A_I.value       = KEY_A_I[i]
-        dut.KEY_B_I.value       = KEY_B_I[i]
-        dut.SENSOR_1.value      = SENSOR_1[i]
-        dut.SENSOR_2.value      = SENSOR_2[i]
-        dut.SENSOR_3.value      = SENSOR_3[i]
-        dut.SENSOR_4.value      = SENSOR_4[i]
-        dut.INPUT_A.value       = INPUT_A[i]
-        dut.INPUT_B.value       = INPUT_B[i]
-        dut.LOCK.value          = LOCK[i]
-        dut.LOCK_A_I.value      = LOCK_A_I[i]
-        dut.LOCK_B_I.value      = LOCK_B_I[i]
-        dut.TBD_I.value         = TBD_I[i]
-        dut.CLOCK.value         = CLOCK[i]
-        await Timer(1, units="ns")
-        [KEY_A_O,KEY_B_O,LOCK_A_O,LOCK_B_O,ALL_OK,WATCHDOG,OUTPUT_A,OUTPUT_B,MOTOR_PWM,MOTOR_UP,MOTOR_DOWN,TBD_O] = general_model(POWER_MODE[i], KEY[i], KEY_A_I[i], KEY_B_I[i],SENSOR_1[i], SENSOR_2[i], SENSOR_3[i], SENSOR_4[i],INPUT_A[i], INPUT_B[i], LOCK[i], LOCK_A_I[i], LOCK_B_I[i], CLOCK[i], CLOCK_STATE[i], TBD_I[i])
+    for i in range(10000):
+        print(f'Clock test progress: {i/(10000-1):2.1%}\r', end="\r")
+        await RisingEdge(dut.CLOCK)
         
-        message_new = f'{Powers(dut.POWER_SIGNAL.value).name}|Clock {"Alive" if dut.CLOCK_STATE.value else "Dead"}|Lock {"Enable" if dut.LOCK.value else "Disable"}|Key {"Enable" if dut.KEY.value else "Disable"}|{Modes(dut.MODE_SIGNAL.value).name}|{Commands(dut.COMMAND_SIGNAL.value).name}|{Sensors(dut.SENSOR_SIGNAL.value).name}|{Systems(dut.SYSTEM_SIGNAL.value).name} > K_[{1 if KEY_A_O else 0},{1 if KEY_B_O else 0}] L_[{1 if LOCK_A_O else 0},{1 if LOCK_B_O else 0}] | {Rights(ALL_OK).name} W_{1 if WATCHDOG else 0} | O_[{1 if OUTPUT_A else 0},{1 if OUTPUT_B else 0}] | PWM_{MOTOR_PWM} M_[{1 if MOTOR_UP else 0},{1 if MOTOR_DOWN else 0}] {1 if TBD_O else 0} | {Motors(dut.MOTOR_SIGNAL.value).name}'
-        if message_old != message_new:
-            message_old =  message_new
-            print(message_old)
-        assert [dut.KEY_A_O.value,dut.KEY_B_O.value] == [KEY_A_O,KEY_B_O], f'Keys are incorrect: [{dut.KEY_A_O.value},{dut_KEY_B_O.value}] != [{KEY_A_O},{KEY_B_O}]'
-        assert [dut.LOCK_A_O.value,dut.LOCK_B_O.value] == [LOCK_A_O,LOCK_B_O], f'Locks are incorrect: [{dut.LOCK_A_O.value},{dut.LOCK_B_O.value}] != [{LOCK_A_O},{LOCK_B_O}]'
-        assert [dut.ALL_OK.value,dut.WATCHDOG.value] == [ALL_OK,WATCHDOG], f'Watchdogs are incorrect: [{dut.ALL_OK.value},{dut.WATCHDOG.value}] != [{ALL_OK},{WATCHDOG}]'
-        assert [dut.OUTPUT_A.value,dut.OUTPUT_B.value] == [OUTPUT_A,OUTPUT_B], f'Outputs are incorrect: [{dut.OUTPUT_A.value},{dut.OUTPUT_B.value}] != [{OUTPUT_A},{OUTPUT_B}]'
-        assert dut.TBD_O.value == TBD_O, f'TBD are incorrect: {dut.TBD_O.value} != {TBD_O}'
-        assert [dut.MOTOR_PWM.value,dut.MOTOR_UP.value,dut.MOTOR_DOWN.value] == [MOTOR_PWM,MOTOR_UP,MOTOR_DOWN], f'Motor is incorrect: [{dut.MOTOR_PWM.value},{dut.MOTOR_UP.value},{dut.MOTOR_DOWN.value}] != [{MOTOR_PWM},{MOTOR_UP},{MOTOR_DOWN}]'
+        sensor = random.randint(0 , 16-1)
+        dut.SENSORS.value = sensor
+        
+        
     print('')
-'''
+    reset_rDT(dut)
+    
+    
+    await Timer(100, units="ms")  
+  
+  
     
 def test_general_runner():
     """Simulate the key example using the Python runner.

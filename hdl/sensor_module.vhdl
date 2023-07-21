@@ -32,16 +32,16 @@ use work.Utilities.all;
 --use UNISIM.VComponents.all;
 
 entity sensor_module is
-    Port ( SENSORS_I : in  STD_LOGIC_VECTOR(3 downto 0);
-           SENSOR_STATE : out  sensor_states);
+    Port ( SENSORS : in  STD_LOGIC_VECTOR(3 downto 0)	:= "0000";
+           SENSOR_STATE : out  sensor_states := TRANSITION);
 end sensor_module;
 
 architecture sensor_func of sensor_module is
 
 begin
-	SENSOR_PROCESS: process ( SENSORS_I ) is
+	SENSOR_PROCESS: process ( SENSORS ) is
 	begin
-		case SENSORS_I is
+		case SENSORS is
 			when "0000" | "1111" =>
 				SENSOR_STATE <= TRANSITION;
 			when "0101" =>

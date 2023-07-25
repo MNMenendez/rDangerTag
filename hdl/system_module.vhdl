@@ -51,12 +51,9 @@ signal toBLANK : STD_LOGIC		:= '0';
 signal toDANGER : STD_LOGIC 	:= '0';
 signal stateERROR : STD_LOGIC 	:= '0';
 
-signal HELP	: STD_LOGIC := '0';
-
 begin
 
-	stateERROR 		<= '1' when ((COMMAND_STATE = COMMAND_ERROR) or (CLOCK_STATE = '0') ) else '0';
-	--stateERROR 		<= '1' when ((SENSOR_STATE = SENSOR_ERROR) or (COMMAND_STATE = COMMAND_ERROR) or (CLOCK_STATE = '0')) else '0';
+	stateERROR 		<= '1' when ((SENSOR_STATE = SENSOR_ERROR) or (COMMAND_STATE = COMMAND_ERROR) or (CLOCK_STATE = '0')) else '0';
 	toBLANK 		<= '1' when ((stateERROR = '0') and (COMMAND_STATE = COMMAND_REMOVE) and (SENSOR_STATE = DANGER or SENSOR_STATE = TRANSITION)) else '0';
 	toDANGER 		<= '1' when ((stateERROR = '0') and (COMMAND_STATE = COMMAND_APPLY) and (SENSOR_STATE = BLANK or SENSOR_STATE = TRANSITION)) else '0';
 	SYSTEM_STATE 	<= STATE when (TIMEOUT = '0') else SYSTEM_ERROR;
@@ -80,32 +77,6 @@ begin
 	
 	STATE_PROCESS: process ( STATE , toDANGER, toBLANK , SENSOR_STATE ) is
 	begin
-		--case STATE is
-		--	when SYSTEM_IDLE =>
-		--		MOTOR <= STOP;
-		--		if ( toDANGER = '1' ) then
-		--			STATE <= SYSTEM_TRANSITION;
-		--		end if;
-		--	when SYSTEM_DANGER =>
-		--		MOTOR <= MoveToDanger;
-		--	when SYSTEM_BLANK =>
-		--		MOTOR <= MoveToBLANK;
-		--	when SYSTEM_TRANSITION =>
-		--		if (SENSOR_STATE = SENSOR_ERROR) then
-		--			HELP <= '1';
-		--		end if;
-		--		if ( stateERROR = '1') then
-		--			STATE <= SYSTEM_DANGER;
-		--		end if;
-		--	when SYSTEM_ERROR =>
-	--			MOTOR <= STOP;
-	--		when others =>
-	--			MOTOR <= STOP;
-	--	end case;
-		
-		if (SENSOR_STATE = SENSOR_ERROR) then
-			HELP <= '1';
-		end if;
 	
 		case SENSOR_STATE is
 			when SENSOR_ERROR =>

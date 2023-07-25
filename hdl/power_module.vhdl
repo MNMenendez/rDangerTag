@@ -32,9 +32,9 @@ use work.Utilities.all;
 --use UNISIM.VComponents.all;
 
 entity power_module is
-    Port ( POWER_MODE : in  STD_LOGIC;
-			  BATTERY_STATE: in STD_LOGIC;
-           POWER_STATE : out  power_states);
+    Port ( POWER_MODE : in  STD_LOGIC					:= '1';
+		   BATTERY_STATE: in STD_LOGIC					:= '1';
+           POWER_STATE : out  power_states				:= POWER_ON);
 end power_module;
 
 architecture power_func of power_module is

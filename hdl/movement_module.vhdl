@@ -32,18 +32,17 @@ use work.Utilities.all;
 --use UNISIM.VComponents.all;
 
 entity movement_module is
-    Port ( MOTOR_STATE 	: in  motor_states;
-		   PWM 			: in  STD_LOGIC;
-           MOTOR_PWM 	: out  STD_LOGIC;
-           MOTOR_UPDOWN	: out  STD_LOGIC_VECTOR(1 downto 0) := (others => '0')
-			  );
+    Port ( MOTOR_STATE 	: in  	motor_states						:= STOP;
+		   PWM 			: in  	STD_LOGIC							:= '0';
+           MOTOR_PWM 	: out  	STD_LOGIC							:= '0';
+           MOTOR_UPDOWN	: out  	STD_LOGIC_VECTOR(1 downto 0) 		:= (others => '0'));
 end movement_module;
 
 architecture movement_func of movement_module is
 
 begin
 	MOTOR_PWM 			<= PWM when ( MOTOR_STATE /= STOP ) else '0';
-	MOTOR_UPDOWN(0)	<= '1' when ( MOTOR_STATE = MoveToBlank ) else '0';
-	MOTOR_UPDOWN(1) 	<= '1' when ( MOTOR_STATE = MoveToDanger ) else '0';
+	MOTOR_UPDOWN(1)		<= '1' when ( MOTOR_STATE = MoveToBlank ) else '0';
+	MOTOR_UPDOWN(0) 	<= '1' when ( MOTOR_STATE = MoveToDanger ) else '0';
 end movement_func;
 

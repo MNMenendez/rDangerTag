@@ -32,10 +32,10 @@ use work.Utilities.all;
 --use UNISIM.VComponents.all;
 
 entity lock_module is
-    Port ( LOCK_ENABLE 	: in  STD_LOGIC;
-           LOCK_I 		: in  STD_LOGIC_VECTOR(1 downto 0);
-           LOCK_O 		: out STD_LOGIC_VECTOR(1 downto 0);
-		   LOCK_STATE	: out lock_states);
+    Port ( LOCK_ENABLE 	: in  STD_LOGIC							:= '1';
+           LOCK_I 		: in  STD_LOGIC_VECTOR(1 downto 0)		:= "00";
+           LOCK_O 		: out STD_LOGIC_VECTOR(1 downto 0)		:= "00";
+		   LOCK_STATE	: out lock_states						:= NO_LOCK);
 end lock_module;
 
 architecture lock_func of lock_module is

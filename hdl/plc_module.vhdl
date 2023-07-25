@@ -32,8 +32,8 @@ use work.Utilities.all;
 --use UNISIM.VComponents.all;
 
 entity PLC_module is
-    Port ( PLC_I : in  STD_LOGIC_VECTOR(1 downto 0);
-           PLC_STATE : out  plc_states := PLC_IDLE);
+    Port ( PLC_I : in  STD_LOGIC_VECTOR(1 downto 0)		:= "01";
+           PLC_STATE : out  plc_states 					:= PLC_IDLE);
 end PLC_module;
 
 architecture PLC_func of PLC_module is

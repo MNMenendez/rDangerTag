@@ -31,10 +31,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity debounce_module is
 	 Generic ( SIZE : integer := 2 );
-    Port ( CLOCK : in  STD_LOGIC;
-           CLOCK_STATE : in  STD_LOGIC;
-           DATA_I : in  STD_LOGIC_VECTOR (SIZE-1 downto 0);
-           DATA_O : out  STD_LOGIC_VECTOR (SIZE-1 downto 0) := (others => '0')
+    Port ( CLOCK : in  STD_LOGIC								:= '0';
+           CLOCK_STATE : in  STD_LOGIC							:= '1';
+           DATA_I : in  STD_LOGIC_VECTOR (SIZE-1 downto 0)		:= (others => '0');
+           DATA_O : out  STD_LOGIC_VECTOR (SIZE-1 downto 0) 	:= (others => '0')
 	 );
 end debounce_module;
 

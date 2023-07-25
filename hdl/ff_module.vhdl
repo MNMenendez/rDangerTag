@@ -31,9 +31,9 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity ff_module is
-    Port ( CLOCK : in  STD_LOGIC;
-		   RESET : in STD_LOGIC;
-           CLOCK_OUT : out  STD_LOGIC := '0');
+    Port ( CLOCK : in  STD_LOGIC		:= '0'; 
+		   RESET : in STD_LOGIC			:= '0';	
+           CLOCK_OUT : out  STD_LOGIC	:= '0');
 end ff_module;
 
 architecture ff_func of ff_module is

@@ -59,7 +59,7 @@ class Outputs(enum.Enum):
     ERROR              = 0
     DANGER             = 1
     BLANK              = 2
-    CATASTROPHIC_FAILURE = 3
+    IDLE               = 3
 
 def tuple_create(n_inputs,n):
     return ((False,)*n+(True,)*n)*((2**n_inputs)//(2*n))
@@ -248,7 +248,7 @@ def output_model(SYSTEM_STATE: int = Systems.SYSTEM_IDLE, POWER_STATE: int = Pow
     
     PWR_LED_SIGNAL = Leds.RED
     OK_LED_SIGNAL  = Leds.RED
-    
+        
     match SYSTEM_STATE:
         case Systems.SYSTEM_ERROR.value:
             OUTPUT = [False,False]
@@ -261,9 +261,9 @@ def output_model(SYSTEM_STATE: int = Systems.SYSTEM_IDLE, POWER_STATE: int = Pow
         case Systems.SYSTEM_TIMEOUT.value:
             OUTPUT = [False,False]
         case Systems.SYSTEM_IDLE.value:
-            OUTPUT = [False,False]
-        case _:
             OUTPUT = [True,True]
+        case _:
+            OUTPUT = [False,False]
     
     match POWER_STATE:
         case Powers.POWER_OFF.value:
@@ -318,32 +318,33 @@ def output_model(SYSTEM_STATE: int = Systems.SYSTEM_IDLE, POWER_STATE: int = Pow
     return [OUTPUT,PWR_LED,OK_LED]
 
 counter = 0
+SLOW_CLOCK = False
+SLOWEST_CLOCK = False
+
 def clock_model(CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-')):
     
     global counter
-    PWM = False
-    WATCHDOG = True if CLOCK_STATE else False
+    global SLOW_CLOCK
+    global SLOWEST_CLOCK
+    PWM = 1
     
     if CLOCK_STATE == False:
         counter = 0
+        SLOW_CLOCK = False
+        SLOWEST_CLOCK = False
     else:
         if CLOCK:
+            if ( ( counter % 2**8 -1 ) == 0 ):
+                SLOW_CLOCK = (not SLOW_CLOCK)
+            if ( ( counter % 2**9 -1 ) == 0 ):
+                SLOWEST_CLOCK = (not SLOWEST_CLOCK)
             counter = counter + 1
-        if counter > 16:
-            counter = 0
-            PWM = True
-        if counter >= 12:
-            PWM = False
-        else:
-            PWM = True
 
-    #print(CLOCK_STATE,CLOCK,counter,WATCHDOG,PWM)
-    
-    return [WATCHDOG,PWM]
+    return [1*SLOW_CLOCK,1*SLOWEST_CLOCK,PWM]
     
 def movement_model(PWM: Logic = Logic('-'), MOTOR_STATE: int = Motors.STOP):
     
-    #print(f'Receive: {PWM} {Motors(int(MOTOR_STATE))}')
+    #print(f'Receive: {PWM} {Motors(MOTOR_STATE)}')
     
     match MOTOR_STATE:
         case Motors.STOP.value:
@@ -365,18 +366,30 @@ def movement_model(PWM: Logic = Logic('-'), MOTOR_STATE: int = Motors.STOP):
     
     return [MOTOR_PWM,MOTOR_UP,MOTOR_DOWN]
     
-def general_model(POWER_MODE: Logic = Logic('-'),KEY: Logic = Logic('-'), KEY_A_I: Logic = Logic('-'), KEY_B_I: Logic = Logic('-'),SENSOR_1: Logic = Logic('-'), SENSOR_2: Logic = Logic('-'), SENSOR_3: Logic = Logic('X'), SENSOR_4: Logic = Logic('-'),INPUT_A: Logic = Logic('-'), INPUT_B: Logic = Logic('-'),LOCK: Logic = Logic('-'),LOCK_A_I: Logic = Logic('-'), LOCK_B_I: Logic = Logic('-'),CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-'),TBD_I: Logic = Logic('-')):
+timer = 0
 
-    POWER_STATE                     = power_model(POWER_MODE)
-    TBD_O                           = dummy_model(TBD_I)
-    KEY_A_O,KEY_B_O,MODE_STATE      = key_model(KEY, KEY_A_I, KEY_B_I)
+def general_model(POWER_MODE: Logic = Logic('-'), BATTERY_STATE: Logic = Logic('-'),KEY: Logic = Logic('-'), KEY_A_I: Logic = Logic('-'), KEY_B_I: Logic = Logic('-'),LOCK: Logic = Logic('-'), LOCK_A_I: Logic = Logic('-'), LOCK_B_I: Logic = Logic('-'),PLC_I_A: Logic = Logic('-'), PLC_I_B: Logic = Logic('-'),PREVCOMMAND: int = Commands.COMMAND_IDLE,SENSOR_1: Logic = Logic('-'), SENSOR_2: Logic = Logic('-'), SENSOR_3: Logic = Logic('-'), SENSOR_4: Logic = Logic('-'),CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-'),oldMotor: int = Motors.STOP, PREV_OUTPUT = [False,False], PREV_PWR_LED = [False,False], PREV_OK_LED = [False,False]):
+
+    POWER_STATE                     = power_model(POWER_MODE,BATTERY_STATE)
+    LOCK_A_O,LOCK_B_O,LOCK_STATE    = lock_model(LOCK, LOCK_A_I, LOCK_B_I)
+    KEY_A_O,KEY_B_O,KEY_STATE       = key_model(KEY, KEY_A_I, KEY_B_I)
+    PLC_STATE                       = plc_model(PLC_I_A,PLC_I_B)
+    COMMAND_STATE                   = command_model(Keys(KEY_STATE), PLCs(PLC_STATE), Locks(LOCK_STATE), PREVCOMMAND)
     SENSOR_STATE                    = sensor_model(SENSOR_1, SENSOR_2, SENSOR_3, SENSOR_4)
-    COMMAND_STATE                   = command_model(INPUT_A, INPUT_B, MODE_STATE)
-    SYSTEM_STATE,ALL_OK             = system_model(POWER_STATE, MODE_STATE, COMMAND_STATE, SENSOR_STATE)
-    WATCHDOG,PWM                    = clock_model(CLOCK, CLOCK_STATE)
-    LOCK_A_O,LOCK_B_O               = lock_model(LOCK, LOCK_A_I, LOCK_B_I)
-    OUTPUT_A,OUTPUT_B               = output_model(SYSTEM_STATE)
-    MOTOR_STATE                     = motor_model(LOCK, MODE_STATE, COMMAND_STATE, SENSOR_STATE)
+    SLOW_CLOCK,SLOWEST_CLOCK,PWM    = clock_model(CLOCK,CLOCK_STATE)
+    
+    if ( Sensors(SENSOR_STATE) == Sensors.TRANSITION.value ):
+        timer += 1
+    else:
+        timer = 0
+            
+    SYSTEM_STATE,MOTOR_STATE        = system_model(SLOWEST_CLOCK, CLOCK_STATE, Commands(COMMAND_STATE), Sensors(SENSOR_STATE), timer, oldMotor)
+    OUTPUT,PWR_LED,OK_LED           = output_model(SYSTEM_STATE.value,POWER_STATE,SLOWEST_CLOCK,PREV_OUTPUT,PREV_PWR_LED,PREV_OK_LED)
     MOTOR_PWM,MOTOR_UP,MOTOR_DOWN   = movement_model(PWM, MOTOR_STATE)
     
-    return [KEY_A_O,KEY_B_O,LOCK_A_O,LOCK_B_O,ALL_OK,WATCHDOG,OUTPUT_A,OUTPUT_B,MOTOR_PWM,MOTOR_UP,MOTOR_DOWN,TBD_O]
+    #TBD_O                           = dummy_model(TBD_I)
+       
+    #print (f'{Powers(POWER_STATE).name}|{Locks(LOCK_STATE).name}|{Keys(KEY_STATE).name}|{PLCs(PLC_STATE).name}|{Commands(COMMAND_STATE).name}|{Sensors(SENSOR_STATE).name}>{Systems(SYSTEM_STATE).name}|{Motors(MOTOR_STATE).name}>>{Outputs(2*OUTPUT[0]+OUTPUT[1]).name}|{Leds(2*PWR_LED[0]+PWR_LED[1]).name}|{Leds(2*OK_LED[0]+OK_LED[1]).name}|{Motors(2*MOTOR_DOWN+MOTOR_UP).name}')
+    
+    
+    return [2*OUTPUT[0]+OUTPUT[1],2*PWR_LED[0]+PWR_LED[1],2*OK_LED[0]+OK_LED[1],2*MOTOR_DOWN+MOTOR_UP,MOTOR_STATE]

@@ -32,10 +32,10 @@ use work.Utilities.all;
 --use UNISIM.VComponents.all;
 
 entity key_module is
-    Port ( KEY_ENABLE : in  STD_LOGIC;
-           KEY_I : in  STD_LOGIC_VECTOR(1 downto 0);
-           KEY_O : out  STD_LOGIC_VECTOR(1 downto 0);
-           KEY_STATE : out  key_states);
+    Port ( KEY_ENABLE : in  STD_LOGIC						:= '1';
+           KEY_I : in  STD_LOGIC_VECTOR(1 downto 0)			:= "00";
+           KEY_O : out  STD_LOGIC_VECTOR(1 downto 0)		:= "00";
+           KEY_STATE : out  key_states						:= NO_KEY);
 end key_module;
 
 architecture key_func of key_module is

@@ -31,11 +31,11 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity clock_module is
-    Port ( CLOCK 			: in  STD_LOGIC;
-           CLOCK_STATE 		: in  STD_LOGIC;
-           SLOW_CLOCK 		: out STD_LOGIC;
-		  SLOWEST_CLOCK 	: out STD_LOGIC;
-           PWM 				: out STD_LOGIC);
+    Port ( CLOCK 			: in  STD_LOGIC		:= '0';
+           CLOCK_STATE 		: in  STD_LOGIC		:= '1';
+           SLOW_CLOCK 		: out STD_LOGIC		:= '0';
+		   SLOWEST_CLOCK 	: out STD_LOGIC		:= '0';
+           PWM 				: out STD_LOGIC		:= '0');
 end clock_module;
 
 architecture clock_func of clock_module is

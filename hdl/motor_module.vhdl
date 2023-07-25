@@ -33,12 +33,12 @@ use work.Utilities.all;
 
 entity motor_module is
     Port ( 
-			  CLOCK				: in std_logic;
-			  LOCK_STATE 		: in  lock_states;
-           MODE_STATE 		: in  mode_states;
-           COMMAND_STATE 	: in  command_states;
-           SENSOR_STATE 	: in  sensor_states;
-		     MOTOR_STATE		: out motor_states);
+			CLOCK			: in std_logic			:= '0';
+			LOCK_STATE 		: in  lock_states		:= NO_LOCK;
+           	MODE_STATE 		: in  mode_states		:= STOP;
+           	COMMAND_STATE 	: in  command_states	:= COMMAND_IDLE;
+           	SENSOR_STATE 	: in  sensor_states		:= TRANSITION;
+		    MOTOR_STATE		: out motor_states		:= STOP);
 end motor_module;
 
 architecture motor_func of motor_module is

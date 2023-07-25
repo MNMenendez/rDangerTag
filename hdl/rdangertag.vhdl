@@ -28,25 +28,25 @@ library work;
 use work.Utilities.all;
 
 entity rDangerTag is
-   port ( BATT_STATE   : in    std_logic; 
-          CLOCK        : in    std_logic; 
-          CLOCK_STATE : in    std_logic; 
-          KEY_ENABLE   : in    std_logic; 
-          KEY_I        : in    std_logic_vector (1 downto 0); 
-          LOCK_ENABLE  : in    std_logic; 
-          LOCK_I       : in    std_logic_vector (1 downto 0); 
-          PLC          : in    std_logic_vector (1 downto 0); 
-          POWER_MODE   : in    std_logic; 
-          SENSORS      : in    std_logic_vector (3 downto 0)	:= "0000"; 
-          KEY_O        : out   std_logic_vector (1 downto 0); 
-          LOCK_O       : out   std_logic_vector (1 downto 0); 
-          MOTOR        : out   std_logic_vector (1 downto 0); 
-          MOTOR_PWM    : out   std_logic; 
-          OK_LED       : out   std_logic_vector (1 downto 0); 
-          OUTPUT       : out   std_logic_vector (1 downto 0); 
-          PWR_LED      : out   std_logic_vector (1 downto 0); 
-          TBD_O        : out   std_logic;
-		  WATCHDOG     : out   std_logic);
+   port ( BATT_STATE   	: in    std_logic							:= '1'; 
+          CLOCK        	: in    std_logic							:= '0'; 
+          CLOCK_STATE 	: in    std_logic							:= '1';		
+          KEY_ENABLE   	: in    std_logic							:= '1'; 
+          KEY_I        	: in    std_logic_vector (1 downto 0)		:= "00";  
+          LOCK_ENABLE  	: in    std_logic							:= '1';
+          LOCK_I       	: in    std_logic_vector (1 downto 0)		:= "00";
+          PLC          	: in    std_logic_vector (1 downto 0)		:= "01";
+          POWER_MODE   	: in    std_logic							:= '1'; 
+          SENSORS      	: in    std_logic_vector (3 downto 0)		:= "0000"; 
+          KEY_O        	: out   std_logic_vector (1 downto 0)		:= "00"; 
+          LOCK_O       	: out   std_logic_vector (1 downto 0)		:= "00"; 
+          MOTOR        	: out   std_logic_vector (1 downto 0)		:= "00"; 
+          MOTOR_PWM    	: out   std_logic							:= '0'; 
+          OK_LED       	: out   std_logic_vector (1 downto 0)		:= "00";
+          OUTPUT       	: out   std_logic_vector (1 downto 0)		:= "00"; 
+          PWR_LED      	: out   std_logic_vector (1 downto 0)		:= "00";
+          TBD_O        	: out   std_logic							:= '1';
+		  WATCHDOG     	: out   std_logic							:= '0');
 end rDangerTag;
 
 architecture BEHAVIORAL of rDangerTag is

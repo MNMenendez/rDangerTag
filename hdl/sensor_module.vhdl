@@ -32,8 +32,8 @@ use work.Utilities.all;
 --use UNISIM.VComponents.all;
 
 entity sensor_module is
-    Port ( SENSORS : in  STD_LOGIC_VECTOR(3 downto 0)	:= "0000";
-           SENSOR_STATE : out  sensor_states := TRANSITION);
+    Port ( SENSORS 		: in  STD_LOGIC_VECTOR(3 downto 0)	:= "0000";
+           SENSOR_STATE : out  sensor_states 				:= TRANSITION);
 end sensor_module;
 
 architecture sensor_func of sensor_module is

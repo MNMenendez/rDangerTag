@@ -32,20 +32,19 @@ use work.Utilities.all;
 --use UNISIM.VComponents.all;
 
 entity output_module is
-    Port ( SYSTEM_STATE 	: in  system_states;
-			  POWER_STATE		: in power_states;
-			  SLOWEST_CLOCK 	: in STD_LOGIC;
-			  OK_LED		   	: out STD_LOGIC_VECTOR(1 downto 0) := "00";
-			  PWR_LED	   	: out STD_LOGIC_VECTOR(1 downto 0) := "00";
-           OUTPUT : out  STD_LOGIC_VECTOR(1 downto 0) := "00"
-          );
+    Port ( 	SYSTEM_STATE 	: in  system_states							:= SYSTEM_IDLE;
+			POWER_STATE		: in power_states							:= POWER_ON;
+			SLOWEST_CLOCK 	: in STD_LOGIC								:= '0';		
+			OK_LED		   	: out STD_LOGIC_VECTOR(1 downto 0) 			:= "00";
+			PWR_LED	   		: out STD_LOGIC_VECTOR(1 downto 0) 			:= "00";
+           	OUTPUT 			: out  STD_LOGIC_VECTOR(1 downto 0) 		:= "00");
 end output_module;
 
 architecture output_func of output_module is
-signal PWR_LED_SIGNAL:	led_states := RED;
-signal OK_LED_SIGNAL:	led_states := RED;
-signal PWR_LED_COLOR:	STD_LOGIC_VECTOR(1 downto 0) := "00";
-signal OK_LED_COLOR:		STD_LOGIC_VECTOR(1 downto 0) := "00";
+signal PWR_LED_SIGNAL:	led_states 							:= RED;
+signal OK_LED_SIGNAL:	led_states 							:= RED;
+signal PWR_LED_COLOR:	STD_LOGIC_VECTOR(1 downto 0) 		:= "00";
+signal OK_LED_COLOR:		STD_LOGIC_VECTOR(1 downto 0) 	:= "00";
 begin
 	OUTPUT_PROCESS: process ( SYSTEM_STATE ) is
 	begin

@@ -51,10 +51,11 @@ class Locks(enum.Enum):
     LOCK_REMOVE        = 2
     NO_LOCK            = 3
 class Leds(enum.Enum):
-    RED                = 0
-    AMBER              = 1
-    FLASHING           = 2
-    GREEN              = 3
+    OFF                = 0
+    RED                = 1
+    GREEN              = 2
+    AMBER              = 3
+    FLASHING           = 4
 class Outputs(enum.Enum):
     ERROR              = 0
     DANGER             = 1
@@ -185,6 +186,7 @@ def command_model( KEY: int = Keys.NO_KEY, PLC: int = PLCs.PLC_IDLE, LOCK: int =
     
     if ( PREVCOMMAND == Commands.COMMAND_ERROR ):
         COMMAND_STATE = Commands.COMMAND_ERROR
+        #print(f'{Locks(LOCK).name}+{Keys(KEY).name}+{PLCs(PLC).name}+{Commands(PREVCOMMAND).name} >> {Commands(COMMAND_STATE)}')
         return COMMAND_STATE.value
         
     if ( CMD_INVALID ):
@@ -199,9 +201,10 @@ def command_model( KEY: int = Keys.NO_KEY, PLC: int = PLCs.PLC_IDLE, LOCK: int =
         if ( APPLY_VALID and REMOVE_VALID ):
             COMMAND_STATE = Commands.COMMAND_ERROR
  
+    #print(f'{Locks(LOCK).name}+{Keys(KEY).name}+{PLCs(PLC).name}+{Commands(PREVCOMMAND).name} >> {Commands(COMMAND_STATE)}')
     return COMMAND_STATE.value
     
-def system_model(CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-'), COMMAND_STATE: int = Commands.COMMAND_IDLE, SENSOR_STATE: int = Sensors.SENSOR_ERROR, timeout: int = 0, oldMotor: int = Motors.STOP):
+def system_model(CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-'), COMMAND_STATE: int = Commands.COMMAND_IDLE, SENSOR_STATE: int = Sensors.SENSOR_ERROR, timeout: int = 0, oldMotor: int = Motors.STOP, oldState: int = Systems.SYSTEM_ERROR):
 
     sensor      = SENSOR_STATE.value
     command     = COMMAND_STATE.value
@@ -210,10 +213,10 @@ def system_model(CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-'), COM
     toBLANK     = True if ((stateERROR == False) and (command == Commands.COMMAND_REMOVE.value) and (sensor == Sensors.DANGER.value or sensor == Sensors.TRANSITION.value)) else False
     toDANGER    = True if ((stateERROR == False) and (command == Commands.COMMAND_APPLY.value) and (sensor == Sensors.BLANK.value or sensor == Sensors.TRANSITION.value)) else False
         
-    #print(f'{1*stateERROR} {1*toBLANK} {1*toDANGER}')    
+    #print(f'{Sensors(sensor).name}|{Commands(command).name}|{timeout}||{1*stateERROR} {1*toBLANK} {1*toDANGER}')    
     
     STATE       = Systems.SYSTEM_IDLE
-    MOTOR       = oldMotor
+    MOTOR       = Motors(oldMotor)
     
     match sensor:
         case Sensors.SENSOR_ERROR.value:
@@ -238,16 +241,17 @@ def system_model(CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-'), COM
             MOTOR = Motors.STOP
 
     
-    SYSTEM_STATE = STATE if timeout < 160 else Systems.SYSTEM_ERROR
-    MOTOR_STATE  = MOTOR if timeout < 160 else Motors.STOP
+    SYSTEM_STATE = STATE if (timeout < 160 and oldState != Systems.SYSTEM_ERROR.value) else Systems.SYSTEM_ERROR
+    MOTOR_STATE  = MOTOR if (timeout < 160 and oldState != Systems.SYSTEM_ERROR.value) else Motors.STOP
     
-    return [SYSTEM_STATE,MOTOR_STATE]
+    #print(MOTOR,MOTOR_STATE,timeout)
+    
+    return [SYSTEM_STATE,MOTOR_STATE,stateERROR,toBLANK,toDANGER]
 
-def output_model(SYSTEM_STATE: int = Systems.SYSTEM_IDLE, POWER_STATE: int = Powers.POWER_OFF, SLOWEST_CLOCK: Logic = Logic('-'), PREV_OUTPUT = [False,False],PREV_PWR_LED =[False,False],PREV_OK_LED=[False,False]):
+def output_model(SYSTEM_STATE: int = Systems.SYSTEM_IDLE, POWER_STATE: int = Powers.POWER_OFF, SLOWEST_CLOCK: Logic = Logic('-'), PREV_OUTPUT = [False,False],PREV_PWR_LED: int = Leds.RED, PREV_OK_LED: int = Leds.RED):
     
-    
-    PWR_LED_SIGNAL = Leds.RED
-    OK_LED_SIGNAL  = Leds.RED
+    PWR_LED_SIGNAL = Leds.RED.value
+    OK_LED_SIGNAL  = Leds.RED.value
         
     match SYSTEM_STATE:
         case Systems.SYSTEM_ERROR.value:
@@ -264,18 +268,20 @@ def output_model(SYSTEM_STATE: int = Systems.SYSTEM_IDLE, POWER_STATE: int = Pow
             OUTPUT = [True,True]
         case _:
             OUTPUT = [False,False]
-    
+
     match POWER_STATE:
         case Powers.POWER_OFF.value:
-            PWR_LED_SIGNAL = Leds.RED.value
+            PWR_LED_SIGNAL = Leds.OFF.value
         case Powers.POWER_ON.value:
             PWR_LED_SIGNAL = Leds.GREEN.value
         case Powers.BATTERY.value:
-            PWR_LED_SIGNAL = Leds.AMBER.value
+            PWR_LED_SIGNAL = Leds.AMBER.value if SLOWEST_CLOCK else Leds.OFF.value
         case Powers.BATTERY_LOW.value:
-            PWR_LED_SIGNAL = Leds.GREEN.value
+            PWR_LED_SIGNAL = Leds.AMBER.value
         case _:
             PWR_LED_SIGNAL = Leds.RED.value
+
+    #print(f'>>{Powers(POWER_STATE).name} {PWR_LED_SIGNAL} {PREV_PWR_LED}')
     
     if SYSTEM_STATE == Systems.SYSTEM_ERROR.value:
         OK_LED_SIGNAL  = Leds.RED.value
@@ -283,37 +289,17 @@ def output_model(SYSTEM_STATE: int = Systems.SYSTEM_IDLE, POWER_STATE: int = Pow
         if POWER_STATE == Powers.POWER_ON.value or POWER_STATE == Powers.BATTERY.value:
             OK_LED_SIGNAL  = Leds.GREEN.value
         elif POWER_STATE == Powers.BATTERY_LOW.value:
-            OK_LED_SIGNAL  = Leds.FLASHING.value
+            OK_LED_SIGNAL  = Leds.AMBER.value if SLOWEST_CLOCK else Leds.OFF.value
         else:
             OK_LED_SIGNAL  = Leds.RED.value
-    
-    if SLOWEST_CLOCK:
-        match PWR_LED_SIGNAL:
-            case Leds.RED.value:
-                PREV_PWR_LED = [False,False]
-            case Leds.AMBER.value:
-                PREV_PWR_LED = [True,False]
-            case Leds.FLASHING.value:
-                PREV_PWR_LED = [PREV_PWR_LED[1] , not PREV_PWR_LED[0]]
-            case Leds.GREEN.value:
-                PREV_PWR_LED = [True,True]
-            case _:
-                PREV_PWR_LED = PREV_PWR_LED
+
+    PWR_LED = Leds(PWR_LED_SIGNAL).value      #PREV_PWR_LED
+    OK_LED = Leds(OK_LED_SIGNAL).value
         
-        match OK_LED_SIGNAL:
-            case Leds.RED.value:
-                PREV_OK_LED = [False,False]
-            case Leds.AMBER.value:
-                PREV_OK_LED = [True,False]
-            case Leds.FLASHING.value:
-                PREV_OK_LED = [PREV_OK_LED[0], not PREV_OK_LED[1]]
-            case Leds.GREEN.value:
-                PREV_OK_LED = [True,True]
-            case _:
-                PREV_OK_LED = PREV_OK_LED
-                
-    PWR_LED = PREV_PWR_LED
-    OK_LED = PREV_OK_LED
+    #PWR_LED = PREV_PWR_LED
+    #OK_LED = PREV_OK_LED
+    
+    #print(f'<<{SLOWEST_CLOCK} {Powers(POWER_STATE).name} {PWR_LED_SIGNAL} {PWR_LED}')
     
     return [OUTPUT,PWR_LED,OK_LED]
 
@@ -344,18 +330,18 @@ def clock_model(CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-')):
     
 def movement_model(PWM: Logic = Logic('-'), MOTOR_STATE: int = Motors.STOP):
     
-    #print(f'Receive: {PWM} {Motors(MOTOR_STATE)}')
+    #print(f'Receive: {PWM} {MOTOR_STATE}')
     
     match MOTOR_STATE:
-        case Motors.STOP.value:
+        case Motors.STOP:
             MOTOR_PWM = False
             MOTOR_UP = False
             MOTOR_DOWN = False
-        case Motors.toDANGER.value:
+        case Motors.toDANGER:
             MOTOR_PWM = PWM
             MOTOR_UP = True
             MOTOR_DOWN = False
-        case Motors.toBLANK.value:
+        case Motors.toBLANK:
             MOTOR_PWM = PWM
             MOTOR_UP = False
             MOTOR_DOWN = True
@@ -368,8 +354,10 @@ def movement_model(PWM: Logic = Logic('-'), MOTOR_STATE: int = Motors.STOP):
     
 timer = 0
 
-def general_model(POWER_MODE: Logic = Logic('-'), BATTERY_STATE: Logic = Logic('-'),KEY: Logic = Logic('-'), KEY_A_I: Logic = Logic('-'), KEY_B_I: Logic = Logic('-'),LOCK: Logic = Logic('-'), LOCK_A_I: Logic = Logic('-'), LOCK_B_I: Logic = Logic('-'),PLC_I_A: Logic = Logic('-'), PLC_I_B: Logic = Logic('-'),PREVCOMMAND: int = Commands.COMMAND_IDLE,SENSOR_1: Logic = Logic('-'), SENSOR_2: Logic = Logic('-'), SENSOR_3: Logic = Logic('-'), SENSOR_4: Logic = Logic('-'),CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-'),oldMotor: int = Motors.STOP, PREV_OUTPUT = [False,False], PREV_PWR_LED = [False,False], PREV_OK_LED = [False,False]):
+def general_model(POWER_MODE: Logic = Logic('-'), BATTERY_STATE: Logic = Logic('-'),KEY: Logic = Logic('-'), KEY_A_I: Logic = Logic('-'), KEY_B_I: Logic = Logic('-'),LOCK: Logic = Logic('-'), LOCK_A_I: Logic = Logic('-'), LOCK_B_I: Logic = Logic('-'),PLC_I_A: Logic = Logic('-'), PLC_I_B: Logic = Logic('-'),PREVCOMMAND: int = Commands.COMMAND_IDLE,SENSOR_1: Logic = Logic('-'), SENSOR_2: Logic = Logic('-'), SENSOR_3: Logic = Logic('-'), SENSOR_4: Logic = Logic('-'),CLOCK: Logic = Logic('-'), CLOCK_STATE: Logic = Logic('-'),oldMotor: int = Motors.STOP, PREV_OUTPUT = [False,False], PREV_PWR_LED = [False,False], PREV_OK_LED = [False,False], CLOCK_B: Logic = Logic('-'), oldState: int = Systems.SYSTEM_ERROR):
 
+    global timer
+    
     POWER_STATE                     = power_model(POWER_MODE,BATTERY_STATE)
     LOCK_A_O,LOCK_B_O,LOCK_STATE    = lock_model(LOCK, LOCK_A_I, LOCK_B_I)
     KEY_A_O,KEY_B_O,KEY_STATE       = key_model(KEY, KEY_A_I, KEY_B_I)
@@ -378,13 +366,13 @@ def general_model(POWER_MODE: Logic = Logic('-'), BATTERY_STATE: Logic = Logic('
     SENSOR_STATE                    = sensor_model(SENSOR_1, SENSOR_2, SENSOR_3, SENSOR_4)
     SLOW_CLOCK,SLOWEST_CLOCK,PWM    = clock_model(CLOCK,CLOCK_STATE)
     
-    if ( Sensors(SENSOR_STATE) == Sensors.TRANSITION.value ):
-        timer += 1
+    if ( SENSOR_STATE == Sensors.TRANSITION.value ):
+        timer = timer + 1
     else:
         timer = 0
             
-    SYSTEM_STATE,MOTOR_STATE        = system_model(SLOWEST_CLOCK, CLOCK_STATE, Commands(COMMAND_STATE), Sensors(SENSOR_STATE), timer, oldMotor)
-    OUTPUT,PWR_LED,OK_LED           = output_model(SYSTEM_STATE.value,POWER_STATE,SLOWEST_CLOCK,PREV_OUTPUT,PREV_PWR_LED,PREV_OK_LED)
+    SYSTEM_STATE,MOTOR_STATE,stateERROR,toBLANK,toDANGER = system_model(CLOCK_B, CLOCK_STATE, Commands(COMMAND_STATE), Sensors(SENSOR_STATE), int(round(timer//(2**9),0)), oldMotor,oldState)
+    OUTPUT,PWR_LED,OK_LED           = output_model(SYSTEM_STATE.value,POWER_STATE,CLOCK_B,PREV_OUTPUT,PREV_PWR_LED,PREV_OK_LED)
     MOTOR_PWM,MOTOR_UP,MOTOR_DOWN   = movement_model(PWM, MOTOR_STATE)
     
     #TBD_O                           = dummy_model(TBD_I)
@@ -392,4 +380,4 @@ def general_model(POWER_MODE: Logic = Logic('-'), BATTERY_STATE: Logic = Logic('
     #print (f'{Powers(POWER_STATE).name}|{Locks(LOCK_STATE).name}|{Keys(KEY_STATE).name}|{PLCs(PLC_STATE).name}|{Commands(COMMAND_STATE).name}|{Sensors(SENSOR_STATE).name}>{Systems(SYSTEM_STATE).name}|{Motors(MOTOR_STATE).name}>>{Outputs(2*OUTPUT[0]+OUTPUT[1]).name}|{Leds(2*PWR_LED[0]+PWR_LED[1]).name}|{Leds(2*OK_LED[0]+OK_LED[1]).name}|{Motors(2*MOTOR_DOWN+MOTOR_UP).name}')
     
     
-    return [2*OUTPUT[0]+OUTPUT[1],2*PWR_LED[0]+PWR_LED[1],2*OK_LED[0]+OK_LED[1],2*MOTOR_DOWN+MOTOR_UP,MOTOR_STATE]
+    return [2*OUTPUT[0]+OUTPUT[1],PWR_LED,OK_LED,2*MOTOR_DOWN+1*MOTOR_UP,MOTOR_STATE,timer]

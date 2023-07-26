@@ -15,5 +15,5 @@ package utilities is
 	Type system_states 	is (SYSTEM_ERROR,SYSTEM_DANGER,SYSTEM_BLANK,SYSTEM_TRANSITION,SYSTEM_TIMEOUT,SYSTEM_IDLE);
 	Type general_states is (STATE_ERROR,STATE_MOVING,STATE_STOP);
 	Type motor_states 	is (STOP,MoveToDanger,MoveToBlank);
-	Type led_states 	is (RED,AMBER,FLASHING,GREEN);
+	Type led_states 	is (OFF,RED,GREEN,AMBER,FLASHING);
 end package;

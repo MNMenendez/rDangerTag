@@ -56,8 +56,8 @@ begin
 	stateERROR 		<= '1' when ((SENSOR_STATE = SENSOR_ERROR) or (COMMAND_STATE = COMMAND_ERROR) or (CLOCK_STATE = '0')) else '0';
 	toBLANK 		<= '1' when ((stateERROR = '0') and (COMMAND_STATE = COMMAND_REMOVE) and (SENSOR_STATE = DANGER or SENSOR_STATE = TRANSITION)) else '0';
 	toDANGER 		<= '1' when ((stateERROR = '0') and (COMMAND_STATE = COMMAND_APPLY) and (SENSOR_STATE = BLANK or SENSOR_STATE = TRANSITION)) else '0';
-	SYSTEM_STATE 	<= STATE when (TIMEOUT = '0') else SYSTEM_ERROR;
-	MOTOR_STATE		<= MOTOR when (TIMEOUT = '0') else STOP;
+	SYSTEM_STATE 	<= STATE when (TIMEOUT = '0' and stateERROR = '0' ) else SYSTEM_ERROR;
+	MOTOR_STATE		<= MOTOR when (TIMEOUT = '0' and stateERROR = '0' ) else STOP;
 	
 	TIMEOUT_PROCESS: process ( CLOCK , SENSOR_STATE ) is
 	begin
@@ -83,29 +83,35 @@ begin
 				STATE <= SYSTEM_ERROR;
 				MOTOR <= STOP;
 			when BLANK =>
-				if ( STATE /= SYSTEM_ERROR ) then
+				if ( STATE /= SYSTEM_ERROR and stateERROR = '0' ) then
 					STATE <= SYSTEM_BLANK;
 					if ( toDANGER = '1' ) then -- stateOK and COMMAND_APPLY and (SENSOR_BLANK or SENSOR_TRANSITION);
 						MOTOR <= MoveToDanger;
 					else
 						MOTOR <= STOP;
 					end if;
+				else
+					STATE <= SYSTEM_ERROR;
 				end if;
 			when DANGER =>
-				if ( STATE /= SYSTEM_ERROR ) then
+				if ( STATE /= SYSTEM_ERROR and stateERROR = '0' ) then
 					STATE <= SYSTEM_DANGER;
 					if ( toBLANK = '1' ) then -- stateOK and COMMAND_REMOVE and (SENSOR_DANGER or SENSOR_TRANSITION);
 						MOTOR <= MoveToBLANK;
 					else
 						MOTOR <= STOP;
 					end if;
+				else
+					STATE <= SYSTEM_ERROR;
 				end if;
 			when TRANSITION =>
-				if ( STATE /= SYSTEM_ERROR ) then
+				if ( STATE /= SYSTEM_ERROR and stateERROR = '0' ) then
 					STATE <= SYSTEM_TRANSITION;
+				else
+					STATE <= SYSTEM_ERROR;
 				end if;
 			when others =>
-				STATE <= SYSTEM_BLANK;--SYSTEM_ERROR;
+				STATE <= SYSTEM_ERROR;
 				MOTOR <= STOP;
 		end case;
 		

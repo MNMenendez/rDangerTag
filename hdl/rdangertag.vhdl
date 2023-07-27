@@ -50,18 +50,18 @@ entity rDangerTag is
 end rDangerTag;
 
 architecture BEHAVIORAL of rDangerTag is
-   signal COMMAND_STATE : command_states;
-   signal DATA_O        : std_logic_vector (1 downto 0);
-   signal KEY_STATE     : key_states;
-   signal LOCK_STATE    : lock_states;
-   signal MOTOR_STATE   : motor_states;
-   signal PLC_STATE     : plc_states;
-   signal POWER_STATE   : power_states;
-   signal PWM_SIGNAL    : std_logic;
-   signal SENSOR_STATE  : sensor_states;
-   signal SLOWEST_CLOCK : std_logic;
-   signal SLOW_CLOCK    : std_logic;
-   signal SYSTEM_STATE  : system_states;
+   signal COMMAND_STATE : command_states							:= COMMAND_IDLE;
+   signal DATA_O        : std_logic_vector (1 downto 0)				:= "00"; 
+   signal KEY_STATE     : key_states								:= NO_KEY;
+   signal LOCK_STATE    : lock_states								:= NO_LOCK;
+   signal MOTOR_STATE   : motor_states								:= STOP;
+   signal PLC_STATE     : plc_states								:= PLC_IDLE;
+   signal POWER_STATE   : power_states								:= POWER_ON;
+   signal PWM_SIGNAL    : std_logic									:= '1';
+   signal SENSOR_STATE  : sensor_states								:= TRANSITION;
+   signal SLOWEST_CLOCK : std_logic									:= '1';
+   signal SLOW_CLOCK    : std_logic									:= '1';
+   signal SYSTEM_STATE  : system_states								:= SYSTEM_IDLE;
    component clock_module
       port ( CLOCK         : in    std_logic; 
              CLOCK_STATE   : in    std_logic; 

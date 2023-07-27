@@ -184,7 +184,7 @@ def command_model( KEY: int = Keys.NO_KEY, PLC: int = PLCs.PLC_IDLE, LOCK: int =
     
     #print(KEY,PLC,LOCK,PREVCOMMAND,APPLY_VALID,REMOVE_VALID,CMD_INVALID)
     
-    if ( PREVCOMMAND == Commands.COMMAND_ERROR ):
+    if ( PREVCOMMAND == Commands.COMMAND_ERROR.value ):
         COMMAND_STATE = Commands.COMMAND_ERROR
         #print(f'{Locks(LOCK).name}+{Keys(KEY).name}+{PLCs(PLC).name}+{Commands(PREVCOMMAND).name} >> {Commands(COMMAND_STATE)}')
         return COMMAND_STATE.value
@@ -375,6 +375,7 @@ def general_model(POWER_MODE: Logic = Logic('-'), BATTERY_STATE: Logic = Logic('
     OUTPUT,PWR_LED,OK_LED           = output_model(SYSTEM_STATE.value,POWER_STATE,CLOCK_B,PREV_OUTPUT,PREV_PWR_LED,PREV_OK_LED)
     MOTOR_PWM,MOTOR_UP,MOTOR_DOWN   = movement_model(PWM, MOTOR_STATE)
     
+    #print(Systems(SYSTEM_STATE).name)
     #TBD_O                           = dummy_model(TBD_I)
        
     #print (f'{Powers(POWER_STATE).name}|{Locks(LOCK_STATE).name}|{Keys(KEY_STATE).name}|{PLCs(PLC_STATE).name}|{Commands(COMMAND_STATE).name}|{Sensors(SENSOR_STATE).name}>{Systems(SYSTEM_STATE).name}|{Motors(MOTOR_STATE).name}>>{Outputs(2*OUTPUT[0]+OUTPUT[1]).name}|{Leds(2*PWR_LED[0]+PWR_LED[1]).name}|{Leds(2*OK_LED[0]+OK_LED[1]).name}|{Motors(2*MOTOR_DOWN+MOTOR_UP).name}')

@@ -34,22 +34,6 @@ def initialize_rDT(dut):
     dut.LOCK_I.value        = 1
     dut.PLC.value           = 1
     
-    
-def reset_rDT(dut):
-    #inputs
-    initialize_rDT(dut)
-    dut.SYSTEM_STATE.value  = Deposit(Systems.SYSTEM_IDLE.value)
-    #outputs
-    #dut.TBD_O.value         =   Deposit(0)
-    #dut.KEY_O.value         =   Deposit(0)
-    #dut.LOCK_O.value        =   Deposit(0)
-    #dut.OUTPUT.value        =   Deposit(0)
-    #dut.PWR_LED.value       =   Deposit(0)
-    #dut.OK_LED.value        =   Deposit(0)
-    #dut.MOTOR.value         =   Deposit(0)
-    #dut.MOTOR_PWM.value     =   Deposit(0)
-    #dut.WATCHDOG.value      =   Deposit(0)
-    
 def each_X_seconds(sec,T,i):
     
     cycle = round(sec*1000000/T,0)+1
@@ -60,7 +44,6 @@ def each_X_seconds(sec,T,i):
     return (i % cycle == 0)
     
 message = ""
-
 
 @cocotb.test()
 async def test_00(dut):
@@ -75,11 +58,9 @@ async def test_00(dut):
     T = round(1000/freq,4)
     print(f'Frequency:{freq}kHz | Period:{T}us')
     
-    sec     = 1
+    sec     = 10
     cycle   = int(round(sec*1000000/T,0)+1)
-    
-    #print(dir(dut))
-    
+
     for i in range(cycle):
         print(f'Functional test progress: {i/(cycle-1):2.1%}\r', end="\r")
         await RisingEdge(dut.CLOCK)
@@ -138,9 +119,9 @@ async def test_00(dut):
         
         new_message = f'{Powers(dut.POWER_STATE.value).name}|{Locks(dut.LOCK_STATE.value).name}|{Keys(dut.KEY_STATE.value).name}|{PLCs(dut.PLC_STATE.value).name}|{Commands(dut.COMMAND_STATE.value).name}|{Sensors(dut.SENSOR_STATE.value).name}> Py: [{Outputs(pyOUTPUT).name}|{Leds(pyPWR_LED).name}|{Leds(pyOK_LED).name}|{Motors(pyMOTOR).name}] vs VHDL: [{Outputs(dut.OUTPUT.value).name}|{Leds(dut.PWR_LED.value).name}|{Leds(dut.OK_LED.value).name}|{Motors(dut.MOTOR.value).name}] --> <{1*OUTPUT_PASS},{1*PWR_LED_PASS},{1*OK_LED_PASS},{1*MOTOR_PASS}>'
         
-        #if new_message != message:
-        #    print(f'<{i/(cycle-1):2.1%}> {new_message}')
-        #    message = new_message
+        if new_message != message:
+            print(f'<{i/(cycle-1):2.1%}> {new_message}')
+            message = new_message
             
         assert ( OUTPUT_PASS ), f'Py: {pyOUTPUT} != VHDL: {dut.OUTPUT.value}'
         assert ( PWR_LED_PASS ), f'Py: {pyPWR_LED} != VHDL: {dut.PWR_LED.value}'
@@ -148,8 +129,7 @@ async def test_00(dut):
         assert ( MOTOR_PASS ), f'Py: {pyMOTOR} != VHDL: {dut.MOTOR.value}'
                 
     print(f'Functional test progress: {i/(cycle-1):2.1%}')
-    reset_rDT(dut)
-    
+    initialize_rDT(dut)
     await Timer(100, units="ms")
 
 @cocotb.test()
@@ -165,16 +145,14 @@ async def test_01(dut):
     T = round(1000/freq,4)
     print(f'Frequency:{freq}kHz | Period:{T}us')
     
-    sec     = 1
+    sec     = 10
     cycle   = int(round(sec*1000000/T,0)+1)
     
-   
-    #print(dir(dut))
     
     for i in range(cycle):
         print(f'Blackout test progress: {i/(cycle-1):2.1%}\r', end="\r")
         await RisingEdge(dut.CLOCK)
-        
+
         if ( each_X_seconds(0.55,T,i) ):
             dut.KEY_I.value = random.randint(0 , 2)
         if ( each_X_seconds(0.25,T,i) ):
@@ -234,40 +212,17 @@ async def test_01(dut):
         
         new_message = f'{Powers(dut.POWER_STATE.value).name}|{Locks(dut.LOCK_STATE.value).name}|{Keys(dut.KEY_STATE.value).name}|{PLCs(dut.PLC_STATE.value).name}|{Commands(dut.COMMAND_STATE.value).name}|{Sensors(dut.SENSOR_STATE.value).name}> Py: [{Outputs(pyOUTPUT).name}|{Leds(pyPWR_LED).name}|{Leds(pyOK_LED).name}|{Motors(pyMOTOR).name}] vs VHDL: [{Outputs(dut.OUTPUT.value).name}|{Leds(dut.PWR_LED.value).name}|{Leds(dut.OK_LED.value).name}|{Motors(dut.MOTOR.value).name}] --> <{1*OUTPUT_PASS},{1*PWR_LED_PASS},{1*OK_LED_PASS},{1*MOTOR_PASS}>'
         
-        #if new_message != message:
-        #    print(f'<{i/(cycle-1):2.1%}> {new_message}')
-        #    message = new_message
+        if new_message != message:
+            print(f'<{i/(cycle-1):2.1%}> {new_message}')
+            message = new_message
             
-        assert ( OUTPUT_PASS ), f'Py: {pyOUTPUT} != VHDL: {dut.OUTPUT.value}'
+        assert ( OUTPUT_PASS ), f'Py: {Outputs(pyOUTPUT).name} != VHDL: {Outputs(dut.OUTPUT.value).name}'
         assert ( PWR_LED_PASS ), f'Py: {pyPWR_LED} != VHDL: {dut.PWR_LED.value}'
         assert ( OK_LED_PASS ), f'Py: {pyOK_LED} != VHDL: {dut.OK_LED.value}'
-        assert ( MOTOR_PASS ), f'Py: {pyMOTOR} != VHDL: {dut.MOTOR.value}'
-        
-        '''
-        if ( each_X_seconds(0.5,T,i) ):
-            dut.POWER_MODE.value = True if random.randint(1 , 100) < 99 else False
-        dut.CLOCK_ENABLE.value = not dut.CLOCK_ENABLE.value
-        dut.POWER_MODE.value = not dut.POWER_MODE.value
-        dut.BATT_STATE.value = not dut.BATT_STATE.value
-        dut.KEY_ENABLE.value = not dut.KEY_ENABLE.value
-        dut.LOCK_ENABLE.value = not dut.LOCK_ENABLE.value
-        
-        sensor = random.randint(0 , 16-1)
-        dut.SENSORS.value = sensor
-        
-        key = random.randint(0 , 4-1)
-        dut.KEY_I.value = key
-        
-        lock = random.randint(0 , 4-1)
-        dut.LOCK_I.value = lock
-        
-        plc = random.randint(0 , 4-1)
-        dut.PLC.value = plc
-        '''
+        assert ( MOTOR_PASS ), f'Py: {Motors(pyMOTOR).name} != VHDL: {Motors(dut.MOTOR.value).name}'
         
     print(f'Blackout test progress: {i/(cycle-1):2.1%}')
-    reset_rDT(dut)
-    
+    initialize_rDT(dut)
     await Timer(100, units="ms")
   
 @cocotb.test()
@@ -283,11 +238,8 @@ async def test_02(dut):
     T = round(1000/freq,4)
     print(f'Frequency:{freq}kHz | Period:{T}us')
     
-    sec     = 1
+    sec     = 10
     cycle   = int(round(sec*1000000/T,0)+1)
-    
-   
-    #print(dir(dut))
     
     for i in range(cycle):
         print(f'Sensor fault test progress: {i/(cycle-1):2.1%}\r', end="\r")
@@ -350,40 +302,17 @@ async def test_02(dut):
         
         new_message = f'{Powers(dut.POWER_STATE.value).name}|{Locks(dut.LOCK_STATE.value).name}|{Keys(dut.KEY_STATE.value).name}|{PLCs(dut.PLC_STATE.value).name}|{Commands(dut.COMMAND_STATE.value).name}|{Sensors(dut.SENSOR_STATE.value).name}> Py: [{Outputs(pyOUTPUT).name}|{Leds(pyPWR_LED).name}|{Leds(pyOK_LED).name}|{Motors(pyMOTOR).name}] vs VHDL: [{Outputs(dut.OUTPUT.value).name}|{Leds(dut.PWR_LED.value).name}|{Leds(dut.OK_LED.value).name}|{Motors(dut.MOTOR.value).name}] --> <{1*OUTPUT_PASS},{1*PWR_LED_PASS},{1*OK_LED_PASS},{1*MOTOR_PASS}>'
         
-        #if new_message != message:
-        #    print(f'<{i/(cycle-1):2.1%}> {new_message}')
-        #    message = new_message
+        if new_message != message:
+            print(f'<{i/(cycle-1):2.1%}> {new_message}')
+            message = new_message
             
         assert ( OUTPUT_PASS ), f'Py: {pyOUTPUT} != VHDL: {dut.OUTPUT.value}'
         assert ( PWR_LED_PASS ), f'Py: {pyPWR_LED} != VHDL: {dut.PWR_LED.value}'
         assert ( OK_LED_PASS ), f'Py: {pyOK_LED} != VHDL: {dut.OK_LED.value}'
         assert ( MOTOR_PASS ), f'Py: {pyMOTOR} != VHDL: {dut.MOTOR.value}'
         
-        '''
-        if ( each_X_seconds(0.5,T,i) ):
-            dut.POWER_MODE.value = True if random.randint(1 , 100) < 99 else False
-        dut.CLOCK_ENABLE.value = not dut.CLOCK_ENABLE.value
-        dut.POWER_MODE.value = not dut.POWER_MODE.value
-        dut.BATT_STATE.value = not dut.BATT_STATE.value
-        dut.KEY_ENABLE.value = not dut.KEY_ENABLE.value
-        dut.LOCK_ENABLE.value = not dut.LOCK_ENABLE.value
-        
-        sensor = random.randint(0 , 16-1)
-        dut.SENSORS.value = sensor
-        
-        key = random.randint(0 , 4-1)
-        dut.KEY_I.value = key
-        
-        lock = random.randint(0 , 4-1)
-        dut.LOCK_I.value = lock
-        
-        plc = random.randint(0 , 4-1)
-        dut.PLC.value = plc
-        '''
-        
     print(f'Sensor fault test progress: {i/(cycle-1):2.1%}')
-    reset_rDT(dut)
-    
+    initialize_rDT(dut)
     await Timer(100, units="ms")
  
 @cocotb.test()
@@ -472,31 +401,278 @@ async def test_03(dut):
         assert ( OK_LED_PASS ), f'Py: {pyOK_LED} != VHDL: {dut.OK_LED.value}'
         assert ( MOTOR_PASS ), f'Py: {pyMOTOR} != VHDL: {dut.MOTOR.value}'
         
-        '''
-        if ( each_X_seconds(0.5,T,i) ):
-            dut.POWER_MODE.value = True if random.randint(1 , 100) < 99 else False
-        dut.CLOCK_ENABLE.value = not dut.CLOCK_ENABLE.value
-        dut.POWER_MODE.value = not dut.POWER_MODE.value
-        dut.BATT_STATE.value = not dut.BATT_STATE.value
-        dut.KEY_ENABLE.value = not dut.KEY_ENABLE.value
-        dut.LOCK_ENABLE.value = not dut.LOCK_ENABLE.value
-        
-        sensor = random.randint(0 , 16-1)
-        dut.SENSORS.value = sensor
-        
-        key = random.randint(0 , 4-1)
-        dut.KEY_I.value = key
-        
-        lock = random.randint(0 , 4-1)
-        dut.LOCK_I.value = lock
-        
-        plc = random.randint(0 , 4-1)
-        dut.PLC.value = plc
-        '''
-        
     print(f'Key fault test progress: {i/(cycle-1):2.1%}')
-    reset_rDT(dut)
+    initialize_rDT(dut)
+    await Timer(100, units="ms")
+
+@cocotb.test()
+async def test_04(dut):
+    """PLC fault test"""
+    global message
+    freq = 32.5
+    startClock(dut,freq)
     
+    initialize_rDT(dut)
+    await Timer(100, units="ms")
+    
+    T = round(1000/freq,4)
+    print(f'Frequency:{freq}kHz | Period:{T}us')
+    
+    sec     = 10
+    cycle   = int(round(sec*1000000/T,0)+1)
+    
+    for i in range(cycle):
+        print(f'PLC fault test progress: {i/(cycle-1):2.1%}\r', end="\r")
+        await RisingEdge(dut.CLOCK)
+        
+        if ( each_X_seconds(0.55,T,i) ):
+            dut.KEY_I.value = random.randint(0 , 2)
+        if ( each_X_seconds(0.25,T,i) ):
+            dut.LOCK_I.value = random.randint(1 , 2) 
+        if ( each_X_seconds(0.4,T,i) ):
+            PLC_GOOD = random.randint(1 , 2) 
+        if ( each_X_seconds(0.3,T,i) ):
+             dut.SENSORS.value= random.randint(0 , 3)*5  
+        
+        if ( each_X_seconds(0.45,T,i) ):
+            dut.PLC.value = PLC_GOOD if random.randint(1 , 100) < 50 else 3
+            
+        CLOCK           =   dut.CLOCK
+        CLOCK_STATE     =   dut.CLOCK_STATE.value
+        POWER_MODE      =   dut.POWER_MODE.value
+        BATT_STATE      =   dut.BATT_STATE.value
+        KEY_ENABLE      =   dut.KEY_ENABLE.value
+        KEY_I_A         =   (dut.KEY_I.value//2)%2
+        KEY_I_B         =   dut.KEY_I.value%2
+        KEY_O_A         =   (dut.KEY_O.value//2)%2
+        KEY_O_B         =   dut.KEY_O.value%2
+        LOCK_ENABLE     =   dut.LOCK_ENABLE.value
+        LOCK_I_A        =   (dut.LOCK_I.value//2)%2
+        LOCK_I_B        =   dut.LOCK_I.value%2
+        PLC_I_A         =   (dut.PLC.value//2)%2
+        PLC_I_B         =   dut.PLC.value%2
+        PREVCOMMAND     =   dut.COMMAND_STATE.value
+        SENSOR_1        =   (dut.SENSORS.value//8)%2
+        SENSOR_2        =   (dut.SENSORS.value//4)%2
+        SENSOR_3        =   (dut.SENSORS.value//2)%2
+        SENSOR_4        =   dut.SENSORS.value%2
+        oldMotor        =   dut.MOTOR_STATE.value
+        oldState        =   dut.SYSTEM_STATE.value
+        PREV_OUTPUT     =   dut.OUTPUT.value
+        PREV_PWR_LED    =   dut.PWR_LED.value
+        PREV_OK_LED     =   dut.OK_LED.value
+        
+        SLOWEST_CLOCK   =   dut.slowest_clock.value
+     
+        pyOUTPUT,pyPWR_LED,pyOK_LED,pyMOTOR,MOTOR_STATE,timer = general_model(
+        POWER_MODE,BATT_STATE,
+        KEY_ENABLE,KEY_O_A,KEY_O_B,
+        LOCK_ENABLE,LOCK_I_A,LOCK_I_B,
+        PLC_I_A,PLC_I_B,PREVCOMMAND,
+        SENSOR_1,SENSOR_2,SENSOR_3,SENSOR_4,
+        CLOCK,CLOCK_STATE,oldMotor,
+        PREV_OUTPUT,PREV_PWR_LED,PREV_OK_LED,SLOWEST_CLOCK,oldState)           
+        
+        #await Timer(1, units="ns")
+        
+        OUTPUT_PASS     = pyOUTPUT  == dut.OUTPUT.value
+        PWR_LED_PASS    = pyPWR_LED == dut.PWR_LED.value
+        OK_LED_PASS     = pyOK_LED  == dut.OK_LED.value
+        MOTOR_PASS      = pyMOTOR   == dut.MOTOR.value
+        
+        new_message = f'{Powers(dut.POWER_STATE.value).name}|{Locks(dut.LOCK_STATE.value).name}|{Keys(dut.KEY_STATE.value).name}|{PLCs(dut.PLC_STATE.value).name}|{Commands(dut.COMMAND_STATE.value).name}|{Sensors(dut.SENSOR_STATE.value).name}> Py: [{Outputs(pyOUTPUT).name}|{Leds(pyPWR_LED).name}|{Leds(pyOK_LED).name}|{Motors(pyMOTOR).name}] vs VHDL: [{Outputs(dut.OUTPUT.value).name}|{Leds(dut.PWR_LED.value).name}|{Leds(dut.OK_LED.value).name}|{Motors(dut.MOTOR.value).name}] --> <{1*OUTPUT_PASS},{1*PWR_LED_PASS},{1*OK_LED_PASS},{1*MOTOR_PASS}>'
+        
+        if new_message != message:
+            print(f'<{i/(cycle-1):2.1%}> {new_message}')
+            message = new_message
+            
+        assert ( OUTPUT_PASS ), f'Py: {pyOUTPUT} != VHDL: {dut.OUTPUT.value}'
+        assert ( PWR_LED_PASS ), f'Py: {pyPWR_LED} != VHDL: {dut.PWR_LED.value}'
+        assert ( OK_LED_PASS ), f'Py: {pyOK_LED} != VHDL: {dut.OK_LED.value}'
+        assert ( MOTOR_PASS ), f'Py: {pyMOTOR} != VHDL: {dut.MOTOR.value}'
+        
+    print(f'PLC fault test progress: {i/(cycle-1):2.1%}')
+    initialize_rDT(dut)
+    await Timer(100, units="ms")
+
+@cocotb.test()
+async def test_05(dut):
+    """Lock fault test"""
+    global message
+    freq = 32.5
+    startClock(dut,freq)
+    
+    initialize_rDT(dut)
+    await Timer(100, units="ms")
+    
+    T = round(1000/freq,4)
+    print(f'Frequency:{freq}kHz | Period:{T}us')
+    
+    sec     = 10
+    cycle   = int(round(sec*1000000/T,0)+1)
+    
+    for i in range(cycle):
+        print(f'Lock fault test progress: {i/(cycle-1):2.1%}\r', end="\r")
+        await RisingEdge(dut.CLOCK)
+        
+        if ( each_X_seconds(0.55,T,i) ):
+            dut.KEY_I.value = random.randint(0 , 2)
+        if ( each_X_seconds(0.25,T,i) ):
+            LOCK_GOOD = random.randint(1 , 2) 
+        if ( each_X_seconds(0.4,T,i) ):
+            dut.PLC.value = random.randint(1 , 2) 
+        if ( each_X_seconds(0.3,T,i) ):
+             dut.SENSORS.value= random.randint(0 , 3)*5  
+        
+        if ( each_X_seconds(0.3,T,i) ):
+            dut.LOCK_I.value= LOCK_GOOD if random.randint(1 , 100) < 50 else 3
+            
+        CLOCK           =   dut.CLOCK
+        CLOCK_STATE     =   dut.CLOCK_STATE.value
+        POWER_MODE      =   dut.POWER_MODE.value
+        BATT_STATE      =   dut.BATT_STATE.value
+        KEY_ENABLE      =   dut.KEY_ENABLE.value
+        KEY_I_A         =   (dut.KEY_I.value//2)%2
+        KEY_I_B         =   dut.KEY_I.value%2
+        KEY_O_A         =   (dut.KEY_O.value//2)%2
+        KEY_O_B         =   dut.KEY_O.value%2
+        LOCK_ENABLE     =   dut.LOCK_ENABLE.value
+        LOCK_I_A        =   (dut.LOCK_I.value//2)%2
+        LOCK_I_B        =   dut.LOCK_I.value%2
+        PLC_I_A         =   (dut.PLC.value//2)%2
+        PLC_I_B         =   dut.PLC.value%2
+        PREVCOMMAND     =   dut.COMMAND_STATE.value
+        SENSOR_1        =   (dut.SENSORS.value//8)%2
+        SENSOR_2        =   (dut.SENSORS.value//4)%2
+        SENSOR_3        =   (dut.SENSORS.value//2)%2
+        SENSOR_4        =   dut.SENSORS.value%2
+        oldMotor        =   dut.MOTOR_STATE.value
+        oldState        =   dut.SYSTEM_STATE.value
+        PREV_OUTPUT     =   dut.OUTPUT.value
+        PREV_PWR_LED    =   dut.PWR_LED.value
+        PREV_OK_LED     =   dut.OK_LED.value
+        
+        SLOWEST_CLOCK   =   dut.slowest_clock.value
+     
+        pyOUTPUT,pyPWR_LED,pyOK_LED,pyMOTOR,MOTOR_STATE,timer = general_model(
+        POWER_MODE,BATT_STATE,
+        KEY_ENABLE,KEY_O_A,KEY_O_B,
+        LOCK_ENABLE,LOCK_I_A,LOCK_I_B,
+        PLC_I_A,PLC_I_B,PREVCOMMAND,
+        SENSOR_1,SENSOR_2,SENSOR_3,SENSOR_4,
+        CLOCK,CLOCK_STATE,oldMotor,
+        PREV_OUTPUT,PREV_PWR_LED,PREV_OK_LED,SLOWEST_CLOCK,oldState)           
+        
+        #await Timer(1, units="ns")
+        
+        OUTPUT_PASS     = pyOUTPUT  == dut.OUTPUT.value
+        PWR_LED_PASS    = pyPWR_LED == dut.PWR_LED.value
+        OK_LED_PASS     = pyOK_LED  == dut.OK_LED.value
+        MOTOR_PASS      = pyMOTOR   == dut.MOTOR.value
+        
+        new_message = f'{Powers(dut.POWER_STATE.value).name}|{Locks(dut.LOCK_STATE.value).name}|{Keys(dut.KEY_STATE.value).name}|{PLCs(dut.PLC_STATE.value).name}|{Commands(dut.COMMAND_STATE.value).name}|{Sensors(dut.SENSOR_STATE.value).name}> Py: [{Outputs(pyOUTPUT).name}|{Leds(pyPWR_LED).name}|{Leds(pyOK_LED).name}|{Motors(pyMOTOR).name}] vs VHDL: [{Outputs(dut.OUTPUT.value).name}|{Leds(dut.PWR_LED.value).name}|{Leds(dut.OK_LED.value).name}|{Motors(dut.MOTOR.value).name}] --> <{1*OUTPUT_PASS},{1*PWR_LED_PASS},{1*OK_LED_PASS},{1*MOTOR_PASS}>'
+        
+        if new_message != message:
+            print(f'<{i/(cycle-1):2.1%}> {new_message}')
+            message = new_message
+            
+        assert ( OUTPUT_PASS ), f'Py: {pyOUTPUT} != VHDL: {dut.OUTPUT.value}'
+        assert ( PWR_LED_PASS ), f'Py: {pyPWR_LED} != VHDL: {dut.PWR_LED.value}'
+        assert ( OK_LED_PASS ), f'Py: {pyOK_LED} != VHDL: {dut.OK_LED.value}'
+        assert ( MOTOR_PASS ), f'Py: {pyMOTOR} != VHDL: {dut.MOTOR.value}'
+        
+    print(f'Lock fault test progress: {i/(cycle-1):2.1%}')
+    initialize_rDT(dut)
+    await Timer(100, units="ms")
+
+@cocotb.test()
+async def test_06(dut):
+    """Clock fault test"""
+    global message
+    freq = 32.5
+    startClock(dut,freq)
+    
+    initialize_rDT(dut)
+    await Timer(100, units="ms")
+    
+    T = round(1000/freq,4)
+    print(f'Frequency:{freq}kHz | Period:{T}us')
+    
+    sec     = 10
+    cycle   = int(round(sec*1000000/T,0)+1)
+    
+    for i in range(cycle):
+        print(f'Clock fault test progress: {i/(cycle-1):2.1%}\r', end="\r")
+        await RisingEdge(dut.CLOCK)
+        
+        if ( each_X_seconds(0.55,T,i) ):
+            dut.KEY_I.value = random.randint(0 , 2)
+        if ( each_X_seconds(0.25,T,i) ):
+            dut.LOCK_I.value = random.randint(1 , 2) 
+        if ( each_X_seconds(0.4,T,i) ):
+            dut.PLC.value = random.randint(1 , 2) 
+        if ( each_X_seconds(0.3,T,i) ):
+             dut.SENSORS.value= random.randint(0 , 3)*5  
+        
+        if ( each_X_seconds(0.5,T,i) ):
+            dut.CLOCK_STATE.value = True if random.randint(1 , 100) < 90 else False
+            
+        CLOCK           =   dut.CLOCK
+        CLOCK_STATE     =   dut.CLOCK_STATE.value
+        POWER_MODE      =   dut.POWER_MODE.value
+        BATT_STATE      =   dut.BATT_STATE.value
+        KEY_ENABLE      =   dut.KEY_ENABLE.value
+        KEY_I_A         =   (dut.KEY_I.value//2)%2
+        KEY_I_B         =   dut.KEY_I.value%2
+        KEY_O_A         =   (dut.KEY_O.value//2)%2
+        KEY_O_B         =   dut.KEY_O.value%2
+        LOCK_ENABLE     =   dut.LOCK_ENABLE.value
+        LOCK_I_A        =   (dut.LOCK_I.value//2)%2
+        LOCK_I_B        =   dut.LOCK_I.value%2
+        PLC_I_A         =   (dut.PLC.value//2)%2
+        PLC_I_B         =   dut.PLC.value%2
+        PREVCOMMAND     =   dut.COMMAND_STATE.value
+        SENSOR_1        =   (dut.SENSORS.value//8)%2
+        SENSOR_2        =   (dut.SENSORS.value//4)%2
+        SENSOR_3        =   (dut.SENSORS.value//2)%2
+        SENSOR_4        =   dut.SENSORS.value%2
+        oldMotor        =   dut.MOTOR_STATE.value
+        oldState        =   dut.SYSTEM_STATE.value
+        PREV_OUTPUT     =   dut.OUTPUT.value
+        PREV_PWR_LED    =   dut.PWR_LED.value
+        PREV_OK_LED     =   dut.OK_LED.value
+        
+        SLOWEST_CLOCK   =   dut.slowest_clock.value
+     
+        pyOUTPUT,pyPWR_LED,pyOK_LED,pyMOTOR,MOTOR_STATE,timer = general_model(
+        POWER_MODE,BATT_STATE,
+        KEY_ENABLE,KEY_O_A,KEY_O_B,
+        LOCK_ENABLE,LOCK_I_A,LOCK_I_B,
+        PLC_I_A,PLC_I_B,PREVCOMMAND,
+        SENSOR_1,SENSOR_2,SENSOR_3,SENSOR_4,
+        CLOCK,CLOCK_STATE,oldMotor,
+        PREV_OUTPUT,PREV_PWR_LED,PREV_OK_LED,SLOWEST_CLOCK,oldState)           
+        
+        #await Timer(1, units="ns")
+        
+        OUTPUT_PASS     = pyOUTPUT  == dut.OUTPUT.value
+        PWR_LED_PASS    = pyPWR_LED == dut.PWR_LED.value
+        OK_LED_PASS     = pyOK_LED  == dut.OK_LED.value
+        MOTOR_PASS      = pyMOTOR   == dut.MOTOR.value
+        
+        new_message = f'{Powers(dut.POWER_STATE.value).name}|{Locks(dut.LOCK_STATE.value).name}|{Keys(dut.KEY_STATE.value).name}|{PLCs(dut.PLC_STATE.value).name}|{Commands(dut.COMMAND_STATE.value).name}|{Sensors(dut.SENSOR_STATE.value).name}> Py: [{Outputs(pyOUTPUT).name}|{Leds(pyPWR_LED).name}|{Leds(pyOK_LED).name}|{Motors(pyMOTOR).name}] vs VHDL: [{Outputs(dut.OUTPUT.value).name}|{Leds(dut.PWR_LED.value).name}|{Leds(dut.OK_LED.value).name}|{Motors(dut.MOTOR.value).name}] --> <{1*OUTPUT_PASS},{1*PWR_LED_PASS},{1*OK_LED_PASS},{1*MOTOR_PASS}>'
+        
+        if new_message != message:
+            print(f'<{i/(cycle-1):2.1%}> {new_message}')
+            message = new_message
+            
+        assert ( OUTPUT_PASS ), f'Py: {pyOUTPUT} != VHDL: {dut.OUTPUT.value}'
+        assert ( PWR_LED_PASS ), f'Py: {pyPWR_LED} != VHDL: {dut.PWR_LED.value}'
+        assert ( OK_LED_PASS ), f'Py: {pyOK_LED} != VHDL: {dut.OK_LED.value}'
+        assert ( MOTOR_PASS ), f'Py: {pyMOTOR} != VHDL: {dut.MOTOR.value}'
+        
+    print(f'Clock fault test progress: {i/(cycle-1):2.1%}')
+    initialize_rDT(dut)
     await Timer(100, units="ms")
     
 def test_general_runner():

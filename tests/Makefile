@@ -27,9 +27,10 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###############################################################################
 
+COCOTB_REDUCED_LOG_FMT=1
 TOPLEVEL_LANG ?= vhdl
 SIM ?= ghdl
-SIM_ARGS ?= --wave=waveform.ghw
+#SIM_ARGS ?= --wave=waveform.ghw
 
 PWD=$(shell pwd)
 
@@ -55,8 +56,6 @@ VHDL_SOURCES += $(PWD)/../hdl/movement_module.vhdl
 TOPLEVEL := rdangertag
 MODULE ?= test_general
 
-#test_dummy,test_power,test_key,test_FF,test_sensor,test_command,test_lock,test_system,test_output,test_motor,test_clock,test_movement
-#test_general
-#MODULE ?= test_general
+#TESTCASE = test_00,test_01
 
 include $(shell cocotb-config --makefiles)/Makefile.sim

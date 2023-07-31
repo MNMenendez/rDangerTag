@@ -54,19 +54,7 @@ begin
 	
 	COMMAND_PROCESS : process ( COMMAND , COMMAND_SIGNAL ) is
 	begin
-	case COMMAND_SIGNAL is
-		when COMMAND_IDLE =>
-			case COMMAND is
-				when "000" =>
-					COMMAND_SIGNAL <= COMMAND_IDLE;
-				when "100" =>
-					COMMAND_SIGNAL <= COMMAND_APPLY;
-				when "010" =>
-					COMMAND_SIGNAL <= COMMAND_REMOVE;
-				when others =>
-					COMMAND_SIGNAL <= COMMAND_IDLE;
-			end case;
-		when COMMAND_APPLY =>
+		if ( COMMAND_SIGNAL /= COMMAND_ERROR ) then
 			case COMMAND is
 				when "000" =>
 					COMMAND_SIGNAL <= COMMAND_IDLE;
@@ -77,22 +65,7 @@ begin
 				when others =>
 					COMMAND_SIGNAL <= COMMAND_ERROR;
 			end case;
-		when COMMAND_REMOVE =>
-			case COMMAND is
-				when "000" =>
-					COMMAND_SIGNAL <= COMMAND_IDLE;
-				when "100" =>
-					COMMAND_SIGNAL <= COMMAND_APPLY;
-				when "010" =>
-					COMMAND_SIGNAL <= COMMAND_REMOVE;
-				when others =>
-					COMMAND_SIGNAL <= COMMAND_ERROR;
-			end case;
-		when COMMAND_ERROR =>
-			NULL;
-		when others =>
-			COMMAND_SIGNAL <= COMMAND_ERROR;
-		end case;
+		end if;
 	end process;
 end command_func;
 
